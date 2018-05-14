@@ -1,0 +1,57 @@
+<div class="container">
+    <h1 class="itemTitulo">Registo - Caixas</h1>
+    <form [formGroup]="FiltroForm">
+        <div class="itemNav">
+           <a routerLink="/func/caixas/inserirRemover" class="btn">Inserir/Remover Caixas</a>
+           <select class="itemFiltro" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                <option value="">Material</option>
+                <option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
+            </select>
+            <select class="itemFiltro1" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                <option value="">Capacidade</option>
+                <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
+            </select>
+            <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                <option value="">Tipo de Vinho</option>
+                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.tipo">{{vinho.tipo}}</option>
+            </select>
+        </div>
+    </form>
+    <div class="main-table" *ngIf="estadoTabela">
+        <table>
+            <tr>
+                <th>ID</th>
+                  <th>IDCAIXA</th>
+                  <th>TIPO DE VINHO</th>
+                  <th>MATERIAL</th>
+                  <th>GARRAFAS(QNT)</th>
+                  <th>CAPACIDADE(/L)</th>
+                  <th>DATA</th>
+                  <th>COMENTÁRIO</th>
+                  <th>REGISTO(QNT)</th>
+                  <th>AÇÕES</th>
+               </tr>
+               <tr *ngFor="let tabelaRegisto of tabelaRegistos">
+                     <td>{{tabelaRegisto.id}}</td>
+                     <td>{{tabelaRegisto.idCaixa}}</td>
+                  <td>{{tabelaRegisto.tipoVinho}}</td>
+                  <td>{{tabelaRegisto.material}}</td>
+                  <td>{{tabelaRegisto.garrafas}}</td>
+                  <td>{{tabelaRegisto.capacidade}} l</td>
+                  <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
+                  <td>{{tabelaRegisto.comentario}}</td>
+                  <td>{{tabelaRegisto.quantidade}}</td>
+                  <td>
+                     <div class="action-btn">
+                        <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
+                        <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
+                     </div>
+                  </td>
+               </tr>
+            </table>
+    </div>
+    <br>
+    <div *ngIf="!estadoTabela" style="text-align: center;">
+        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
+    </div>
+</div>

@@ -1,11 +1,5 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-
-// Módulo com todos os caminhos da aplicação
-import { AppRoutingModule } from "./app-routing.module";
-
-import { AppComponent } from './app.component';
+import { RouterModule, Routes } from '@angular/router';
 
 // Componentes - Home Page
 import { HomePageComponent } from './components/home-page/home-page.component';
@@ -37,41 +31,52 @@ import { InserirRemoverGarrafasFuncComponent } from './components/home-func/garr
 import { EditarGarrafasFuncComponent } from './components/home-func/garrafas-func/editar-garrafas-func/editar-garrafas-func.component';
 import { AlterarPassFuncComponent } from './components/home-func/alterar-pass-func/alterar-pass-func.component';
 
+const appRoutes: Routes = [
+   {
+		path: '',
+		component: HomePageComponent,
+		children: [
+			{ path: 'login', component: LoginComponent },
+			{ path: 'recuperar', component: RecuperarComponent }
+		]
+	},
+	{
+		path: 'admin',
+		component: HomeAdminComponent,
+		children: [
+			{ path: 'caixas', component: CaixasAdminComponent },
+			{ path: 'caixas/inserir', component: InserirCaixaAdminComponent },
+			{ path: 'caixas/editar/:id', component: EditarCaixaAdminComponent },
+			{ path: 'contas', component: ContasAdminComponent },
+			{ path: 'contas/inserir', component: InserirContaAdminComponent },
+			{ path: 'contas/editar/:id', component: EditarContaAdminComponent },
+			{ path: 'garrafas', component: GarrafasAdminComponent },
+			{ path: 'garrafas/inserir', component: InserirGarrafaAdminComponent },
+			{ path: 'garrafas/editar/:id', component: EditarGarrafaAdminComponent },
+			{ path: 'vinhos', component: VinhosAdminComponent },
+			{ path: 'vinhos/inserir', component: InserirVinhoAdminComponent },
+			{ path: 'vinhos/editar/:id', component: EditarVinhoAdminComponent }
+		]
+	},
+	{
+		path: 'func',
+		component: HomeFuncComponent,
+		children: [
+			{ path: 'caixas', component: CaixasFuncComponent },
+			{ path: 'caixas/inserirRemover', component: InserirRemoverCaixaFuncComponent },
+			{ path: 'caixas/editar/:id', component: EditarCaixaFuncComponent },
+			{ path: 'garrafas', component: GarrafasFuncComponent },
+			{ path: 'garrafas/inserirRemover', component: InserirRemoverGarrafasFuncComponent },
+			{ path: 'garrafas/editar/:id', component: EditarGarrafasFuncComponent },
+			{ path: 'alterarPass', component: AlterarPassFuncComponent },
+		]
+	}
+];
+
 @NgModule({
-    declarations: [
-        AppComponent,
-        HomePageComponent,
-        LoginComponent,
-        HomeAdminComponent,
-        CaixasAdminComponent,
-        InserirCaixaAdminComponent,
-        EditarCaixaAdminComponent,
-        ContasAdminComponent,
-        InserirContaAdminComponent,
-        EditarContaAdminComponent,
-        GarrafasAdminComponent,
-        InserirGarrafaAdminComponent,
-        EditarGarrafaAdminComponent,
-        VinhosAdminComponent,
-        InserirVinhoAdminComponent,
-        EditarVinhoAdminComponent,
-        HomeFuncComponent,
-        CaixasFuncComponent,
-        InserirRemoverCaixaFuncComponent,
-        EditarCaixaFuncComponent,
-        GarrafasFuncComponent,
-        InserirRemoverGarrafasFuncComponent,
-        EditarGarrafasFuncComponent,
-        AlterarPassFuncComponent,
-        RecuperarComponent
-    ],
-    imports: [
-        BrowserModule,
-        FormsModule,
-        ReactiveFormsModule,
-        AppRoutingModule
-    ],
-    providers: [],
-    bootstrap: [AppComponent]
+  	imports: [
+    	RouterModule.forRoot(appRoutes)
+	],
+	exports: [RouterModule]
 })
-export class AppModule { }
+export class AppRoutingModule { }

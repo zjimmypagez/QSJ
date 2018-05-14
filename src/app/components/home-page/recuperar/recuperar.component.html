@@ -1,0 +1,21 @@
+<div class="container">
+	<h1 class="itemTitulo">QSJ - Recuperar Password</h1>
+	<form class="itemForm" [formGroup]="RecuperarForm" (ngSubmit)="recuperarPassword(RecuperarForm.value)">
+		<div class="main-registo">
+			<h4>Email</h4>
+			<input type="text" formControlName="email" placeholder="Insira aqui a sua password...">
+		</div>
+		<div class="alerta" *ngIf="RecuperarForm.controls['email'].errors?.required  && RecuperarForm.controls['email'].touched">
+			Email obrigatório
+		</div>
+		<div class="alerta" *ngIf="!RecuperarForm.controls['email'].errors?.required && RecuperarForm.controls['email'].errors?.email">
+			Email inválido
+	  	</div>
+		<br><br>
+		<div class="registo-btn">
+			<button type="submit" name="button" class="btn" [disabled]="!RecuperarForm.valid">Recuperar Password</button>
+			<a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+		<br>
+	</form>
+</div>

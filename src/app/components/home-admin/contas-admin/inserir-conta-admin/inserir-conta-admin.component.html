@@ -1,0 +1,45 @@
+<div class="container">
+    <h1 class="itemTitulo">Novo Utilizador - Contas</h1>
+    <form class="itemForm" [formGroup]="UserForm" (ngSubmit)="novaConta(UserForm.value)">
+        <div class="main-registo">
+            <h4>Email</h4>
+            <input type="text" formControlName="email" placeholder="Insira aqui o email...">
+        </div>
+        <div class="alerta" *ngIf="UserForm.controls['email'].errors?.required && UserForm.controls['email'].touched">
+            Email obrigatório
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['email'].errors?.required && UserForm.controls['email'].errors?.email">
+            Email inválido
+        </div>
+        <br>
+        <div class="main-registo">
+            <h4>Username</h4>
+            <input type="text" formControlName="username" placeholder="Insira aqui a password..."> 
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['username'].valid && UserForm.controls['username'].touched">
+            Username obrigatório (Mín. 5 caracteres)
+        </div>
+        <br>
+        <div class="main-registo">
+            <h4>Password</h4>
+            <input type="password" formControlName="password" placeholder="Insira aqui a password...">
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['password'].valid && UserForm.controls['password'].touched">
+            Password obrigatória (Mín. 5 caracteres)
+        </div>
+        <br>
+        <div class="main-registo">
+            <h4>Confirmação Password</h4>
+            <input type="password" formControlName="cPassword" placeholder="Confirme aqui a password...">
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].valid && UserForm.controls['cPassword'].touched">
+            Confirmação de password obrigatória (Mín. 5 caracteres)
+        </div>
+        <br>
+        <div class="registo-btn">
+            <button type="submit" name="button" class="btn" [disabled]="!UserForm.valid">Nova Conta</button>
+            <a class="btn" (click)="clearDados()">Limpar</a>
+        </div>
+        <br>
+    </form>
+</div>

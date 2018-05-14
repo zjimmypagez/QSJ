@@ -1,0 +1,74 @@
+/* pagina */
+.wrapper{
+    display: grid;
+    grid-gap: 5px 0;
+    grid-template-columns: 100%;
+    grid-template-rows: auto 1fr auto;
+    min-height: 100%;
+}
+
+/* cabeçalho */
+.main-header{
+    align-content: stretch;
+    justify-content: stretch;
+    background: var(--dark1);
+    box-shadow: var(--shadow);
+}
+
+.main-nav{
+    text-align: center;
+    padding: 0rem 0.8125rem;
+}
+
+.main-nav ul{
+    display: grid;
+    grid-gap: 13px;
+    grid-template-columns: repeat(8, 1fr);
+    padding: 0;
+    list-style: none;
+}
+
+li.itemLogout{
+    grid-column: 8 / 9;
+}
+
+.main-nav a{
+    background: var(--primary);
+    display: block;
+    text-decoration: none;
+    padding: 0.7rem;
+    text-align:rem center;
+    color: var(--dark);
+    text-transform: uppercase;
+}
+
+.main-nav a:hover, .btn:hover{
+    background: var(--dark2);
+    color: var(--light);
+}
+
+/* container */
+
+/* footer */
+footer{
+    background: var(--dark1);
+    color: var(--light);
+    box-shadow: var(--shadow);
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+footer p{
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+/* media queries */
+@media(max-width: 575px){
+    li.itemLogout{
+        grid-column: unset;
+    }
+    .main-nav ul{
+        grid-template-columns: 1fr;
+    }
+}

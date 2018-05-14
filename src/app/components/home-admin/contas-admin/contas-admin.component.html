@@ -1,0 +1,27 @@
+<div class="container">
+    <h1 class="itemTitulo">Utilizadores - Contas</h1>
+    <div class="itemNav">
+       <a routerLink="/admin/contas/inserir" class="btn">Novo Utilizador</a>
+    </div>
+    <div class="main-table">
+       <table>
+          <tr>
+             <th>ID</th>
+             <th>EMAIL</th>
+             <th>USERNAME</th>
+             <th>AÇÕES</th>
+          </tr>
+          <tr *ngFor="let user of users">
+             <td>{{user.id}}</td>
+             <td>{{user.email}}</td>
+             <td>{{user.username}}</td>
+             <td>
+                <div class="action-btn">
+                   <a class="btn" (click)="editarUser(user.id)">Editar</a>
+                   <a class="btn" (click)="eliminarUser(user.id)">Eliminar</a>
+                </div>
+             </td>
+          </tr>
+       </table>
+    </div>
+</div>

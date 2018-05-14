@@ -1,0 +1,25 @@
+<div class="wrapper">
+  <!-- cabeçalho -->        
+  <header class="main-header">
+      <!-- menu de navegação -->
+      <nav class="main-nav">
+          <ul>
+            <li><a routerLink="/admin/contas">CONTAS</a></li>
+            <li><a routerLink="/admin/caixas">CAIXAS</a></li>
+            <li><a routerLink="/admin/garrafas">GARRAFAS</a></li>
+            <li><a routerLink="/admin/vinhos">VINHOS</a></li>
+            <li class="itemLogout"><a routerLink="/">LOGOUT</a></li>   
+          </ul>
+      </nav>
+  </header>
+  
+  <!-- container principal -->
+  <section>
+      <router-outlet></router-outlet>
+  </section>
+
+  <!-- rodapé -->
+  <footer>
+      <p>QSJ - Quinta de São José</p>
+  </footer>
+</div>

@@ -1,0 +1,24 @@
+<div class="wrapper">
+  <!-- cabeçalho -->        
+  <header class="main-header">
+     <!-- menu de navegação -->
+     <nav class="main-nav">
+        <ul>
+           <li><a routerLink="/func/caixas">CAIXAS</a></li>
+           <li><a routerLink="/func/encomendas">ENCOMENDAS</a></li>
+           <li><a routerLink="/func/garrafas">GARRAFAS</a></li>
+           <li><a href="\Func_Home_Pesquisa.html">PESQUISA</a></li>
+           <li class="itemLogout"><a a routerLink="/func/alterarPass">ALTERAR PASSWORD</a></li>
+           <li><a routerLink="/">LOGOUT</a></li>
+        </ul>
+     </nav>
+  </header>
+  <!-- container principal -->
+  <section class="container">
+     <router-outlet></router-outlet>
+  </section>
+  <!-- rodapé -->
+  <footer>
+     <p>QSJ - Quinta de São José</p>
+  </footer>
+</div>

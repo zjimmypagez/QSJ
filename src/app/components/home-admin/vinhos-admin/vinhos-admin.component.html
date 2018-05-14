@@ -1,0 +1,25 @@
+<div class="container">
+    <h1 class="itemTitulo">Tipos - Vinhos</h1>
+    <div class="itemNav">
+       <a routerLink="/admin/vinhos/inserir" class="btn">Novo Tipo</a>
+    </div>
+    <div class="main-table">
+       <table>
+          <tr>
+             <th>ID</th>
+             <th>NOME</th>
+             <th>AÇÕES</th>
+          </tr>
+          <tr *ngFor="let vinho of vinhos">
+             <td>{{vinho.id}}</td>
+             <td>{{vinho.tipo}}</td>
+             <td>
+                <div class="action-btn">
+                   <a class="btn" (click)="editarVinho(vinho.id)">Editar</a>
+                   <a class="btn" (click)="eliminarVinho(vinho.id)">Eliminar</a>
+                </div>
+             </td>
+          </tr>
+       </table>
+    </div>
+</div>

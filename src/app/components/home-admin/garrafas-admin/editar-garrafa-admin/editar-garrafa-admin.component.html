@@ -1,0 +1,48 @@
+<div class="container">
+    <h1 class="itemTitulo">Editar Modelo - Garrafas</h1>
+    <form class="itemForm" [formGroup]="GarrafaForm" (ngSubmit)="editarGarrafa(GarrafaForm.value)">
+        <div class="main-registo">
+            <h4>Lote</h4>
+            <input type="number" formControlName="lote" placeholder="Insira aqui o lote...">
+        </div>
+        <div class="alerta" *ngIf="!GarrafaForm.controls['lote'].valid && GarrafaForm.controls['lote'].touched">
+            Lote obrigatório (1 - 5000)
+        </div> 
+        <br>
+        <div class="main-registo">
+            <h4>Ano</h4>
+            <input type="number" formControlName="ano" placeholder="Insira aqui o ano...">
+        </div>
+        <div class="alerta" *ngIf="!GarrafaForm.controls['ano'].valid && GarrafaForm.controls['ano'].touched">
+            Ano obrigatório (1900 - 2100)
+        </div>
+        <br>
+        <div class="main-registo">
+            <h4>Tipo de Vinho</h4>
+            <select formControlName="tipoVinho">
+                <option value="">-- Vinhos --</option>
+                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">{{vinho.tipo}}</option>
+            </select>
+        </div>
+        <div class="alerta" *ngIf="!GarrafaForm.controls['tipoVinho'].valid && GarrafaForm.controls['tipoVinho'].touched">
+            Tipo de Vinho obrigatório
+        </div>
+        <br>
+        <div class="main-registo">
+            <h4>Capacidade(/L)</h4>
+            <select formControlName="capacidade">
+                <option value="">-- Capacidades(L) --</option>
+                <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
+            </select>
+        </div>
+        <div class="alerta" *ngIf="!GarrafaForm.controls['capacidade'].valid && GarrafaForm.controls['capacidade'].touched">
+            Capacidade obrigatória
+        </div>
+        <br>  
+        <div class="registo-btn">
+            <button type="submit" name="button" class="btn" [disabled]="!GarrafaForm.valid">Editar Modelo</button>
+            <a class="btn" (click)="clearDados()">Limpar</a>
+        </div>
+        <br>
+    </form>
+</div>

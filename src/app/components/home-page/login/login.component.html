@@ -1,0 +1,26 @@
+<div class="container">
+	<h1 class="itemTitulo">QSJ - Login</h1>
+	<form class="itemForm" [formGroup]="LoginForm" (ngSubmit)="login(LoginForm.value)">
+		<div class="main-registo">
+			<h4>Username</h4>
+			<input type="text" formControlName="username" placeholder="Insira aqui o seu username..."> 
+		</div>
+		<div class="alerta" *ngIf="!LoginForm.controls['username'].valid  && LoginForm.controls['username'].touched">
+			Username obrigatório (Mín. 5 caracteres)
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Password</h4>
+			<input type="password" formControlName="password" placeholder="Insira aqui a sua password...">
+		</div>
+		<div class="alerta" *ngIf="!LoginForm.controls['password'].valid  && LoginForm.controls['password'].touched">
+			Password obrigatória (Mín. 5 caracteres)
+		</div>
+		<br><br>
+		<div class="registo-btn">
+			<button type="submit" name="button" class="btn" [disabled]="!LoginForm.valid">Entrar</button>
+			<a routerLink="/recuperar" class="btn">Recuperar Password</a>
+		</div>
+		<br>
+	</form>
+</div>

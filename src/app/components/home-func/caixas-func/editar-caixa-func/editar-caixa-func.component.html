@@ -1,0 +1,45 @@
+<div class="container">
+	<h1 class="itemTitulo">Editar Registo - Caixas</h1>
+	<form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="editarRegisto(RegistoForm.value)">
+		<div class="main-registo">
+			<h4>Modelo da Caixa</h4>
+			<select disabled>
+				<option>
+					C: {{caixa.capacidade}} l | 
+					G: {{caixa.garrafas}} | 
+					M: {{caixa.material}} | 
+					TV: {{caixa.tipoVinho}}
+				</option>
+			</select>			
+		</div>
+		<div class="help">
+			C - Capacidade | G - Garrafas | M - Material | TV - Tipo de Vinho
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Operação</h4>
+			<select disabled>
+				<option value="">{{opcao}}</option>
+			</select>
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Comentário</h4>
+			<input type="text" formControlName="comentario" placeholder="Insira aqui um comentário acerca do registo (opcional)...">
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['comentario'].valid && RegistoForm.controls['comentario'].touched">
+			Máx. 200 Caracteres
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Quantidade</h4>
+			<input type="number" [value]="registo.quantidade" placeholder="Insira aqui a quantidade do modelo selecionado..." disabled>
+		</div>
+		<br>     
+		<div class="registo-btn">
+			<button type="submit" name="button" class="btn" [disabled]="!RegistoForm.valid">Editar</button>
+			<a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+		<br>
+	</form>
+</div>

@@ -1,0 +1,18 @@
+<div class="container">
+	<h1 class="itemTitulo">Editar Tipo - Vinhos</h1>
+	<form class="itemForm" [formGroup]="VinhoForm" (ngSubmit)="editarVinho(VinhoForm.value)">
+		<div class="main-registo">
+			<h4>Nome</h4>
+			<input type="text" formControlName="tipo" placeholder="Insira aqui o nome...">
+		</div>
+		<div class="alerta" *ngIf="!VinhoForm.controls['tipo'].valid && VinhoForm.controls['tipo'].touched">
+			Tipo obrigatório (Mín. 5 caracteres)
+		</div>
+		<br>
+		<div class="registo-btn">
+			<button type="submit" name="button" class="btn" [disabled]="!VinhoForm.valid">Editar Tipo</button>
+			<a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+	</form>
+	<br>
+</div>

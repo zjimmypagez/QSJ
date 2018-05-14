@@ -1,0 +1,79 @@
+<div class="container">
+  <h1 class="itemTitulo">Novo Registo - Garrafas</h1>
+  <h4>Modelos de Garrafa Existentes</h4>
+  <div class="main-table">
+     <table>
+        <tr>
+           <th>ID</th>
+           <th>LOTE</th>
+           <th>ANO</th>
+           <th>TIPO DE VINHO</th>
+           <th>CAPACIDADE(/L)</th>
+        </tr>
+        <tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
+           <td>{{tabelaGarrafa.id}}</td>
+           <td>{{tabelaGarrafa.lote}}</td>
+           <td>{{tabelaGarrafa.ano}}</td>
+           <td>{{tabelaGarrafa.tipoVinho}}</td>
+           <td>{{tabelaGarrafa.capacidade}}</td>
+        </tr>
+     </table>
+  </div>
+  <br>
+  <form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="novoRegisto(RegistoForm.value)">
+		<div class="main-registo">
+			<h4>Id Modelo Caixa</h4>
+			<select formControlName="idGarrafa">
+				<option value="">-- Modelo de Caixa --</option>
+				<option *ngFor="let garrafa of tabelaGarrafas" [ngValue]="garrafa.id">
+					L: {{garrafa.lote}} | A: {{garrafa.ano}} | TV: {{garrafa.tipoVinho}} | C: {{garrafa.capacidade}}
+				</option>
+			</select>
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['idGarrafa'].valid && RegistoForm.controls['idGarrafa'].touched">
+			Selecione um dos modelos
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Operação</h4>
+			<select formControlName="opcao">
+				<option value="">-- Opções --</option>
+				<option value="Inserir">Inserir</option>
+				<option value="Remover">Remover</option>
+			</select>
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['opcao'].valid && RegistoForm.controls['opcao'].touched">
+			Opção obrigatória
+		</div>
+		<br>
+		<div class="main-registo">
+         <h4>Comentário</h4>
+         <input type="text" formControlName="comentario" placeholder="Insira aqui um comentário acerca do registo (opcional)...">
+      </div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['comentario'].valid && RegistoForm.controls['comentario'].touched">
+			Máx. 200 Caracteres
+		</div>
+		<br>
+      <div class="main-registo">
+         <h4>C/Rotulo</h4>
+         <input type="number" formControlName="cRotulo" placeholder="Insira aqui a quantidade de garrafas com rótulo do modelo selecionado...">
+      </div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['cRotulo'].valid && RegistoForm.controls['cRotulo'].touched">
+			Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+		</div>
+		<br> 
+      <div class="main-registo">
+         <h4>S/Rotulo</h4>
+         <input type="number" formControlName="sRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo do modelo selecionado...">
+      </div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['sRotulo'].valid && RegistoForm.controls['sRotulo'].touched">
+				Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+		</div>
+		<br> 
+      <div class="registo-btn">
+         <button type="submit" name="button" class="btn" [disabled]="!RegistoForm.valid">Inserir</button>
+         <a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+		<br>
+  </form>
+</div>

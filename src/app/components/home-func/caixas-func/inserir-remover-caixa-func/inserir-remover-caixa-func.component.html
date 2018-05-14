@@ -1,0 +1,71 @@
+<div class="container">
+	<h1 class="itemTitulo">Novo Registo - Caixas</h1>
+	<h4>Modelos de Caixa Existentes</h4>
+	<div class="main-table">
+		<table>
+			<tr>
+				<th>ID</th>
+				<th>CAPACIDADE(/L)</th>
+				<th>GARRAFAS(QNT)</th>
+				<th>MATERIAL</th>
+				<th>TIPO DE VINHO</th>
+			</tr>
+			<tr *ngFor="let tabelaCaixa of tabelaCaixas">
+				<td>{{tabelaCaixa.id}}</td>
+				<td>{{tabelaCaixa.capacidade}}</td>
+				<td>{{tabelaCaixa.garrafas}}</td>
+				<td>{{tabelaCaixa.material}}</td>
+				<td>{{tabelaCaixa.tipoVinho}}</td>
+			</tr>
+		</table>
+	</div>
+	<br>
+	<form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="novoRegisto(RegistoForm.value)">
+		<div class="main-registo">
+			<h4>Id Modelo Caixa</h4>
+			<select formControlName="idCaixa">
+				<option value="">-- Modelo de Caixa --</option>
+				<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id">
+					Id: {{caixa.id}}
+				</option>
+			</select>
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['idCaixa'].valid && RegistoForm.controls['idCaixa'].touched">
+			Selecione um dos modelos
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Operação</h4>
+			<select formControlName="opcao">
+				<option value="">-- Opções --</option>
+				<option value="Inserir">Inserir</option>
+				<option value="Remover">Remover</option>
+			</select>
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['opcao'].valid && RegistoForm.controls['opcao'].touched">
+			Opção obrigatória
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Comentário</h4>
+			<input type="text" formControlName="comentario" placeholder="Insira aqui um comentário acerca do registo (opcional)...">
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['comentario'].valid && RegistoForm.controls['comentario'].touched">
+			Máx. 200 Caracteres
+		</div>
+		<br>
+		<div class="main-registo">
+			<h4>Quantidade</h4>
+			<input type="number" formControlName="quantidade" placeholder="Insira aqui a quantidade do modelo selecionado...">
+		</div>
+		<div class="alerta" *ngIf="!RegistoForm.controls['quantidade'].valid && RegistoForm.controls['quantidade'].touched">
+			Quantidade obrigatória (Valores só positivos)
+		</div>
+		<br>     
+		<div class="registo-btn">
+			<button type="submit" name="button" class="btn" [disabled]="!RegistoForm.valid">Inserir</button>
+			<a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+		<br>
+	</form>
+</div>
