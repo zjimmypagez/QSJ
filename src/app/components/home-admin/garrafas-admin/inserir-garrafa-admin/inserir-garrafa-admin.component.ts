@@ -83,7 +83,8 @@ export class InserirGarrafaAdminComponent implements OnInit {
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
-			quantidade: 250
+			cRotulo: 250,
+			sRotulo: 100
 		},
 		{
 			id: 2,
@@ -91,7 +92,8 @@ export class InserirGarrafaAdminComponent implements OnInit {
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
-			quantidade: 100
+			cRotulo: 150,
+			sRotulo: 0
 		}];
 	}
 

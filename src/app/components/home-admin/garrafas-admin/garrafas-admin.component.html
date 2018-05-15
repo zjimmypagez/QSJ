@@ -25,7 +25,8 @@
            <th>LOTE</th>
            <th>ANO</th>
         <th>CAPACIDADE(/L)</th>
-        <th>QUANTIDADE</th>
+        <th>C/RÓTULO</th>
+					<th>S/RÓTULO</th>
            <th>AÇÕES</th>
         </tr>
         <tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
@@ -34,7 +35,8 @@
            <td>{{tabelaGarrafa.lote}}</td>
            <td>{{tabelaGarrafa.ano}}</td>
         <td>{{tabelaGarrafa.capacidade}} l</td>
-        <td>{{tabelaGarrafa.quantidade}}</td>
+        <td>{{tabelaGarrafa.cRotulo}}</td>
+					<td>{{tabelaGarrafa.sRotulo}}</td>
            <td>
               <div class="action-btn">
                  <a class="btn" (click)="editarGarrafa(tabelaGarrafa.id)">Editar</a>

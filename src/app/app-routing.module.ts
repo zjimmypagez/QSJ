@@ -30,6 +30,8 @@ import { GarrafasFuncComponent } from './components/home-func/garrafas-func/garr
 import { InserirRemoverGarrafasFuncComponent } from './components/home-func/garrafas-func/inserir-remover-garrafas-func/inserir-remover-garrafas-func.component';
 import { EditarGarrafasFuncComponent } from './components/home-func/garrafas-func/editar-garrafas-func/editar-garrafas-func.component';
 import { AlterarPassFuncComponent } from './components/home-func/alterar-pass-func/alterar-pass-func.component';
+import { EncomendasFuncComponent } from './components/home-func/encomendas-func/encomendas-func.component';
+import { InserirEncomendaFuncComponent } from './components/home-func/encomendas-func/inserir-encomenda-func/inserir-encomenda-func.component';
 
 const appRoutes: Routes = [
    {
@@ -69,6 +71,8 @@ const appRoutes: Routes = [
 			{ path: 'garrafas/inserirRemover', component: InserirRemoverGarrafasFuncComponent },
 			{ path: 'garrafas/editar/:id', component: EditarGarrafasFuncComponent },
 			{ path: 'alterarPass', component: AlterarPassFuncComponent },
+			{ path: 'encomendas', component: EncomendasFuncComponent },
+			{ path: 'encomendas/inserir', component: InserirEncomendaFuncComponent },
 		]
 	}
 ];

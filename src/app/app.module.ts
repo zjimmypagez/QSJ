@@ -36,6 +36,8 @@ import { GarrafasFuncComponent } from './components/home-func/garrafas-func/garr
 import { InserirRemoverGarrafasFuncComponent } from './components/home-func/garrafas-func/inserir-remover-garrafas-func/inserir-remover-garrafas-func.component';
 import { EditarGarrafasFuncComponent } from './components/home-func/garrafas-func/editar-garrafas-func/editar-garrafas-func.component';
 import { AlterarPassFuncComponent } from './components/home-func/alterar-pass-func/alterar-pass-func.component';
+import { EncomendasFuncComponent } from './components/home-func/encomendas-func/encomendas-func.component';
+import { InserirEncomendaFuncComponent } from './components/home-func/encomendas-func/inserir-encomenda-func/inserir-encomenda-func.component';
 
 @NgModule({
     declarations: [
@@ -63,7 +65,9 @@ import { AlterarPassFuncComponent } from './components/home-func/alterar-pass-fu
         InserirRemoverGarrafasFuncComponent,
         EditarGarrafasFuncComponent,
         AlterarPassFuncComponent,
-        RecuperarComponent
+        RecuperarComponent,
+        EncomendasFuncComponent,
+        InserirEncomendaFuncComponent
     ],
     imports: [
         BrowserModule,

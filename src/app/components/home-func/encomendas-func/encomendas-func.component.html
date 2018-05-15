@@ -1,0 +1,44 @@
+<div class="container">
+  <h1 class="itemTitulo">Registo - Encomendas</h1>
+  <form [formGroup]="FiltroForm" (ngSubmit)="filtrar(FiltroForm.value)">
+    <div class="itemNav">
+        <a routerLink="/func/encomendas/inserir" class="btn">Inserir Encomenda</a>
+        <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Todas Encomendas</a>
+        <input class="itemInput" type="number" formControlName="nFatura" placeholder="Insira aqui o número de fatura a pesquisar...">
+    </div>
+  </form>
+  <div class="main-table" *ngIf="estadoTabela">
+      <table>
+        <tr>
+          <th>ID</th>
+          <th>FUNCIONÁRIO</th>
+          <th>Nº FATURA</th>
+          <th>DATA REGISTO</th>
+          <th>DATA FINAL</th>
+          <th>COMENTÁRIO</th>
+          <th>ESTADO</th>
+          <th>AÇÕES</th>
+       </tr>
+       <tr *ngFor="let tabelaEncomenda of tabelaEncomendas">
+        <td>{{tabelaEncomenda.id}}</td>
+        <td>{{tabelaEncomenda.username}}</td>
+        <td>{{tabelaEncomenda.nFatura}}</td>
+        <td>{{tabelaEncomenda.data.toLocaleDateString()}}</td>
+        <td>{{tabelaEncomenda.dataFinal != null ? tabelaEncomenda.dataFinal.toLocaleDateString() : tabelaEncomenda.dataFinal}}</td>
+        <td>{{tabelaEncomenda.comentario}}</td>
+        <td>{{tabelaEncomenda.estado ? "Finalizada" : "Em Espera"}}</td>
+        <td>
+          <div class="encomenda-action-btn">
+            <a class="btn" (click)="verEncomenda(tabelaEncomenda.id)">Ver</a>
+            <a class="btn" (click)="editarEncomenda(tabelaEncomenda.id)">Editar</a>
+            <a class="btn" (click)="eliminarEncomenda(tabelaEncomenda.id)">Eliminar</a>
+          </div>
+        </td>
+       </tr>
+      </table>
+  </div>
+  <br>
+  <div *ngIf="!estadoTabela" style="text-align: center;">
+      <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
+  </div>
+</div>

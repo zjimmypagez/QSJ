@@ -4,5 +4,6 @@ export interface Garrafa {
     ano: number,
     tipoVinho: number,
     capacidade: number,
-    quantidade: number
+    cRotulo: number,
+    sRotulo: number
 }

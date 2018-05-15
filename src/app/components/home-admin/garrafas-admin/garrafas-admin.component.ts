@@ -52,7 +52,8 @@ export class GarrafasAdminComponent implements OnInit {
 
 		for (let i = 0; i < this.garrafas.length; i++){
 			if (id == this.garrafas[i].id){
-				if (this.garrafas[i].quantidade > 0){
+				var quantidade: number = this.garrafas[i].cRotulo + this.garrafas[i].sRotulo;
+				if (quantidade > 0){
 					estadoGarrafa = false;
 				}
 			}
@@ -220,7 +221,8 @@ export class GarrafasAdminComponent implements OnInit {
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
-			quantidade: 250
+			cRotulo: 250,
+			sRotulo: 100
 		},
 		{
 			id: 2,
@@ -228,7 +230,8 @@ export class GarrafasAdminComponent implements OnInit {
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
-			quantidade: 100
+			cRotulo: 150,
+			sRotulo: 0
 		}];
 	}
 
@@ -273,7 +276,8 @@ export class GarrafasAdminComponent implements OnInit {
 						ano: garrafas[i].ano,
 						tipoVinho: vinhos[j].tipo, 
 						capacidade: garrafas[i].capacidade,
-						quantidade: garrafas[i].quantidade
+						cRotulo: garrafas[i].cRotulo,
+						sRotulo: garrafas[i].sRotulo
 					}
 					table.push(tableObj);
 				}
@@ -292,5 +296,6 @@ interface tableGarrafa{
    ano: number,
 	tipoVinho: string, // Atributo tipo da tabela Tipo de Vinho
    capacidade: number,
-	quantidade: number
+	cRotulo: number,
+	sRotulo: number
 }

@@ -66,7 +66,8 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		}
 
 		if (estadoGarrafa){
-			if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + this.garrafa.quantidade)){
+			var quantidade: number = this.garrafa.cRotulo + this.garrafa.sRotulo;
+			if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + quantidade)){
 				alert("O modelo de garrafa foi editado com sucesso!");
 				this.router.navigate(['/admin/garrafas']);
 			}			
@@ -102,7 +103,8 @@ export class EditarGarrafaAdminComponent implements OnInit {
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
-			quantidade: 250
+			cRotulo: 250,
+			sRotulo: 100
 		},
 		{
 			id: 2,
@@ -110,7 +112,8 @@ export class EditarGarrafaAdminComponent implements OnInit {
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
-			quantidade: 100
+			cRotulo: 150,
+			sRotulo: 0
 		}];
 	}
 

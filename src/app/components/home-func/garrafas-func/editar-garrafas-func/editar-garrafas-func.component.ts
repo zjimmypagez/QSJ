@@ -128,7 +128,8 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
-			quantidade: 250
+			cRotulo: 250,
+			sRotulo: 100
 		},
 		{
 			id: 2,
@@ -136,8 +137,9 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
-			quantidade: 100
-		}];	
+			cRotulo: 150,
+			sRotulo: 0
+		}];
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -181,7 +183,8 @@ export class EditarGarrafasFuncComponent implements OnInit {
 						ano: garrafas[i].ano,
 						tipoVinho: vinhos[j].tipo,
 						capacidade: garrafas[i].capacidade,
-						quantidade: garrafas[i].quantidade 
+						cRotulo: garrafas[i].cRotulo,
+						sRotulo: garrafas[i].sRotulo 
 					}
 					table.push(tableObj);
 				}
@@ -204,5 +207,6 @@ interface tableGarrafa{
    ano: number,
 	tipoVinho: string, // Atributo tipo da tabela Tipo de Vinho
    capacidade: number,
-	quantidade: number
+	cRotulo: number,
+	sRotulo: number
 }

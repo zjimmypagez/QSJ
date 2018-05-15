@@ -1,0 +1,80 @@
+<div class="container">
+	 <h1 class="itemTitulo">Novo Registo - Encomendas</h1>
+	 <h4>Modelos Caixa/Garrafa Existentes</h4>
+	 <select (change)="onChange($event.target.value)" style="background: #eaeaae; color: #27270c;">
+			<option value="">Escolha um das opções</option>
+			<option value="Caixa">Caixas</option>
+			<option value="Garrafas">Garrafas</option>
+	  </select>
+	 <div class="main-table" *ngIf="modeloCaixaSelecionado">
+			<table>
+				<tr>
+					<th>ID</th>
+					<th>TIPO DE VINHO</th>
+					<th>MATERIAL</th>
+					<th>GARRAFAS(QNT)</th>
+					<th>CAPACIDADE(/L)</th>
+					<th>QUANTIDADE</th>
+				</tr>
+				<tr *ngFor="let tabelaCaixa of tabelaCaixas">
+					<td>{{tabelaCaixa.id}}</td>
+					<td>{{tabelaCaixa.tipoVinho}}</td>
+					<td>{{tabelaCaixa.material}}</td>
+					<td>{{tabelaCaixa.garrafas}}</td>
+					<td>{{tabelaCaixa.capacidade}} l</td>
+					<td>{{tabelaCaixa.quantidade}}</td>
+				</tr>      
+			</table>
+		</div>
+		<div class="main-table" *ngIf="modeloGarrafaSelecionado">
+				<table>
+					<tr>
+						<th>ID</th>
+						<th>TIPO DE VINHO</th>
+						<th>LOTE</th>
+						<th>ANO</th>
+					<th>CAPACIDADE(/L)</th>
+					<th>C/RÓTULO</th>
+					<th>S/RÓTULO</th>
+					</tr>
+					<tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
+						<td>{{tabelaGarrafa.id}}</td>
+						<td>{{tabelaGarrafa.tipoVinho}}</td>
+						<td>{{tabelaGarrafa.lote}}</td>
+						<td>{{tabelaGarrafa.ano}}</td>
+					<td>{{tabelaGarrafa.capacidade}} l</td>
+					<td>{{tabelaGarrafa.cRotulo}}</td>
+					<td>{{tabelaGarrafa.sRotulo}}</td>
+					</tr>
+				</table>
+			</div>
+		<div style="margin: 10px 0 10px 0;"></div>
+    <h4>Dados da Encomenda</h4>
+    <form class="itemForm" [formGroup]="DadosEncomendaForm" (ngSubmit)="novoRegisto(DadosEncomendaForm.value)">
+		 <div class="main-registo">
+			<h4>Nº Fatura</h4>
+			<input type="number" formControlName="nFatura" placeholder="Insira aqui o número da fatura da encomenda...">
+		 </div>
+		 <div class="alerta" *ngIf="!DadosEncomendaForm.controls['nFatura'].valid && DadosEncomendaForm.controls['nFatura'].touched">
+			Nº Fatura obrigatório (Valores só positivos)
+		 </div>
+		 <br>     
+      <div class="main-registo">
+        <h4>Comentário</h4>
+        <input type="text" formControlName="comentario" placeholder="Insira aqui um comentário acerca do registo (opcional)...">
+      </div>
+      <div class="alerta" *ngIf="!DadosEncomendaForm.controls['comentario'].valid && DadosEncomendaForm.controls['comentario'].touched">
+        Máx. 200 Caracteres
+      </div>
+		<div style="margin: 10px 0 10px 0;"></div>
+		<h4>Encomenda por</h4>
+		<div class="registo-btn">
+			<a class="btn" (click)="selecionarCaixa()">Caixas</a>
+			<a class="btn" (click)="selecionarGarrafa()">Garrafas</a>
+		</div>
+		<div class="registo-btn" *ngIf="caixaSelecionado != false || garrafaSelecionado != false">
+			<button type="submit" name="button" class="btn" [disabled]="!DadosEncomendaForm.valid">Inserir</button>
+			<a class="btn" (click)="clearDados()">Limpar</a>
+		</div>
+	</form>
+</div>

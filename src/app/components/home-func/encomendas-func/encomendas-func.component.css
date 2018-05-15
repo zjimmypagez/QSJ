@@ -1,0 +1,182 @@
+/* container */
+.container{
+    display: grid;    
+    grid-gap: 8px 0;
+    grid-template-rows: 75px 40px auto;
+}
+
+.container .itemTitulo{
+    place-self: center;
+}
+
+.container .itemNav{
+    display: grid;
+    grid-gap: 0 8px;
+    grid-template-columns: 250px repeat(6, 1fr) 2fr;
+    align-items: center
+}
+
+.itemClear{
+    grid-column: 7 / 8;
+    cursor: pointer;
+    align-self: end;
+    background: var(--primary);
+    color: var(--dark1);
+    padding: 0.1rem;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    text-align: center;    
+}
+
+.itemInput{
+    align-self: end;
+}
+
+.btn{
+    background: var(--primary);
+    color: var(--dark1);
+    padding: 0.6rem;
+    text-decoration: none;
+    box-shadow: var(--shadow);
+    text-align: center;
+    cursor: pointer;
+}
+
+.main-table table{
+    display: table;
+    width: 100%;
+    height: unset;
+    text-align: center;    
+}
+
+.main-table table, th, td{
+    background: var(--dark1);    
+    border-collapse: collapse;
+    color: var(--primary);
+    border: 1px solid #f4f4d7;
+}
+
+.main-table th{
+    font-size: 14px;
+    height: 45px;
+    padding: 0 1px 0 1px;
+}
+
+.main-table td{
+    font-size: 12px;
+    height: 30px;
+}
+
+.encomenda-action-btn{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-gap: 0.2rem;
+    padding: 0.2rem;
+}
+
+.encomenda-action-btn .btn{
+    cursor: pointer;
+}
+
+.main-nav a:hover, .btn:hover, .itemClear:hover{
+    background: var(--dark2);
+    color: var(--light);
+}
+
+.main-registo input[type=text], input[type=password], input[type=number], select{
+    border: var(--primary);
+    padding: 0 0.5rem;
+    border-radius: 0.2rem;
+    background: var(--dark1);
+    color: var(--light);
+    text-align: center;
+}
+
+.main-registo input[type=text], select, input[type=number]{
+    justify-self: stretch;
+    width: auto;
+}
+
+select{
+    text-align-last: center;
+    text-align: center;
+    -ms-text-align-last: center;
+    -moz-text-align-last: center;
+}
+
+.itemNav a{
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
+.encomenda-action-btn a{
+    text-transform: uppercase;
+    font-size: 10px;
+}
+
+.alerta{
+    font-size: 0.7rem;
+    text-align: center;
+    color: #8B0000;
+}
+
+/* media queries */
+@media(max-width: 1075px){
+    .main-table{
+        overflow-x: scroll;        
+    }
+
+    .encomenda-action-btn{
+        grid-template-columns: 1fr;
+    }
+
+    .container{
+        grid-template-rows: 75px .5fr auto;
+    }
+
+    table{
+        position: unset; 
+    }
+    
+}
+
+@media(max-width: 875px){
+    select{
+        width:100%;
+        max-width: 100%;
+    }
+
+    .itemInput, .itemClear{
+        grid-column: unset;
+    }
+
+    .container .itemNav{
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+}
+
+@media(max-width: 475px){
+    select{
+        font-size: 12px;
+        width:100%;
+        max-width: 100%;
+    }
+
+    .main-table{
+        overflow-x: auto;        
+    }
+
+    .itemInput, .itemClear{
+        grid-column: unset;
+        align-self: center;
+    }
+
+    .container .itemNav{
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(3, 1fr);
+    }
+
+    .encomenda-action-btn{
+        grid-template-columns: 1fr;
+    }
+}
