@@ -38,7 +38,9 @@
 			<h4>Tipo de Vinho</h4>
 			<select formControlName="tipoVinho">
 				<option value="">-- Vinhos --</option>
-				<option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">{{vinho.tipo}}</option>
+				<option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">
+					Marca: {{vinho.marca}} | Tipo: {{vinho.tipo}} {{vinho.categoria != "" ? ' | Categoria: ' + vinho.categoria : ''}}
+				</option>
 			</select>
 		</div>
 		<div class="alerta" *ngIf="!CaixaForm.controls['tipoVinho'].valid && CaixaForm.controls['tipoVinho'].touched">

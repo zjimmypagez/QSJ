@@ -15,7 +15,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 	Caixa: formCaixa;
 
 	materiais: string [] = ['Cartão', 'Madeira'];
-	capacidades: number [] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	// Lista que, consoante o material escolhido, apresenta a quantidade pré-definida
 	garrafas: number[] = [];
 
@@ -37,6 +37,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 		this.iniFormCaixa();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
+		this.ordenarVinhos();
 	}
 
 	// Criação do novo modelo de caixa após verificações 
@@ -96,10 +97,25 @@ export class InserirCaixaAdminComponent implements OnInit {
 		}
 	}
 
+	// Ordenar array vinhos por Marca
+	public ordenarVinhos(){
+		this.vinhos.sort(
+			function(obj1, obj2){
+				if (obj1.marca < obj2.marca){
+					return -1;
+				}
+				if (obj1.marca > obj2.marca){
+					return 1;
+				}
+				return 0;
+			}
+		);
+	}
+
 	// Dados criados (A ser subsituido pela ligação à BD)
 	public iniListaCaixas(){
 		this.caixas = [{
-      		id: 1,
+      	id: 1,
 			capacidade: 1.000,
 			garrafas: 3,
 			material: 'Madeira',
@@ -111,7 +127,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 			capacidade: 0.750,
 			garrafas: 12,
 			material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];
 	}
@@ -120,28 +136,22 @@ export class InserirCaixaAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
-		 },
-		 {
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
+		},
+		{
 			id: 2,
-			tipo: 'Rosé'
-		 }, 
-		 {
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
+		{
 			id: 3,
-			tipo: 'Tinto'
-		 },
-		 {
-			id: 4,
-			tipo: 'Branco'
-		 },
-		 {
-			id: 5,
-			tipo: 'Espumante'
-		 },
-		 {
-			id: 6,
-			tipo: 'Quinta'
-		 }];
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
+		}];
 	}
 
 	// Função que limpa os dados do form CaixaForm

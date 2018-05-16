@@ -10,18 +10,18 @@
 }
 
 .itemFiltro{
-    grid-column: 7 / 8;
+    grid-column: 3 / 4;
     align-self: end;
 }
 
-.itemFiltro1, .itemFiltro2{
+.itemFiltro1, .itemFiltro2, .itemFiltro3, .itemInput{
     align-self: end;
 }
 
 .container .itemNav{
     display: grid;
     grid-gap: 0 8px;
-    grid-template-columns: 150px repeat(8, 1fr);
+    grid-template-columns: 150px 4fr repeat(4, 1fr);
     align-items: center
 }
 
@@ -86,7 +86,7 @@
     color: var(--light);
 }
 
-.main-registo input[type=text], input[type=password], input[type=number], select{
+input[type=text], input[type=password], input[type=number], select{
     border: var(--primary);
     padding: 0 0.5rem;
     border-radius: 0.2rem;
@@ -108,9 +108,23 @@ select{
         grid-column: unset;
     }
 
+    .container{
+        grid-template-rows: 75px .5fr auto;
+    }
+
     .container .itemNav{
-        grid-template-columns: 1fr 1fr 1fr 1fr;
-        grid-gap: 0 8px;
+        grid-template-columns: repeat(6, 1fr);        
+    }
+}
+
+@media(max-width: 775px){ 
+    .container{
+        grid-template-rows: 75px .5fr auto;
+    }
+
+    .container .itemNav{
+        grid-template-columns: 1fr 1fr;        
+        grid-template-rows: repeat(3, 1fr);
     }
 }
 
@@ -119,17 +133,13 @@ select{
         overflow-x: auto;        
     }
 
-    .itemFiltro{
-        grid-column: unset;
-    }
-
     .container{
         grid-template-rows: 75px .5fr auto;
     }
 
     .container .itemNav{
-        grid-template-columns: 1fr;
-        grid-template-rows: repeat(3, 1fr);
+        grid-template-columns: 1fr;        
+        grid-template-rows: repeat(6, 1fr);
     }
 
     table{

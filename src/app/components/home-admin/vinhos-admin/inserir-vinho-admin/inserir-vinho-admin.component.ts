@@ -13,12 +13,16 @@ export class InserirVinhoAdminComponent implements OnInit {
   	VinhoForm: FormGroup;
 	Vinho: formVinho;
 
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
+
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
 	constructor( private router: Router, private fb: FormBuilder ) { 
 		this.VinhoForm = fb.group({
-			'tipo': ['', Validators.compose([Validators.required, Validators.minLength(5)])]
+			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
+			'tipo': ['', Validators.required],
+			'categoria': ['', Validators.minLength(5)]
 		});
 	}
 
@@ -36,7 +40,7 @@ export class InserirVinhoAdminComponent implements OnInit {
 
 		// Ver se já há tipos de vinho com as mesma caracteristicas na BD
 		for (let i = 0; i < this.vinhos.length; i++){
-			if (this.vinhos[i].tipo == this.Vinho.tipo){
+			if (this.vinhos[i].marca == this.Vinho.marca && this.vinhos[i].tipo == this.Vinho.tipo && this.vinhos[i].categoria == this.Vinho.categoria){
 				estadoVinho = false;
 			}
 		}
@@ -59,7 +63,9 @@ export class InserirVinhoAdminComponent implements OnInit {
 	// Iniciar o objeto Vinho
 	public iniFormVinho(){
 		this.Vinho = {
-			tipo: ''
+			marca: '',
+			tipo: '',
+			categoria: ''
 		}
 	}
 
@@ -67,37 +73,35 @@ export class InserirVinhoAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
-		}, 
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
 	// Função que limpa os dados do form VinhoForm
 	public clearForm(){
+		this.VinhoForm.controls['marca'].setValue('');
 		this.VinhoForm.controls['tipo'].setValue('');
+		this.VinhoForm.controls['categoria'].setValue('');
 	}
 
 }
 
 interface formVinho{
-	tipo: string
+	marca: string,
+	tipo: string,
+	categoria: string
 }

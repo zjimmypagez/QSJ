@@ -1,8 +1,9 @@
 <div class="container">
   <h1 class="itemTitulo">Registo - Garrafas</h1>
-  <form [formGroup]="FiltroForm">
+  <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
     <div class="itemNav">
        <a routerLink="/func/garrafas/inserirRemover" class="btn">Inserir/Remover Garrafas</a>
+       <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
        <select class="itemFiltro" formControlName="ano" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
           <option value="">Ano</option>
           <option *ngFor="let ano of anos" [ngValue]="ano">{{ano}}</option>
@@ -13,19 +14,21 @@
       </select>
       <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
           <option value="">Tipo de Vinho</option>
-          <option *ngFor="let vinho of vinhos" [ngValue]="vinho.tipo">{{vinho.tipo}}</option>
+          <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
+      </select>
+      <select class="itemFiltro3" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+         <option value="">Categoria</option>
+         <option value="Normal">S/Categoria</option>
+         <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
       </select>
     </div>
-
   </form>
   <div class="main-table" *ngIf="estadoTabela">
      <table>
         <tr>
           <th>ID</th>
-          <th>IDGARRAFA</th>
-          <th>TIPO DE VINHO</th>
           <th>LOTE</th>
-          <th>ANO</th>
+          <th>TIPO DE VINHO</th>
           <th>CAPACIDADE(/L)</th>
           <th>DATA</th>
           <th>COMENTÁRIO</th>
@@ -35,10 +38,8 @@
         </tr>
         <tr *ngFor="let tabelaRegisto of tabelaRegistos">
           <td>{{tabelaRegisto.id}}</td>
-          <td>{{tabelaRegisto.idGarrafa}}</td>
-          <td>{{tabelaRegisto.tipoVinho}}</td>
           <td>{{tabelaRegisto.lote}}</td>
-          <td>{{tabelaRegisto.ano}}</td>
+          <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td>
           <td>{{tabelaRegisto.capacidade}} l</td>
           <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
           <td>{{tabelaRegisto.comentario}}</td>

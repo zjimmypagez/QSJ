@@ -100,6 +100,23 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		}
 	}
 
+	// Obter iniciais da marca do vinho
+	public getIniciaisMarca(id: number): string{
+		var iniciais: string = "";
+		var marca: string;
+		for (let i = 0; i < this.vinhos.length; i++){
+			if (id == this.vinhos[i].id)
+				marca = this.vinhos[i].marca;
+		}
+
+		for (let i = 0; i < marca.length; i++){
+			if(marca[i].match(/[A-Z]/) != null){
+				iniciais = iniciais + marca[i];
+		  }
+		}
+		return iniciais;
+	}
+
 	// Dados criados (A ser subsituido pela ligação à BD)
    public iniListaCaixas(){
    	this.caixas = [{
@@ -124,7 +141,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -133,7 +150,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
@@ -146,27 +163,21 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
 		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
@@ -224,9 +235,12 @@ export class InserirEncomendaFuncComponent implements OnInit {
 				if (garrafas[i].tipoVinho == vinhos[j].id){
 					var tableObj: tableGarrafa = {
 						id: garrafas[i].id,
-						lote: garrafas[i].lote,
+						lote: "LT-" + this.getIniciaisMarca(vinhos[j].id) + "-" + garrafas[i].ano + "-" + garrafas[i].cuba,
+						cuba: garrafas[i].cuba,
 						ano: garrafas[i].ano,
-						tipoVinho: vinhos[j].tipo, 
+						marca: vinhos[j].marca,
+						tipo: vinhos[j].tipo, 
+						categoria: vinhos[j].categoria,
 						capacidade: garrafas[i].capacidade,
 						cRotulo: garrafas[i].cRotulo,
 						sRotulo: garrafas[i].sRotulo
@@ -254,9 +268,12 @@ interface tableCaixa{
 // Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
 interface tableGarrafa{
 	id: number,
-   lote: number,
-   ano: number,
-	tipoVinho: string, // Atributo tipo da tabela Tipo de Vinho
+	lote: string, // Atributo que junta, para mostrar, marca, ano e cuba
+   cuba: number,
+	ano: number,
+	marca: string, // Atributo marca da tabela Tipo de vinho
+	tipo: string, // Atributo tipo da tabela Tipo de Vinho
+	categoria: string; // Atributo categoria da tabela Tipo de Vinho
    capacidade: number,
 	cRotulo: number,
 	sRotulo: number

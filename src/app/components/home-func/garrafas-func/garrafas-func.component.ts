@@ -15,8 +15,11 @@ export class GarrafasFuncComponent implements OnInit {
 	// Dados filtros
 	FiltroForm: FormGroup;
 	anos: number[] = [];
-	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
+	categorias: string[] = [];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	estadoTabela: boolean = true;
+
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 
 	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
@@ -31,9 +34,11 @@ export class GarrafasFuncComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder ) { 
 		this.FiltroForm = fb.group({
+			'marca': ['', Validators.minLength(1)],
 			'ano': ['', ],
 			'capacidade': ['', ],
-			'tipoVinho': ['', ]
+			'tipoVinho': ['', ],
+			'categoria': ['', ]
 		});
 	}
 
@@ -46,6 +51,7 @@ export class GarrafasFuncComponent implements OnInit {
 		this.tabelaRegistos = this.iniListatTableRegistos(this.tabelaGarrafaRegistos, this.vinhos);
 
 		this.iniFiltroAno();
+		this.categorias = this.iniFiltroCategoria();
 	}
 
 	// Função responsável por selecionar o registo de garrafa a ser editado
@@ -65,42 +71,121 @@ export class GarrafasFuncComponent implements OnInit {
 		}
 	}
 
+	// Pesquisa a um determinada marca
+	pesquisaMarca(form){
+		var frm = form;
+		
+		if (frm.marca != ""){
+			var tabelaMarca: tableRegisto[] = [];
+			for (let i = 0; i < this.tabelaRegistos.length; i++){
+				if (frm.marca.toUpperCase() === this.tabelaRegistos[i].marca.toUpperCase()){
+					tabelaMarca.push(this.tabelaRegistos[i]);
+				}
+			}
+			if (tabelaMarca.length == 0){
+				this.estadoTabela = false;
+			}
+			else{
+				this.estadoTabela = true;
+				this.tabelaRegistos = tabelaMarca;
+			}
+		}
+		else{
+			this.estadoTabela = true;
+			this.tabelaRegistos = this.iniListatTableRegistos(this.tabelaGarrafaRegistos, this.vinhos);
+			this.clearForm();				
+			alert("Pesquisa inválida!");
+		}
+	}
+
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
 		this.tabelaRegistos = this.iniListatTableRegistos(this.tabelaGarrafaRegistos, this.vinhos);
 
-		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != ""){
-			if (filtro.ano != "" && filtro.capacidade != "" && filtro.tipoVinho != ""){
+		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
+			if (filtro.ano != "" && filtro.capacidade != "" && filtro.tipoVinho != "" && filtro.categoria != ""){
 				this.tabelaRegistos = this.filtrarAno(filtro);
 				this.tabelaRegistos = this.filtrarCapacidade(filtro);
 				this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+				this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
 			}
 			else{
-				if (filtro.ano != "" && filtro.capacidade != ""){
+				if (filtro.ano != "" && filtro.capacidade != "" && filtro.tipoVinho != ""){
 					this.tabelaRegistos = this.filtrarAno(filtro);
-					this.tabelaRegistos = this.filtrarCapacidade(filtro);				
+					this.tabelaRegistos = this.filtrarCapacidade(filtro);	
+					this.tabelaRegistos = this.filtrarTipoVinho(filtro);	
 				}
 				else{
-					if (filtro.capacidade != "" && filtro.tipoVinho != ""){
+					if (filtro.ano != "" && filtro.capacidade != "" && filtro.categoria != ""){
+						this.tabelaRegistos = this.filtrarAno(filtro);
 						this.tabelaRegistos = this.filtrarCapacidade(filtro);
-						this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+						this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
 					}
 					else{
-						if (filtro.ano != "" && filtro.tipoVinho != ""){
+						if (filtro.ano != "" && filtro.tipoVinho != "" && filtro.categoria != ""){
 							this.tabelaRegistos = this.filtrarAno(filtro);
 							this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+							this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
 						}
 						else{
-							if (filtro.ano != ""){
-								this.tabelaRegistos = this.filtrarAno(filtro);
+							if (filtro.capacidade != "" && filtro.tipoVinho != "" && filtro.categoria != ""){
+								this.tabelaRegistos = this.filtrarCapacidade(filtro);
+								this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+								this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
 							}
 							else{
-								if (filtro.capacidade != ""){
+								if (filtro.ano != "" && filtro.capacidade != ""){
+									this.tabelaRegistos = this.filtrarAno(filtro);
 									this.tabelaRegistos = this.filtrarCapacidade(filtro);
 								}
 								else{
-									this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+									if (filtro.ano != "" && filtro.tipoVinho != ""){
+										this.tabelaRegistos = this.filtrarAno(filtro);
+										this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+									}
+									else{
+										if (filtro.ano != "" && filtro.categoria != ""){
+											this.tabelaRegistos = this.filtrarAno(filtro);
+											this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
+										}
+										else{
+											if (filtro.capacidade != "" && filtro.tipoVinho != ""){
+												this.tabelaRegistos = this.filtrarCapacidade(filtro);
+												this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+											}
+											else{
+												if (filtro.capacidade != "" && filtro.categoria != ""){
+													this.tabelaRegistos = this.filtrarCapacidade(filtro);
+													this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
+												}
+												else{
+													if (filtro.tipoVinho != "" && filtro.categoria != ""){
+														this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+														this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
+													}
+													else{
+														if (filtro.ano != ""){
+															this.tabelaRegistos = this.filtrarAno(filtro);
+														}
+														else{
+															if (filtro.capacidade != ""){
+																this.tabelaRegistos = this.filtrarCapacidade(filtro);
+															}
+															else{
+																if (filtro.tipoVinho != ""){
+																	this.tabelaRegistos = this.filtrarTipoVinho(filtro);
+																}
+																else{
+																	this.tabelaRegistos = this.filtrarCategoriaVinho(filtro);
+																}
+															}
+														}
+													}
+												}
+											}
+										}
+									}
 								}
 							}
 						}
@@ -146,51 +231,32 @@ export class GarrafasFuncComponent implements OnInit {
 	public filtrarTipoVinho(filtro: any): tableRegisto[]{
 		var tabelaTipoVinho: tableRegisto[] = [];
 		for (let i = 0; i < this.tabelaRegistos.length; i++){
-			if (this.tabelaRegistos[i].tipoVinho == filtro.tipoVinho){
+			if (this.tabelaRegistos[i].tipo == filtro.tipoVinho){
 				tabelaTipoVinho.push(this.tabelaRegistos[i]);
 			}
 		}
 		return tabelaTipoVinho;
 	}
 
-	// Ordenar por Ano
-	public ordemAno(): tableRegisto[]{
-		var tabela: tableRegisto[] = this.tabelaRegistos;
-		tabela.sort(
-			function(obj1, obj2){
-				return obj1.ano - obj2.ano;
+	// Função que filtra categoria do vinho
+	public filtrarCategoriaVinho(filtro: any): tableRegisto[]{
+		var tabelaCategoriaVinho: tableRegisto[] = [];
+		if (filtro.categoria != "Normal"){
+			for (let i = 0; i < this.tabelaRegistos.length; i++){
+				if (this.tabelaRegistos[i].categoria == filtro.categoria){
+					tabelaCategoriaVinho.push(this.tabelaRegistos[i]);
+				}
 			}
-		);
-		return tabela;
-	} 
-
-	// Ordenar por Capacidade
-	public ordemCapacidade(): tableRegisto[]{
-		var tabela: tableRegisto[] = this.tabelaRegistos;
-		tabela.sort(
-			function(obj1, obj2){
-				return obj1.capacidade - obj2.capacidade;
+		}
+		else{
+			for (let i = 0; i < this.tabelaRegistos.length; i++){
+				if (this.tabelaRegistos[i].categoria == ""){
+					tabelaCategoriaVinho.push(this.tabelaRegistos[i]);
+				}
 			}
-		);
-		return tabela;
+		}
+		return tabelaCategoriaVinho;
 	}
-
-	// Ordenar por Tipo de Vinho
-	public ordemTipoVinho(): tableRegisto[]{
-		var tabela: tableRegisto[] = this.tabelaRegistos;
-		tabela.sort(
-			function(obj1, obj2){
-				if (obj1.tipoVinho < obj2.tipoVinho){
-					return -1;
-				}
-				if (obj1.tipoVinho > obj2.tipoVinho){
-					return 1;
-				}
-				return 0;
-			}
-		);
-		return tabela;
-	} 
 
 	// Inicializar o filtro ano
 	public iniFiltroAno(){
@@ -209,11 +275,64 @@ export class GarrafasFuncComponent implements OnInit {
 		}
 	}
 
+	// Obter iniciais da marca do vinho
+	public getIniciaisMarca(id: number): string{
+		var iniciais: string = "";
+		var marca: string;
+		for (let i = 0; i < this.vinhos.length; i++){
+			if (id == this.vinhos[i].id)
+				marca = this.vinhos[i].marca;
+		}
+
+		for (let i = 0; i < marca.length; i++){
+			if(marca[i].match(/[A-Z]/) != null){
+				iniciais = iniciais + marca[i];
+		  }
+		}
+		return iniciais;
+	}
+
+	// Incializar o filtro categorias
+	public iniFiltroCategoria(): string[]{
+		var categorias: string[] = [];
+		var first: number = 0;
+
+		for (let i = 0; i < this.vinhos.length; i++){
+			if (this.vinhos[i].categoria != "" && first == 0){
+				categorias.push(this.vinhos[i].categoria);
+				first++;
+			}
+		}
+
+		for (let i = 1; i < this.vinhos.length; i++){
+			var count: number = 0;
+			if (this.vinhos[i].categoria != ""){
+				for (let j = 0; j < categorias.length; j++){
+					if (this.vinhos[i].categoria == categorias[j])
+						count++;
+				}
+				if (count == 0)
+					categorias.push(this.vinhos[i].categoria);
+			}
+		}
+
+		return categorias;
+	}
+
+	// Limpar Form
+	public clearForm(){
+		this.FiltroForm.controls['marca'].setValue('');
+		this.FiltroForm.controls['ano'].setValue('');
+		this.FiltroForm.controls['capacidade'].setValue('');
+		this.FiltroForm.controls['tipoVinho'].setValue('');
+		this.FiltroForm.controls['categoria'].setValue('');
+	}
+
 	// Dados criados (A ser subsituido pela ligação à BD)
    public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -222,7 +341,7 @@ export class GarrafasFuncComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
@@ -255,7 +374,7 @@ export class GarrafasFuncComponent implements OnInit {
 			data: new Date(2001,11,22),
 			comentario: "5 partidas",
 			cRotulo: 21,
-      	sRotulo: null 
+      	sRotulo: 0 
 		}];
 	}
 	
@@ -263,27 +382,21 @@ export class GarrafasFuncComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
 		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
@@ -297,7 +410,7 @@ export class GarrafasFuncComponent implements OnInit {
 					var tableObj: tableGarrafaRegisto = {
 						id: registos[j].id,
 						idGarrafa: garrafas[i].id,
-						lote: garrafas[i].lote,
+						cuba: garrafas[i].cuba,
 						ano: garrafas[i].ano,
 						tipoVinho: garrafas[i].tipoVinho,
 						capacidade: garrafas[i].capacidade,
@@ -324,9 +437,11 @@ export class GarrafasFuncComponent implements OnInit {
 					var tableObj: tableRegisto = {
 						id: tabelaRegistos[i].id,
 						idGarrafa: tabelaRegistos[i].idGarrafa,
-						lote: tabelaRegistos[i].lote,
+						lote: "LT-" + this.getIniciaisMarca(vinhos[j].id) + "-" + tabelaRegistos[i].ano + "-" + tabelaRegistos[i].cuba,
 						ano: tabelaRegistos[i].ano,
-						tipoVinho: vinhos[j].tipo,
+						marca: vinhos[j].marca,
+						tipo: vinhos[j].tipo,
+						categoria: vinhos[j].categoria,
 						capacidade: tabelaRegistos[i].capacidade,
 						data: tabelaRegistos[i].data,
 						comentario: tabelaRegistos[i].comentario,
@@ -354,8 +469,8 @@ export class GarrafasFuncComponent implements OnInit {
 // Interface que interliga 2 tabelas = Garrafa + Registo de Garrafa 
 interface tableGarrafaRegisto{
 	id: number,
-	idGarrafa: number,
-	lote: number,
+	idGarrafa: number,	
+	cuba: number,
 	ano: number,
 	tipoVinho: number,
 	capacidade: number,
@@ -369,9 +484,11 @@ interface tableGarrafaRegisto{
 interface tableRegisto{
 	id: number,
 	idGarrafa: number,
-	lote: number,
+	lote: string, // Atributo que junta, para mostrar, marca, ano e cuba
 	ano: number,
-	tipoVinho: string,
+	marca: string, // Atributo marca da tabela Tipo de vinho
+	tipo: string, // Atributo tipo da tabela Tipo de Vinho
+	categoria: string; // Atributo categoria da tabela Tipo de Vinho
 	capacidade: number,
 	data: Date,
 	comentario: string,

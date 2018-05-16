@@ -15,7 +15,9 @@ export class EditarVinhoAdminComponent implements OnInit {
   	id: number;
 	private sub: any;
 	VinhoForm: FormGroup;
-  	Vinho: formVinho;
+	Vinho: formVinho;
+	  
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
   
 	vinho: TipoVinho;
   	// Lista de tipos de vinho a ler da BD
@@ -27,7 +29,9 @@ export class EditarVinhoAdminComponent implements OnInit {
 
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
 		this.VinhoForm = fb.group({
-			'tipo': ['', Validators.compose([Validators.required, Validators.minLength(5)])]
+			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
+			'tipo': ['', Validators.required],
+			'categoria': ['', Validators.minLength(5)]
 		});
 	}
 
@@ -57,33 +61,34 @@ export class EditarVinhoAdminComponent implements OnInit {
 		// Variavel que determina se o tipo de vinho está ou não pronta para ser editado
 		var estadoVinho: boolean = true;
 
-		// Ver se o tipo de vinho escolhido esta em uso em modelos de garrafa
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.vinho.tipo != this.Vinho.tipo){
+		if (this.vinho.marca != this.Vinho.marca || this.vinho.tipo != this.Vinho.tipo || this.vinho.categoria != this.Vinho.categoria){
+			// Ver se o tipo de vinho escolhido esta em uso em modelos de garrafa
+			for (let i = 0; i < this.garrafas.length; i++){				
 				if (this.garrafas[i].tipoVinho == this.vinho.id){
 					estadoVinho = false;
 				}
 			}
-		}
-
-		// Ver se o tipo de vinho escolhido esta em uso em modelos de caixa
-		for (let i = 0; i < this.caixas.length; i++){
-			if (this.vinho.tipo != this.Vinho.tipo){
+	
+			// Ver se o tipo de vinho escolhido esta em uso em modelos de caixa
+			for (let i = 0; i < this.caixas.length; i++){
 				if (this.caixas[i].tipoVinho == this.vinho.id){
 					estadoVinho = false;
-				}				
-			}
-		}
+				}			
+			}			
 
-		if (estadoVinho){
-			alert("O tipo de vinho foi editado com sucesso!");
-			this.router.navigate(['/admin/vinhos']);
-		}
-		else{
-			if (confirm("O tipo de vinho: [" + this.vinho.tipo + "] que pretende editar está em uso. Pretende editá-lo mesmo assim?")){
+			if (estadoVinho){
 				alert("O tipo de vinho foi editado com sucesso!");
 				this.router.navigate(['/admin/vinhos']);
 			}
+			else{
+				if (confirm("O tipo de vinho: [" + this.vinho.marca + " - " + this.vinho.tipo + " - " + this.vinho.categoria + "] que pretende editar está em uso. Pretende editá-lo mesmo assim?")){
+					alert("O tipo de vinho foi editado com sucesso!");
+					this.router.navigate(['/admin/vinhos']);
+				}
+			}
+		}
+		else{
+			alert("O tipo de vinho que quer editar já existe!");
 		}
 	}
 
@@ -98,34 +103,30 @@ export class EditarVinhoAdminComponent implements OnInit {
 
 	// Coloca a form com os dados pre-selecionados
 	public resetForm(vinho: TipoVinho){
+		this.VinhoForm.controls['marca'].setValue(vinho.marca);
 		this.VinhoForm.controls['tipo'].setValue(vinho.tipo);
+		this.VinhoForm.controls['categoria'].setValue(vinho.categoria);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
 		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
@@ -153,7 +154,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 	public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -162,7 +163,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
@@ -174,5 +175,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 }
 
 interface formVinho{
-	tipo: string
+	marca: string,
+	tipo: string,
+	categoria: string
 }

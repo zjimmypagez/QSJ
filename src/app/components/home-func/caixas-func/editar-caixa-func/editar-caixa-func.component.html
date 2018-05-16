@@ -8,12 +8,13 @@
 					C: {{caixa.capacidade}} l | 
 					G: {{caixa.garrafas}} | 
 					M: {{caixa.material}} | 
-					TV: {{caixa.tipoVinho}}
+					TV: {{caixa.tipo}} {{caixa.categoria != "" ? ' - ' + caixa.categoria : ''}} |
+					Ma: {{caixa.marca}}
 				</option>
 			</select>			
 		</div>
 		<div class="help">
-			C - Capacidade | G - Garrafas | M - Material | TV - Tipo de Vinho
+			C - Capacidade | G - Garrafas | M - Material | TV - Tipo de Vinho | Ma - Marca
 		</div>
 		<br>
 		<div class="main-registo">

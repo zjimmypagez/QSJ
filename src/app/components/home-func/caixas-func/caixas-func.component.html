@@ -1,8 +1,9 @@
 <div class="container">
     <h1 class="itemTitulo">Registo - Caixas</h1>
-    <form [formGroup]="FiltroForm">
+    <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
         <div class="itemNav">
            <a routerLink="/func/caixas/inserirRemover" class="btn">Inserir/Remover Caixas</a>
+           <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
            <select class="itemFiltro" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
                 <option value="">Material</option>
                 <option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
@@ -13,7 +14,12 @@
             </select>
             <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
                 <option value="">Tipo de Vinho</option>
-                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.tipo">{{vinho.tipo}}</option>
+                <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
+            </select>
+            <select class="itemFiltro3" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                <option value="">Categoria</option>
+                <option value="Normal">S/Categoria</option>
+                <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
             </select>
         </div>
     </form>
@@ -21,7 +27,7 @@
         <table>
             <tr>
                 <th>ID</th>
-                  <th>IDCAIXA</th>
+                  <th>MARCA</th>
                   <th>TIPO DE VINHO</th>
                   <th>MATERIAL</th>
                   <th>GARRAFAS(QNT)</th>
@@ -32,21 +38,21 @@
                   <th>AÇÕES</th>
                </tr>
                <tr *ngFor="let tabelaRegisto of tabelaRegistos">
-                     <td>{{tabelaRegisto.id}}</td>
-                     <td>{{tabelaRegisto.idCaixa}}</td>
-                  <td>{{tabelaRegisto.tipoVinho}}</td>
-                  <td>{{tabelaRegisto.material}}</td>
-                  <td>{{tabelaRegisto.garrafas}}</td>
-                  <td>{{tabelaRegisto.capacidade}} l</td>
-                  <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
-                  <td>{{tabelaRegisto.comentario}}</td>
-                  <td>{{tabelaRegisto.quantidade}}</td>
-                  <td>
-                     <div class="action-btn">
-                        <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
-                        <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
-                     </div>
-                  </td>
+                    <td>{{tabelaRegisto.id}}</td>
+                    <td>{{tabelaRegisto.marca}}</td>
+                    <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td> 
+                    <td>{{tabelaRegisto.material}}</td>
+                    <td>{{tabelaRegisto.garrafas}}</td>
+                    <td>{{tabelaRegisto.capacidade}} l</td>
+                    <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
+                    <td>{{tabelaRegisto.comentario}}</td>
+                    <td>{{tabelaRegisto.quantidade}}</td>
+                    <td>
+                        <div class="action-btn">
+                            <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
+                            <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
+                        </div>
+                    </td>
                </tr>
             </table>
     </div>

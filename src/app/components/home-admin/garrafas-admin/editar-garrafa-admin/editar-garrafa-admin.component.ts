@@ -16,7 +16,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	GarrafaForm: FormGroup;
 	Garrafa: formGarrafa;
 	
-	capacidades: number [] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	garrafa: Garrafa;
 
 	// Lista de modelos de caixa a ler da BD
@@ -26,7 +26,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
 		this.GarrafaForm = fb.group({
-			'lote': ['', Validators.compose([Validators.required, Validators.min(1), Validators.max(5000)])],
+			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
@@ -36,6 +36,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
+		this.ordenarVinhos();
 
 		// Subscrição dos parametros do modelo da garrafa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -60,7 +61,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 
 		// Ver se já há modelos com as mesmas caracteristicas na BD
 		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.garrafas[i].lote == this.Garrafa.lote && this.garrafas[i].ano == this.Garrafa.ano && this.garrafas[i].tipoVinho == this.Garrafa.tipoVinho && this.garrafas[i].capacidade == (+this.Garrafa.capacidade)){
+			if (this.garrafas[i].cuba == this.Garrafa.cuba && this.garrafas[i].ano == this.Garrafa.ano && this.garrafas[i].tipoVinho == this.Garrafa.tipoVinho && this.garrafas[i].capacidade == (+this.Garrafa.capacidade)){
 				estadoGarrafa = false;
 			}
 		}
@@ -87,9 +88,24 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		this.sub.unsubscribe();
 	}
 
+	// Ordenar array vinhos por Marca
+	public ordenarVinhos(){
+		this.vinhos.sort(
+			function(obj1, obj2){
+				if (obj1.marca < obj2.marca){
+					return -1;
+				}
+				if (obj1.marca > obj2.marca){
+					return 1;
+				}
+				return 0;
+			}
+		);
+	}
+
 	// Coloca a form com os dados pre-selecionados
 	public resetForm(garrafa: Garrafa){
-		this.GarrafaForm.controls['lote'].setValue(garrafa.lote);
+		this.GarrafaForm.controls['cuba'].setValue(garrafa.cuba);
 		this.GarrafaForm.controls['ano'].setValue(garrafa.ano);
 		this.GarrafaForm.controls['tipoVinho'].setValue(garrafa.tipoVinho);
 		this.GarrafaForm.controls['capacidade'].setValue(garrafa.capacidade);
@@ -99,7 +115,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -108,7 +124,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
@@ -121,27 +137,21 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
-		}, 
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
@@ -149,7 +159,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 
 // Dados recebidos do formulário
 interface formGarrafa{
-	lote: number,
+	cuba: number,
 	ano: number,
 	tipoVinho: number,
 	capacidade: string

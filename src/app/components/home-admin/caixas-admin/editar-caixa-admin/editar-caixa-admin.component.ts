@@ -39,6 +39,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaCaixas();
 		this.iniListaVinhos();
+		this.ordenarVinhos();
 
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -130,6 +131,21 @@ export class EditarCaixaAdminComponent implements OnInit {
 		this.CaixaForm.controls['tipoVinho'].setValue(caixa.tipoVinho);
 	}
 
+	// Ordenar array vinhos por Marca
+	public ordenarVinhos(){
+		this.vinhos.sort(
+			function(obj1, obj2){
+				if (obj1.marca < obj2.marca){
+					return -1;
+				}
+				if (obj1.marca > obj2.marca){
+					return 1;
+				}
+				return 0;
+			}
+		);
+	}
+
 	// Dados criados (A ser subsituido pela ligação à BD)
 	public iniListaCaixas(){
 		this.caixas = [{
@@ -145,7 +161,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 			capacidade: 0.750,
 			garrafas: 12,
 			material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];
 	}
@@ -154,28 +170,22 @@ export class EditarCaixaAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
-		 },
-		 {
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
+		},
+		{
 			id: 2,
-			tipo: 'Rosé'
-		 }, 
-		 {
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
+		{
 			id: 3,
-			tipo: 'Tinto'
-		 },
-		 {
-			id: 4,
-			tipo: 'Branco'
-		 },
-		 {
-			id: 5,
-			tipo: 'Espumante'
-		 },
-		 {
-			id: 6,
-			tipo: 'Quinta'
-		 }];
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
+		}];
 	}
 }
 

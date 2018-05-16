@@ -2,11 +2,11 @@
     <h1 class="itemTitulo">Novo Modelo - Garrafas</h1>
     <form class="itemForm" [formGroup]="GarrafaForm" (ngSubmit)="novaGarrafa(GarrafaForm.value)">
         <div class="main-registo">
-            <h4>Lote</h4>
-            <input type="number" formControlName="lote" placeholder="Insira aqui o lote...">
+            <h4>Cuba(/L)</h4>
+            <input type="number" formControlName="cuba" placeholder="Insira aqui a cuba...">
         </div>
-        <div class="alerta" *ngIf="!GarrafaForm.controls['lote'].valid && GarrafaForm.controls['lote'].touched">
-            Lote obrigatório (1 - 5000)
+        <div class="alerta" *ngIf="!GarrafaForm.controls['cuba'].valid && GarrafaForm.controls['cuba'].touched">
+            Cuba obrigatória (Valores positivos)
         </div>
         <br>
         <div class="main-registo">
@@ -21,7 +21,9 @@
             <h4>Tipo de Vinho</h4>
             <select formControlName="tipoVinho">
                 <option value="">-- Vinhos --</option>
-                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">{{vinho.tipo}}</option>
+                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">
+                   Marca: {{vinho.marca}} | Tipo: {{vinho.tipo}} {{vinho.categoria != "" ? ' | Categoria: ' + vinho.categoria : ''}}
+                </option>
             </select>
         </div>
         <div class="alerta" *ngIf="!GarrafaForm.controls['tipoVinho'].valid && GarrafaForm.controls['tipoVinho'].touched">

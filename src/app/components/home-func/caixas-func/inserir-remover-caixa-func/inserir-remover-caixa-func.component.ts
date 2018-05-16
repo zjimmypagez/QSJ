@@ -87,7 +87,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 			capacidade: 0.750,
 			garrafas: 12,
 			material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];
 	}
@@ -96,28 +96,23 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
-		}, 
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
+
 	}
 
 	// Interligação entre duas listas: Caixa e Tipo de Vinho
@@ -132,7 +127,9 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 						capacidade: caixas[i].capacidade,
 						garrafas: caixas[i].garrafas,
 						material: caixas[i].material,
-						tipoVinho: vinhos[j].tipo,
+						marca: vinhos[j].marca,
+						tipo: vinhos[j].tipo,
+						categoria: vinhos[j].categoria,
 						quantidade: caixas[i].quantidade 
 					}
 					table.push(tableObj);
@@ -166,6 +163,8 @@ interface tableCaixa{
    capacidade: number,
    garrafas: number,
    material: string,
-	tipoVinho: string, // Atributo tipo da tabela Tipo de Vinho
+	marca: string, // Atributo marca da tabela Tipo de vinho
+	tipo: string, // Atributo tipo da tabela Tipo de Vinho
+	categoria: string; // Atributo categoria da tabela Tipo de Vinho
 	quantidade: number
 }

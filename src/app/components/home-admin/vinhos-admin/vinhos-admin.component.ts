@@ -80,27 +80,21 @@ export class VinhosAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
 		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
@@ -119,7 +113,7 @@ export class VinhosAdminComponent implements OnInit {
          capacidade: 0.750,
          garrafas: 12,
          material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];   
 	}
@@ -128,7 +122,7 @@ export class VinhosAdminComponent implements OnInit {
 	public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -137,7 +131,7 @@ export class VinhosAdminComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,

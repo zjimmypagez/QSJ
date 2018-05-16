@@ -14,7 +14,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	GarrafaForm: FormGroup;
 	Garrafa: formGarrafa;
 
-	capacidades: number [] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 
 	// Lista de modelos de caixa a ler da BD
 	garrafas: Garrafa[];
@@ -23,7 +23,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder ) {
 		this.GarrafaForm = fb.group({
-			'lote': ['', Validators.compose([Validators.required, Validators.min(1), Validators.max(5000)])],
+			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
@@ -34,6 +34,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		this.iniFormGarrafa();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
+		this.ordenarVinhos();
 	}
 
 	// Criação do novo modelo de garrafa após verificações 
@@ -45,7 +46,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 
 		// Ver se já há modelos com as mesma caracteristicas na BD
 		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.garrafas[i].lote == this.Garrafa.lote && this.garrafas[i].ano == this.Garrafa.ano && this.garrafas[i].tipoVinho == this.Garrafa.tipoVinho && this.garrafas[i].capacidade == (+this.Garrafa.capacidade)){
+			if (this.garrafas[i].cuba == this.Garrafa.cuba && this.garrafas[i].ano == this.Garrafa.ano && this.garrafas[i].tipoVinho == this.Garrafa.tipoVinho && this.garrafas[i].capacidade == (+this.Garrafa.capacidade)){
 				estadoGarrafa = false;
 			}
 		}
@@ -65,10 +66,25 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		this.clearForm();
 	}
 
+	// Ordenar array vinhos por Marca
+	public ordenarVinhos(){
+		this.vinhos.sort(
+			function(obj1, obj2){
+				if (obj1.marca < obj2.marca){
+					return -1;
+				}
+				if (obj1.marca > obj2.marca){
+					return 1;
+				}
+				return 0;
+			}
+		);
+	}
+
 	// Iniciar o objeto Garrafa
 	public iniFormGarrafa(){
 		this.Garrafa = {
-			lote: null,
+			cuba: null,
 			ano: null,
 			tipoVinho: null,
 			capacidade: ''
@@ -79,7 +95,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	public iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
-			lote: 3599,
+			cuba: 5000,
 			ano: 2004,
 			tipoVinho: 1,
 			capacidade: 1.000,
@@ -88,7 +104,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		},
 		{
 			id: 2,
-			lote: 3999,
+			cuba: 10000,
 			ano: 2015,
 			tipoVinho: 3,
 			capacidade: 0.750,
@@ -101,33 +117,27 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	public iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
-			tipo: 'Verde'
+			marca: 'Flor São José',
+			tipo: 'Verde',
+			categoria: ''
 		},
 		{
 			id: 2,
-			tipo: 'Rosé'
-		}, 
+			marca: 'Quinta São José',
+			tipo: 'Rosé',
+			categoria: 'Grande Reserva'
+		},
 		{
 			id: 3,
-			tipo: 'Tinto'
-		},
-		{
-			id: 4,
-			tipo: 'Branco'
-		},
-		{
-			id: 5,
-			tipo: 'Espumante'
-		},
-		{
-			id: 6,
-			tipo: 'Quinta'
+			marca: 'Quinta São José',
+			tipo: 'Tinto',
+			categoria: ''
 		}];
 	}
 
 	// Função que limpa os dados do form GarrafaForm
 	public clearForm(){
-		this.GarrafaForm.controls['lote'].setValue('');
+		this.GarrafaForm.controls['cuba'].setValue('');
 		this.GarrafaForm.controls['ano'].setValue('');
 		this.GarrafaForm.controls['tipoVinho'].setValue('');
 		this.GarrafaForm.controls['capacidade'].setValue('');
@@ -137,7 +147,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 
 // Dados recebidos do formulário
 interface formGarrafa{
-	lote: number,
+	cuba: number,
 	ano: number,
 	tipoVinho: number,
 	capacidade: string

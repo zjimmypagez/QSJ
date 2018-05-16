@@ -7,12 +7,16 @@
        <table>
           <tr>
              <th>ID</th>
-             <th>NOME</th>
+             <th>MARCA</th>
+             <th>TIPO VINHO</th>
+             <th>CATEGORIA</th>
              <th>AÇÕES</th>
           </tr>
           <tr *ngFor="let vinho of vinhos">
              <td>{{vinho.id}}</td>
+             <td>{{vinho.marca}}</td>
              <td>{{vinho.tipo}}</td>
+             <td>{{vinho.categoria}}</td>
              <td>
                 <div class="action-btn">
                    <a class="btn" (click)="editarVinho(vinho.id)">Editar</a>

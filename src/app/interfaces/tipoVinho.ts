@@ -1,4 +1,6 @@
 export interface TipoVinho {
     id: number,
-    tipo: string
+    marca: string,
+    tipo: string,
+    categoria: string
 }

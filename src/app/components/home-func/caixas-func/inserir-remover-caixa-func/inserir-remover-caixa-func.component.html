@@ -4,18 +4,20 @@
 	<div class="main-table">
 		<table>
 			<tr>
-				<th>ID</th>
-				<th>CAPACIDADE(/L)</th>
-				<th>GARRAFAS(QNT)</th>
-				<th>MATERIAL</th>
+				<th>ID</th>				
+				<th>MARCA</th>
 				<th>TIPO DE VINHO</th>
+				<th>MATERIAL</th>
+				<th>GARRAFAS(QNT)</th>
+				<th>CAPACIDADE(/L)</th>
 			</tr>
 			<tr *ngFor="let tabelaCaixa of tabelaCaixas">
 				<td>{{tabelaCaixa.id}}</td>
-				<td>{{tabelaCaixa.capacidade}}</td>
-				<td>{{tabelaCaixa.garrafas}}</td>
+				<td>{{tabelaCaixa.marca}}</td>
+				<td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
 				<td>{{tabelaCaixa.material}}</td>
-				<td>{{tabelaCaixa.tipoVinho}}</td>
+				<td>{{tabelaCaixa.garrafas}}</td>
+				<td>{{tabelaCaixa.capacidade}}</td>
 			</tr>
 		</table>
 	</div>

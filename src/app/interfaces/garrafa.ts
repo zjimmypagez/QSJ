@@ -1,6 +1,6 @@
 export interface Garrafa {
     id: number,
-    lote: number,
+    cuba: number,
     ano: number,
     tipoVinho: number,
     capacidade: number,
