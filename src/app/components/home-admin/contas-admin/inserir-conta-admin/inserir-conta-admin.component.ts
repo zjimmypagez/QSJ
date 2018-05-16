@@ -84,7 +84,7 @@ export class InserirContaAdminComponent implements OnInit {
 	}
 
 	// Função de verificação de erros Formulário UserForm
-	public errosColect(): number[]{
+	errosColect(): number[]{
 		// Array que cataloga o erro
 		var erro: number[] = [0, 0, 0, 0]; // Index: 0 - username já existe
 										 			  // Index: 1 - email já existe
@@ -112,8 +112,17 @@ export class InserirContaAdminComponent implements OnInit {
 		return erro;
 	}
 
+	// Função que limpa os dados do form UserForm
+	clearForm(){
+		this.UserForm.controls['email'].setValue('');
+		this.UserForm.controls['username'].setValue('');
+		this.UserForm.controls['password'].setValue('');
+		this.UserForm.controls['cPassword'].setValue('');
+		this.UserForm.markAsUntouched();
+	}
+
 	// Iniciar o objeto User
-	public iniFormUser(){
+	iniFormUser(){
 		this.User = {
 			email: '',
 			username: '',
@@ -136,14 +145,6 @@ export class InserirContaAdminComponent implements OnInit {
 			username: 'user2',
 			password: '123456'
 		}];
-	}
-
-	// Função que limpa os dados do form UserForm
-	public clearForm(){
-		this.UserForm.controls['email'].setValue('');
-		this.UserForm.controls['username'].setValue('');
-		this.UserForm.controls['password'].setValue('');
-		this.UserForm.controls['cPassword'].setValue('');
 	}
 }
 

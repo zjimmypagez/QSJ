@@ -6,6 +6,8 @@ import { RegistoGarrafa } from '../../../../interfaces/registoGarrafa';
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
 @Component({
 	selector: 'app-editar-garrafas-func',
 	templateUrl: './editar-garrafas-func.component.html',
@@ -30,7 +32,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	// Lista de registos de caixa a ler da BD
 	registos: RegistoGarrafa[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.RegistoForm = fb.group({
 			'comentario': ['', Validators.maxLength(200)]
 		});
@@ -40,7 +42,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 		this.iniListaRegistos();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
-		this.tabelaGarrafas = this.iniListatTableGarrafas(this.garrafas, this.vinhos);
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -82,31 +84,13 @@ export class EditarGarrafasFuncComponent implements OnInit {
 		this.resetForm(this.registo);
 	}
 
-
 	ngOnDestroy(){
 		this.sub.unsubscribe();
 	}
 
 	// Coloca a form com os dados pre-selecionados
-	public resetForm(registo: RegistoGarrafa){
+	resetForm(registo: RegistoGarrafa){
 		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
-	}
-
-	// Obter iniciais da marca do vinho
-	public getIniciaisMarca(id: number): string{
-		var iniciais: string = "";
-		var marca: string;
-		for (let i = 0; i < this.vinhos.length; i++){
-			if (id == this.vinhos[i].id)
-				marca = this.vinhos[i].marca;
-		}
-
-		for (let i = 0; i < marca.length; i++){
-			if(marca[i].match(/[A-Z]/) != null){
-				iniciais = iniciais + marca[i];
-		  }
-		}
-		return iniciais;
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -116,6 +100,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			idGarrafa: 2,
 			data: new Date(2012,3,25),
 			comentario: "2 c/ defeito",
+			opcao: "",
 			cRotulo: 24,
 			sRotulo: 24     
 		},
@@ -124,6 +109,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			idGarrafa: 1,
 			data: new Date(2017,4,2),
 			comentario: "",
+			opcao: "",
 			cRotulo: 200,
       	sRotulo: 200  
 		},
@@ -132,6 +118,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			idGarrafa: 1,
 			data: new Date(2001,11,22),
 			comentario: "5 partidas",
+			opcao: "",
 			cRotulo: 21,
       	sRotulo: null 
 		}];
@@ -179,33 +166,6 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
-	}
-
-	// Interligação entre duas listas: Garrafa e Tipo de Vinho
-	public iniListatTableGarrafas(garrafas: Garrafa[], vinhos: TipoVinho[]): tableGarrafa[]{
-		var table: tableGarrafa[] = [];
-
-		for (let i = 0; i < garrafas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (garrafas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableGarrafa = {
-						id: garrafas[i].id,
-						lote: "LT-" + this.getIniciaisMarca(vinhos[j].id) + "-" + garrafas[i].ano + "-" + garrafas[i].cuba,
-						cuba: garrafas[i].cuba,
-						ano: garrafas[i].ano,
-						marca: vinhos[j].marca,
-						tipo: vinhos[j].tipo, 
-						categoria: vinhos[j].categoria,
-						capacidade: garrafas[i].capacidade,
-						cRotulo: garrafas[i].cRotulo,
-						sRotulo: garrafas[i].sRotulo  
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
 	}
 
 }

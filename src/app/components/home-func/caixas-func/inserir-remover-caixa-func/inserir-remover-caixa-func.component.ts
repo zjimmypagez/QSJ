@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
 @Component({
 	selector: 'app-inserir-remover-caixa-func',
 	templateUrl: './inserir-remover-caixa-func.component.html',
@@ -21,7 +23,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaCaixas: tableCaixa[];	
 
-	constructor( private router: Router, private fb: FormBuilder ) { 
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.RegistoForm = fb.group({
 			'idCaixa': ['', Validators.required],
 			'opcao': ['', Validators.required],
@@ -34,7 +36,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		this.iniFormRegisto();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
-		this.tabelaCaixas = this.iniListatTableCaixas(this.caixas, this.vinhos);
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 	}
 
 	// Criação de um novo registo de caixa após verificações 
@@ -62,8 +64,17 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		this.clearForm();
 	}
 
+	// Função que limpa os dados do form RegistoForm
+	clearForm(){
+		this.RegistoForm.controls['idCaixa'].setValue('');
+		this.RegistoForm.controls['opcao'].setValue('');
+		this.RegistoForm.controls['comentario'].setValue('');
+		this.RegistoForm.controls['quantidade'].setValue('');
+		this.RegistoForm.markAsUntouched();
+	}
+
 	// Iniciar o objeto Registo
-	public iniFormRegisto(){
+	iniFormRegisto(){
 		this.Registo = {
 			idCaixa: null,
 			opcao: '',
@@ -75,7 +86,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	// Dados criados (A ser subsituido pela ligação à BD)
 	public iniListaCaixas(){
 		this.caixas = [{
-      		id: 1,
+      	id: 1,
 			capacidade: 1.000,
 			garrafas: 3,
 			material: 'Madeira',
@@ -113,39 +124,6 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 			categoria: ''
 		}];
 
-	}
-
-	// Interligação entre duas listas: Caixa e Tipo de Vinho
-	public iniListatTableCaixas(caixas: Caixa[], vinhos: TipoVinho[]): tableCaixa[]{
-		var table: tableCaixa[] = [];
-
-		for (let i = 0; i < caixas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (caixas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableCaixa = {
-						id: caixas[i].id,
-						capacidade: caixas[i].capacidade,
-						garrafas: caixas[i].garrafas,
-						material: caixas[i].material,
-						marca: vinhos[j].marca,
-						tipo: vinhos[j].tipo,
-						categoria: vinhos[j].categoria,
-						quantidade: caixas[i].quantidade 
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
-	}
-
-	// Função que limpa os dados do form RegistoForm
-	public clearForm(){
-		this.RegistoForm.controls['idCaixa'].setValue('');
-		this.RegistoForm.controls['opcao'].setValue('');
-		this.RegistoForm.controls['comentario'].setValue('');
-		this.RegistoForm.controls['quantidade'].setValue('');
 	}
 
 }

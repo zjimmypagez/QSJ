@@ -61,12 +61,20 @@ export class InserirVinhoAdminComponent implements OnInit {
 	}
 
 	// Iniciar o objeto Vinho
-	public iniFormVinho(){
+	iniFormVinho(){
 		this.Vinho = {
 			marca: '',
 			tipo: '',
 			categoria: ''
 		}
+	}
+
+	// Função que limpa os dados do form VinhoForm
+	clearForm(){
+		this.VinhoForm.controls['marca'].setValue('');
+		this.VinhoForm.controls['tipo'].setValue('');
+		this.VinhoForm.controls['categoria'].setValue('');
+		this.VinhoForm.markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -89,13 +97,6 @@ export class InserirVinhoAdminComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
-	}
-
-	// Função que limpa os dados do form VinhoForm
-	public clearForm(){
-		this.VinhoForm.controls['marca'].setValue('');
-		this.VinhoForm.controls['tipo'].setValue('');
-		this.VinhoForm.controls['categoria'].setValue('');
 	}
 
 }

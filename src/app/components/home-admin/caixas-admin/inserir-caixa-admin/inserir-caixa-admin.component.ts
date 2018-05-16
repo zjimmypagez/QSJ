@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
+
 @Component({
 	selector: 'app-inserir-caixa-admin',
 	templateUrl: './inserir-caixa-admin.component.html',
@@ -24,7 +26,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private router: Router, private fb: FormBuilder ) {
+	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) {
 		this.CaixaForm = fb.group({
 			'capacidade': ['', Validators.required],
 			'material': ['', Validators.required],
@@ -37,7 +39,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 		this.iniFormCaixa();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
-		this.ordenarVinhos();
+		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 	}
 
 	// Criação do novo modelo de caixa após verificações 
@@ -88,7 +90,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 	}
 
 	// Iniciar o objeto Caixa
-	public iniFormCaixa(){
+	iniFormCaixa(){
 		this.Caixa = {
 			capacidade: '',
 			garrafas: null,
@@ -97,19 +99,13 @@ export class InserirCaixaAdminComponent implements OnInit {
 		}
 	}
 
-	// Ordenar array vinhos por Marca
-	public ordenarVinhos(){
-		this.vinhos.sort(
-			function(obj1, obj2){
-				if (obj1.marca < obj2.marca){
-					return -1;
-				}
-				if (obj1.marca > obj2.marca){
-					return 1;
-				}
-				return 0;
-			}
-		);
+	// Função que limpa os dados do form CaixaForm
+	clearForm(){
+		this.CaixaForm.controls['capacidade'].setValue('');
+		this.CaixaForm.controls['material'].setValue('');
+		this.CaixaForm.controls['garrafas'].setValue('');
+		this.CaixaForm.controls['tipoVinho'].setValue('');
+		this.CaixaForm.markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -152,14 +148,6 @@ export class InserirCaixaAdminComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
-	}
-
-	// Função que limpa os dados do form CaixaForm
-	public clearForm(){
-		this.CaixaForm.controls['capacidade'].setValue('');
-		this.CaixaForm.controls['material'].setValue('');
-		this.CaixaForm.controls['garrafas'].setValue('');
-		this.CaixaForm.controls['tipoVinho'].setValue('');
 	}
 
 }

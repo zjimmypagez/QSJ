@@ -5,15 +5,14 @@
         <h4>Modelo da Garrafa</h4>
         <select disabled>
           <option>
-            L: {{garrafa.lote}} l | 
-            A: {{garrafa.ano}} | 
-            C: {{garrafa.capacidade}} | 
-            TV: {{garrafa.tipoVinho}}
+            L: {{garrafa.lote}}{{garrafa.cuba != null ? '-' + garrafa.cuba : ''}} | 
+            C: {{garrafa.capacidade}} l| 
+            TV: {{garrafa.tipo}} {{garrafa.categoria != "" ? ' - ' + garrafa.categoria : ""}}
           </option>
         </select>			
       </div>
       <div class="help">
-        L - Lote | A - Ano | C - Capacidade | TV - Tipo de Vinho
+        L - Lote | C - Capacidade | TV - Tipo de Vinho
       </div>
       <br>
       <div class="main-registo">

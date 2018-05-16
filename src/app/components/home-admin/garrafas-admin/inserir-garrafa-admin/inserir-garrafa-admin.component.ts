@@ -5,6 +5,8 @@ import { Router } from '@angular/router';
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
+
 @Component({
 	selector: 'app-inserir-garrafa-admin',
 	templateUrl: './inserir-garrafa-admin.component.html',
@@ -21,7 +23,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private router: Router, private fb: FormBuilder ) {
+	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) {
 		this.GarrafaForm = fb.group({
 			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
@@ -34,7 +36,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		this.iniFormGarrafa();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
-		this.ordenarVinhos();
+		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 	}
 
 	// Criação do novo modelo de garrafa após verificações 
@@ -66,29 +68,23 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		this.clearForm();
 	}
 
-	// Ordenar array vinhos por Marca
-	public ordenarVinhos(){
-		this.vinhos.sort(
-			function(obj1, obj2){
-				if (obj1.marca < obj2.marca){
-					return -1;
-				}
-				if (obj1.marca > obj2.marca){
-					return 1;
-				}
-				return 0;
-			}
-		);
-	}
-
 	// Iniciar o objeto Garrafa
-	public iniFormGarrafa(){
+	iniFormGarrafa(){
 		this.Garrafa = {
 			cuba: null,
 			ano: null,
 			tipoVinho: null,
 			capacidade: ''
 		}
+	}
+
+	// Função que limpa os dados do form GarrafaForm
+	clearForm(){
+		this.GarrafaForm.controls['cuba'].setValue('');
+		this.GarrafaForm.controls['ano'].setValue('');
+		this.GarrafaForm.controls['tipoVinho'].setValue('');
+		this.GarrafaForm.controls['capacidade'].setValue('');
+		this.GarrafaForm.markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -133,14 +129,6 @@ export class InserirGarrafaAdminComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
-	}
-
-	// Função que limpa os dados do form GarrafaForm
-	public clearForm(){
-		this.GarrafaForm.controls['cuba'].setValue('');
-		this.GarrafaForm.controls['ano'].setValue('');
-		this.GarrafaForm.controls['tipoVinho'].setValue('');
-		this.GarrafaForm.controls['capacidade'].setValue('');
 	}
 
 }

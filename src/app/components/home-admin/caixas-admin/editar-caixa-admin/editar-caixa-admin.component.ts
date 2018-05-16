@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
+
 @Component({
 	selector: 'app-editar-caixa-admin',
 	templateUrl: './editar-caixa-admin.component.html',
@@ -27,7 +29,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) {
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) {
 		this.CaixaForm = fb.group({
 			'capacidade': ['', Validators.required],
 			'material': ['', Validators.required],
@@ -39,7 +41,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaCaixas();
 		this.iniListaVinhos();
-		this.ordenarVinhos();
+		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -109,7 +111,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	}
 
 	// Inicializar o array garrafas
-	public iniGarrafas(material: string){
+	iniGarrafas(material: string){
 		if (material == this.materiais[0]/* Cartão */){
 			this.garrafas = [2, 3, 6, 12];
 		}
@@ -124,26 +126,11 @@ export class EditarCaixaAdminComponent implements OnInit {
 	}
 
 	// Coloca a form com os dados pre-selecionados
-	public resetForm(caixa: Caixa){
+	resetForm(caixa: Caixa){
 		this.CaixaForm.controls['capacidade'].setValue(caixa.capacidade);
 		this.CaixaForm.controls['material'].setValue(caixa.material);
 		this.CaixaForm.controls['garrafas'].setValue(caixa.garrafas);
 		this.CaixaForm.controls['tipoVinho'].setValue(caixa.tipoVinho);
-	}
-
-	// Ordenar array vinhos por Marca
-	public ordenarVinhos(){
-		this.vinhos.sort(
-			function(obj1, obj2){
-				if (obj1.marca < obj2.marca){
-					return -1;
-				}
-				if (obj1.marca > obj2.marca){
-					return 1;
-				}
-				return 0;
-			}
-		);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

@@ -11,7 +11,7 @@
 			  </tr>
 			  <tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
 				 <td>{{tabelaGarrafa.id}}</td>
-				 <td>{{tabelaGarrafa.lote}}</td>
+				 <td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
 				 <td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
 				 <td>{{tabelaGarrafa.capacidade}}</td>
 			  </tr>
@@ -42,41 +42,63 @@
 		   <h4>Operação</h4>
 		   <select formControlName="opcao" (change)="onChange($event.target.value)">
 			  <option value="">-- Opções --</option>
-			  <option value="InserirCS">Inserir C/Rótulo ou S/Rótulo</option>
-			  <option value="RemoverCS">Remover C/Rótulo ou S/Rótulo</option>
-			  <option value="RotularS">Rotular S/Rótulo</option>
+			  <option value="Inserir">Inserir C/Rótulo ou S/Rótulo</option>
+			  <option value="Remover">Remover C/Rótulo ou S/Rótulo</option>
+			  <option value="Rotular">Rotular Garrafas</option>
 		   </select>
 		</div>
 		<div class="alerta" *ngIf="!RegistoForm.controls['opcao'].valid && RegistoForm.controls['opcao'].touched">
 		   Opção obrigatória
 		</div>
 		<br>
-		<div class="main-registo" *ngIf="cRotuloSelecionado">
-		   <h4>C/Rotulo</h4>
-		   <input type="number" formControlName="cRotulo" placeholder="Insira aqui a quantidade de garrafas com rótulo do modelo selecionado...">
-		</div>
-		<div class="alerta" *ngIf="!RegistoForm.controls['cRotulo'].valid && RegistoForm.controls['cRotulo'].touched">
-		   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
-		</div>
-		<br> 
-		<div class="main-registo" *ngIf="sRotuloSelecionado">
-		   <h4>S/Rotulo</h4>
-		   <input type="number" formControlName="sRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo do modelo selecionado...">
-		</div>
-		<div class="alerta" *ngIf="!RegistoForm.controls['sRotulo'].valid && RegistoForm.controls['sRotulo'].touched">
-		   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
-		</div>
-		<br> 
-		<div class="main-registo" *ngIf="rotularSelecionado">
-		   <h4>Rotular Quantidade</h4>
-		   <input type="number" formControlName="cRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo que quer rotular...">
-		</div>
-		<div class="alerta" *ngIf="!RegistoForm.controls['cRotulo'].valid && RegistoForm.controls['cRotulo'].touched">
-		   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
-		</div>
-		<br> 
+		<form class="itemForm" [formGroup]="InserirForm" *ngIf="inserirSelecionado">
+			<div class="main-registo">
+			   <h4>C/Rotulo</h4>
+			   <input type="number" formControlName="cRotulo" placeholder="Insira aqui a quantidade de garrafas com rótulo do modelo selecionado...">
+			</div>
+			<div class="alerta" *ngIf="!InserirForm.controls['cRotulo'].valid && InserirForm.controls['cRotulo'].touched">
+			   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+			</div>
+			<br> 
+			<div class="main-registo">
+			   <h4>S/Rotulo</h4>
+			   <input type="number" formControlName="sRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo do modelo selecionado...">
+			</div>
+			<div class="alerta" *ngIf="!InserirForm.controls['sRotulo'].valid && InserirForm.controls['sRotulo'].touched">
+			   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+			</div>
+			<br>
+		</form>
+		<form class="itemForm" [formGroup]="RemoverForm" *ngIf="removerSelecionado">
+			<div class="main-registo">
+			   <h4>C/Rotulo</h4>
+			   <input type="number" formControlName="cRotulo" placeholder="Insira aqui a quantidade de garrafas com rótulo do modelo selecionado...">
+			</div>
+			<div class="alerta" *ngIf="!RemoverForm.controls['cRotulo'].valid && RemoverForm.controls['cRotulo'].touched">
+			   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+			</div>
+			<br> 
+			<div class="main-registo">
+			   <h4>S/Rotulo</h4>
+			   <input type="number" formControlName="sRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo do modelo selecionado...">
+			</div>
+			<div class="alerta" *ngIf="!RemoverForm.controls['sRotulo'].valid && RemoverForm.controls['sRotulo'].touched">
+			   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+			</div>
+			<br>
+		</form>
+		<form class="itemForm" [formGroup]="RotularForm" *ngIf="rotularSelecionado">
+			<div class="main-registo">
+			   <h4>Rotular Quantidade</h4>
+			   <input type="number" formControlName="sRotulo" placeholder="Insira aqui a quantidade de garrafas sem rótulo que quer rotular...">
+			</div>
+			<div class="alerta" *ngIf="!RotularForm.controls['sRotulo'].valid && RotularForm.controls['sRotulo'].touched">
+			   Quantidade obrigatória (Valores positivos | Indique 0 se não pretende introduzir nenhuma quantidade)
+			</div>
+			<br> 
+		</form>
 		<div class="registo-btn">
-		   <button type="submit" name="button" class="btn" [disabled]="!RegistoForm.valid">Inserir</button>
+		   <button type="submit" name="button" class="btn" [disabled]="(!RegistoForm.valid && !InserirForm.valid) || (!RegistoForm.valid && !RemoverForm.valid) || (!RegistoForm.valid && !RotularForm.valid)">Inserir</button>
 		   <a class="btn" (click)="clearDados()">Limpar</a>
 		</div>
 		<br>

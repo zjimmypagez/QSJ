@@ -3,6 +3,7 @@
     <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
         <div class="itemNav">
             <a routerLink="/admin/caixas/inserir" class="btn">Novo Modelo</a>
+            <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
             <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
             <select class="itemFiltro" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
                 <option value="">Material</option>
@@ -14,7 +15,7 @@
             </select>
             <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
                 <option value="">Tipo de Vinho</option>
-                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.tipo">{{vinho.tipo}}</option>
+                <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
             </select>
             <select class="itemFiltro3" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
                 <option value="">Categoria</option>

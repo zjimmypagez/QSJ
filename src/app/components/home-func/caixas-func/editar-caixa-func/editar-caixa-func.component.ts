@@ -6,6 +6,8 @@ import { RegistoCaixa } from '../../../../interfaces/registoCaixa';
 import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
 @Component({
 	selector: 'app-editar-caixa-func',
 	templateUrl: './editar-caixa-func.component.html',
@@ -30,7 +32,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 	// Lista de registos de caixa a ler da BD
 	registos: RegistoCaixa[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.RegistoForm = fb.group({
 			'comentario': ['', Validators.maxLength(200)]
 		});
@@ -40,7 +42,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 		this.iniListaRegistos();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
-		this.tabelaCaixas = this.iniListatTableCaixas(this.caixas, this.vinhos);
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -92,7 +94,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 	}
 
 	// Coloca a form com os dados pre-selecionados
-	public resetForm(registo: RegistoCaixa){
+	resetForm(registo: RegistoCaixa){
 		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
 	}
 
@@ -161,31 +163,6 @@ export class EditarCaixaFuncComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
-	}
-
-	// Interligação entre duas listas: Caixa e Tipo de Vinho
-	public iniListatTableCaixas(caixas: Caixa[], vinhos: TipoVinho[]): tableCaixa[]{
-		var table: tableCaixa[] = [];
-
-		for (let i = 0; i < caixas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (caixas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableCaixa = {
-						id: caixas[i].id,
-						capacidade: caixas[i].capacidade,
-						garrafas: caixas[i].garrafas,
-						material: caixas[i].material,
-						marca: vinhos[j].marca,
-						tipo: vinhos[j].tipo,
-						categoria: vinhos[j].categoria,
-						quantidade: caixas[i].quantidade 
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
 	}
 
 }

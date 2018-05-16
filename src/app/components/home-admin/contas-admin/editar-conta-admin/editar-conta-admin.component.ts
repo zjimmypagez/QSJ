@@ -104,7 +104,7 @@ export class EditarContaAdminComponent implements OnInit {
 	}
 
 	// Função de verificação de erros Formulário UserForm
-	public errosColect(): number[]{
+	errosColect(): number[]{
 		// Array que cataloga o erro
 		var erro: number[] = [0, 0, 0, 0]; // Index: 0 - username já existe
 										 			  // Index: 1 - email já existe

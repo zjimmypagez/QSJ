@@ -5,6 +5,11 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 // Módulo com todos os caminhos da aplicação
 import { AppRoutingModule } from "./app-routing.module";
 
+// Services
+import { FiltrosService } from "./services/funcoes-service/filtros.service";
+import { JoinTablesService } from "./services/funcoes-service/join-tables.service";
+import { OrdenarTablesService } from "./services/funcoes-service/ordenar-tables.service";
+
 import { AppComponent } from './app.component';
 
 // Componentes - Home Page
@@ -75,7 +80,11 @@ import { InserirEncomendaFuncComponent } from './components/home-func/encomendas
         ReactiveFormsModule,
         AppRoutingModule
     ],
-    providers: [],
+    providers: [
+        FiltrosService,
+        JoinTablesService,
+        OrdenarTablesService
+    ],
     bootstrap: [AppComponent]
 })
 export class AppModule { }

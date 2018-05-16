@@ -3,6 +3,7 @@
   <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
     <div class="itemNav">
        <a routerLink="/func/garrafas/inserirRemover" class="btn">Inserir/Remover Garrafas</a>
+       <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
        <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
        <select class="itemFiltro" formControlName="ano" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
           <option value="">Ano</option>
@@ -38,7 +39,7 @@
         </tr>
         <tr *ngFor="let tabelaRegisto of tabelaRegistos">
           <td>{{tabelaRegisto.id}}</td>
-          <td>{{tabelaRegisto.lote}}</td>
+          <td>{{tabelaRegisto.lote}}{{tabelaRegisto.cuba != null ? '-' + tabelaRegisto.cuba : ''}}</td>
           <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td>
           <td>{{tabelaRegisto.capacidade}} l</td>
           <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>

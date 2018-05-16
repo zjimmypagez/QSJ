@@ -47,6 +47,7 @@ export class AlterarPassFuncComponent implements OnInit {
 	clearDados(){
 		this.AlterarForm.controls['password'].setValue('');
 		this.AlterarForm.controls['cPassword'].setValue('');
+		this.AlterarForm.markAsUntouched();
 	}
 
 	// Iniciar o objeto Alterar

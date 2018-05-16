@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
+
 @Component({
 	selector: 'app-editar-garrafa-admin',
 	templateUrl: './editar-garrafa-admin.component.html',
@@ -24,7 +26,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { 
 		this.GarrafaForm = fb.group({
 			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
@@ -36,7 +38,7 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
-		this.ordenarVinhos();
+		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 
 		// Subscrição dos parametros do modelo da garrafa escolhido para editar
 		this.sub = this.route.params.subscribe(
@@ -88,23 +90,8 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		this.sub.unsubscribe();
 	}
 
-	// Ordenar array vinhos por Marca
-	public ordenarVinhos(){
-		this.vinhos.sort(
-			function(obj1, obj2){
-				if (obj1.marca < obj2.marca){
-					return -1;
-				}
-				if (obj1.marca > obj2.marca){
-					return 1;
-				}
-				return 0;
-			}
-		);
-	}
-
 	// Coloca a form com os dados pre-selecionados
-	public resetForm(garrafa: Garrafa){
+	resetForm(garrafa: Garrafa){
 		this.GarrafaForm.controls['cuba'].setValue(garrafa.cuba);
 		this.GarrafaForm.controls['ano'].setValue(garrafa.ano);
 		this.GarrafaForm.controls['tipoVinho'].setValue(garrafa.tipoVinho);

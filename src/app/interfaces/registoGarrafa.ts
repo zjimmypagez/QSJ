@@ -3,6 +3,7 @@ export interface RegistoGarrafa {
     idGarrafa: number,
     data: Date,
     comentario: string,
+    opcao: string,
     cRotulo: number,
     sRotulo: number
 }

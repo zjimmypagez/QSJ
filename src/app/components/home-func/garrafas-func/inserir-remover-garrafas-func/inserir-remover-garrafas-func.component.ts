@@ -5,17 +5,28 @@ import { Router } from '@angular/router';
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
 @Component({
 	selector: 'app-inserir-remover-garrafas-func',
 	templateUrl: './inserir-remover-garrafas-func.component.html',
 	styleUrls: ['./inserir-remover-garrafas-func.component.css']
 })
 export class InserirRemoverGarrafasFuncComponent implements OnInit {
-  	RegistoForm: FormGroup;
+	RegistoForm: FormGroup;	
 	Registo: formRegisto;
 
-	cRotuloSelecionado: boolean = false;
-	sRotuloSelecionado: boolean = false;
+	InserirForm: FormGroup;
+	Inserir: formInserirRemover;
+
+	RemoverForm: FormGroup;
+	Remover: formInserirRemover;
+
+	RotularForm: FormGroup;
+	Rotular: formRotular;
+
+	inserirSelecionado: boolean = false;
+	removerSelecionado: boolean = false;
 	rotularSelecionado: boolean = false;
 
 	// Lista de modelos de garrafa a ler da BD
@@ -25,116 +36,127 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaGarrafas: tableGarrafa[];
 	
-	constructor( private router: Router, private fb: FormBuilder ) { 
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.RegistoForm = fb.group({
 			'idGarrafa': ['', Validators.required],
 			'comentario': ['', Validators.maxLength(200)],
-			'opcao': ['', Validators.required],
-			'cRotulo': ['', Validators.min(0)],
-			'sRotulo': ['',  Validators.min(0)]
+			'opcao': ['', Validators.required]
+		});
+		this.InserirForm = fb.group({
+			'cRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])],
+			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
+		});
+		this.RemoverForm = fb.group({
+			'cRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])],
+			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
+		});
+		this.RotularForm = fb.group({
+			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
 		});
 	}
 
 	ngOnInit() {
-		this.iniFormRegisto();
+		this.iniForms();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
-		this.tabelaGarrafas = this.iniListatTableGarrafas(this.garrafas, this.vinhos);
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 	}
 
 	// Criação de um novo registo de garrafa após verificações 
 	novoRegisto(form){
-		this.Registo = form;
-		var qnt: number = this.Registo.cRotulo + this.Registo.sRotulo; 
 		
-		if (qnt != 0){
-			// Opção escolhida
-			switch (this.Registo.opcao){
-				case "InserirCS":{
-					alert("Foram inseridas " + qnt + " caixas: " + this.Registo.cRotulo + " c/Rótulo e " + this.Registo.sRotulo + " s/Rótulo");
-					this.router.navigate(['/func/garrafas']);
-					break;
-				}
-				case "RemoverCS":{
-					alert("Foram removidas " + qnt + " caixas: " + this.Registo.cRotulo + " c/Rótulo e " + this.Registo.sRotulo + " s/Rótulo");
-					this.Registo.cRotulo = -this.Registo.cRotulo;
-					this.Registo.sRotulo = -this.Registo.sRotulo;
-					this.router.navigate(['/func/garrafas']);
-					break;
-				}
-				case "RotularS":{
-					
-					break;
-				}
-			}
-		}
-		else{
-			alert("Operação Incoerente!");
-			this.RegistoForm.controls['cRotulo'].setValue('');
-			this.RegistoForm.controls['sRotulo'].setValue('');
-		}
 	}
 
 	// Select da opção escolhida
 	onChange(op){
 		if (op != ""){
 			switch (op){
-				case "InserirCS":{
+				case "Inserir":{
 					this.rotularSelecionado = false;
-					this.cRotuloSelecionado = true;
-					this.sRotuloSelecionado = true;
+					this.clearFormRotular();
+					this.removerSelecionado = false;
+					this.clearFormRemover();
+					this.inserirSelecionado = true;
 					break;
 				}
-				case "RemoverCS":{
+				case "Remover":{
 					this.rotularSelecionado = false;
-					this.cRotuloSelecionado = true;
-					this.sRotuloSelecionado = true;
+					this.clearFormRotular();
+					this.inserirSelecionado = false;
+					this.clearFormInserir();
+					this.removerSelecionado = true;
 					break;
 				}
-				case "RotularS":{
-					this.cRotuloSelecionado = false;
-					this.sRotuloSelecionado = false;
+				case "Rotular":{
+					this.removerSelecionado = false;
+					this.clearFormRemover();
+					this.inserirSelecionado = false;
+					this.clearFormInserir();
 					this.rotularSelecionado = true;
 					break;
 				}
 			}
 		}
 		else{
-			this.cRotuloSelecionado = false;
-			this.sRotuloSelecionado = false;
+			this.clearDados();
+			this.removerSelecionado = false;
+			this.inserirSelecionado = false;
 			this.rotularSelecionado = false;
 		}
 	}
 
 	// Limpa os dados do Formulário
 	clearDados(){
-		this.clearForm();
+		this.clearFormRegisto();
+		this.clearFormInserir();
+		this.clearFormRemover();
+		this.clearFormRotular();
 	}
 
-	// Obter iniciais da marca do vinho
-	public getIniciaisMarca(id: number): string{
-		var iniciais: string = "";
-		var marca: string;
-		for (let i = 0; i < this.vinhos.length; i++){
-			if (id == this.vinhos[i].id)
-				marca = this.vinhos[i].marca;
-		}
-
-		for (let i = 0; i < marca.length; i++){
-			if(marca[i].match(/[A-Z]/) != null){
-				iniciais = iniciais + marca[i];
-		  }
-		}
-		return iniciais;
+	// Função que limpa os dados do form RegistoForm
+	clearFormRegisto(){
+		this.RegistoForm.controls['idGarrafa'].setValue('');
+		this.RegistoForm.controls['comentario'].setValue('');
+		this.RegistoForm.controls['opcao'].setValue('');	
+		this.RegistoForm.markAsUntouched();	
 	}
 
-	// Iniciar o objeto Registo
-	public iniFormRegisto(){
+	// Função que limpa os dados do form InserirForm
+	clearFormInserir(){
+		this.InserirForm.controls['cRotulo'].setValue('');
+		this.InserirForm.controls['sRotulo'].setValue('');
+		this.InserirForm.markAsUntouched();	
+	}
+
+	// Função que limpa os dados do form RemoverForm
+	clearFormRemover(){
+		this.RemoverForm.controls['cRotulo'].setValue('');
+		this.RemoverForm.controls['sRotulo'].setValue('');
+		this.RemoverForm.markAsUntouched();	
+	}
+
+	// Função que limpa os dados do form RotularForm
+	clearFormRotular(){
+		this.RotularForm.controls['sRotulo'].setValue('');
+		this.RotularForm.markAsUntouched();	
+	}
+
+	// Iniciar os objetos Registo, Inserir, Remover e Rotular
+	iniForms(){
 		this.Registo = {
 			idGarrafa: null,
 			comentario: '',
-			opcao: '',
+			opcao: ''
+		}
+		this.Inserir = {
 			cRotulo: null,
+			sRotulo: null
+		}
+		this.Remover = {
+			cRotulo: null,
+			sRotulo: null
+		}
+		this.Rotular = {
 			sRotulo: null
 		}
 	}
@@ -183,49 +205,20 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		}];
 	}
 
-	// Interligação entre duas listas: Garrafa e Tipo de Vinho
-	public iniListatTableGarrafas(garrafas: Garrafa[], vinhos: TipoVinho[]): tableGarrafa[]{
-		var table: tableGarrafa[] = [];
-
-		for (let i = 0; i < garrafas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (garrafas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableGarrafa = {
-						id: garrafas[i].id,
-						lote: "LT-" + this.getIniciaisMarca(vinhos[j].id) + "-" + garrafas[i].ano + "-" + garrafas[i].cuba,
-						cuba: garrafas[i].cuba,
-						ano: garrafas[i].ano,
-						marca: vinhos[j].marca,
-						tipo: vinhos[j].tipo, 
-						categoria: vinhos[j].categoria,
-						capacidade: garrafas[i].capacidade,
-						cRotulo: garrafas[i].cRotulo,
-						sRotulo: garrafas[i].sRotulo 
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
-	}
-
-	// Função que limpa os dados do form RegistoForm
-	public clearForm(){
-		this.RegistoForm.controls['idGarrafa'].setValue('');
-		this.RegistoForm.controls['comentario'].setValue('');
-		this.RegistoForm.controls['opcao'].setValue('');
-		this.RegistoForm.controls['cRotulo'].setValue('');
-		this.RegistoForm.controls['sRotulo'].setValue('');
-	}
-
 }
 
 interface formRegisto{
 	idGarrafa: number,
 	comentario: string,
-	opcao: string,
+	opcao: string
+}
+
+interface formInserirRemover{
 	cRotulo: number,
+	sRotulo: number
+}
+
+interface formRotular{
 	sRotulo: number
 }
 

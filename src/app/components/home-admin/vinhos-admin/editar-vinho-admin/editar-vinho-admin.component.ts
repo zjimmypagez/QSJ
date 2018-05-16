@@ -102,7 +102,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 	}
 
 	// Coloca a form com os dados pre-selecionados
-	public resetForm(vinho: TipoVinho){
+	resetForm(vinho: TipoVinho){
 		this.VinhoForm.controls['marca'].setValue(vinho.marca);
 		this.VinhoForm.controls['tipo'].setValue(vinho.tipo);
 		this.VinhoForm.controls['categoria'].setValue(vinho.categoria);
