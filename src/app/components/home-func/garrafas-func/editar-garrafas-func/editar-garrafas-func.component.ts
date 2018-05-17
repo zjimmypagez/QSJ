@@ -56,10 +56,19 @@ export class EditarGarrafasFuncComponent implements OnInit {
 		}
 
 		// Selecção da opção escolhida
-		if ((this.registo.cRotulo + this.registo.sRotulo) > 0)
-			this.opcao = "Inserir";
-		else{
-			this.opcao = "Remover";
+		switch (this.registo.opcao){
+			case "Inserir":{
+				this.opcao = "Inserir";
+				break;
+			}
+			case "Remover":{
+				this.opcao = "Remover";
+				break;
+			}
+			case "Rotular":{
+				this.opcao = "Rotular";
+				break;
+			}
 		}
 
 		// Seleção do modelo de garrafa escolhido
@@ -74,9 +83,15 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	// Editar o registo de garrafa após verificações
 	editarRegisto(form){
 		this.Registo = form;
+
+		if (this.registo.comentario != this.Registo.comentario){
+			alert("O comentário foi editado com sucesso!");
+			this.router.navigate(['/func/garrafas']);
+		}
+		else{
+			alert("O comentário já existe!");
+		}
 		
-		alert("O comentário foi editado com sucesso!");
-		this.router.navigate(['/func/garrafas']);
 	}
 
 	// Reset dos dados da form
@@ -100,7 +115,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			idGarrafa: 2,
 			data: new Date(2012,3,25),
 			comentario: "2 c/ defeito",
-			opcao: "",
+			opcao: "Inserir",
 			cRotulo: 24,
 			sRotulo: 24     
 		},
@@ -109,18 +124,18 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			idGarrafa: 1,
 			data: new Date(2017,4,2),
 			comentario: "",
-			opcao: "",
+			opcao: "Remover",
 			cRotulo: 200,
-      	sRotulo: 200  
+      		sRotulo: 200  
 		},
 		{
 			id: 3,
 			idGarrafa: 1,
 			data: new Date(2001,11,22),
 			comentario: "5 partidas",
-			opcao: "",
-			cRotulo: 21,
-      	sRotulo: null 
+			opcao: "Rotular",
+			cRotulo: 0,
+      		sRotulo: 25 
 		}];
 	}
 

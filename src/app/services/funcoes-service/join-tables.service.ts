@@ -169,6 +169,32 @@ export class JoinTablesService {
 		return table;
 	}
 
+	// Interligação entre duas listas: User e Encomenda
+	public iniListaTableEncomenda(users: any[], encomendas: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < encomendas.length; i++){
+			for (let j = 0; j < users.length; j++){
+				if (encomendas[i].idUser == users[j].id){
+					var tableObj: any = {
+						id: encomendas[i].id,
+						username: users[j].username,
+						data: encomendas[i].data,
+						dataFinal: encomendas[i].dataFinal,
+						nFatura: encomendas[i].nFatura,
+						comentario: encomendas[i].comentario,
+						estado: encomendas[i].estado
+					}
+					table.push(tableObj);
+				}
+			}
+		}
+		table.sort(
+			function(obj1, obj2){
+				return obj2.data.getTime() - obj1.data.getTime();
+		})		
+		return table;
+	}
+
 	// Função que obtem iniciais da marca do vinho - Função iniListaTableGarrafas(garrafas: any[], vinhos: any[])
 	getIniciaisMarca(id: number, vinhos: any[]): string{
 		var iniciais: string = "";

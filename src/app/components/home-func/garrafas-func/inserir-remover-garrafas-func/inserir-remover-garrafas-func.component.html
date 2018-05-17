@@ -18,7 +18,7 @@
 		   </table>
 		</div>
 		<br>
-		<form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="novoRegisto(RegistoForm.value)">
+		<form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="novoRegisto(RegistoForm.value, InserirForm.value, RemoverForm.value, RotularForm.value)">
 		<div class="main-registo">
 		   <h4>Id Modelo Caixa</h4>
 		   <select formControlName="idGarrafa">
@@ -98,7 +98,7 @@
 			<br> 
 		</form>
 		<div class="registo-btn">
-		   <button type="submit" name="button" class="btn" [disabled]="(!RegistoForm.valid && !InserirForm.valid) || (!RegistoForm.valid && !RemoverForm.valid) || (!RegistoForm.valid && !RotularForm.valid)">Inserir</button>
+		   <button type="submit" name="button" class="btn" [disabled]="getEstadoForm()">Inserir</button>
 		   <a class="btn" (click)="clearDados()">Limpar</a>
 		</div>
 		<br>

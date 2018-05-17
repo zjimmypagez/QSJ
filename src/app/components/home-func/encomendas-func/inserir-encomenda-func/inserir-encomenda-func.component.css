@@ -74,6 +74,38 @@ select{
     grid-gap: 10px;
 }
 
+.itemClear{
+    cursor: pointer;
+    align-self: end;
+    background: var(--primary);
+    color: var(--dark1);
+    padding: 0.1rem;
+    text-decoration: none;
+    text-align: center;    
+}
+
+.addRow{
+    display: grid;
+    grid-gap: 10px 8px;
+    grid-template-columns: 1fr 2fr 1fr;
+}
+
+.itemAdd{
+    grid-column: 2 / 3;
+}
+
+.itemFormTabelaCaixasNormaisHeader{
+    display: grid;
+    grid-gap: 10px 8px;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.itemFormTabelaCaixasNormais{
+    display: grid;
+    grid-gap: 10px 8px;
+    grid-template-columns: repeat(4, 1fr);
+}
+
 .main-registo{
     display: grid;
     grid-gap: 0px;
@@ -97,6 +129,15 @@ select{
 }
 
 .main-registo input[type=text], input[type=password], input[type=number], select{
+    border: var(--primary);
+    padding: 0 0.5rem;
+    border-radius: 0.2rem;
+    background: var(--dark1);
+    color: var(--light);
+    text-align: center;
+}
+
+input[type=text], input[type=password], input[type=number], select{
     border: var(--primary);
     padding: 0 0.5rem;
     border-radius: 0.2rem;
@@ -137,7 +178,7 @@ select{
     cursor: pointer;
 }
 
-.main-nav a:hover, .btn:hover{
+.main-nav a:hover, .btn:hover, .itemClear:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -156,6 +197,18 @@ form{
     select{
         width:100%;
         max-width: 100%;
+    }
+
+    .itemFormTabelaCaixasNormais{
+        grid-template-columns: 1fr;
+    }
+    
+    .addRow{
+        grid-template-columns: 1fr;
+    }
+
+    .itemAdd{
+        grid-column: unset;
     }
 }
 

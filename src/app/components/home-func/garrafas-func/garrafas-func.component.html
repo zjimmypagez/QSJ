@@ -44,8 +44,8 @@
           <td>{{tabelaRegisto.capacidade}} l</td>
           <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
           <td>{{tabelaRegisto.comentario}}</td>
-          <td>{{tabelaRegisto.cRotulo}}</td>
-          <td>{{tabelaRegisto.sRotulo}}</td>
+          <td>{{tabelaRegisto.opcao == "Inserir" ? tabelaRegisto.cRotulo : tabelaRegisto.opcao == "Remover" ? '-' + tabelaRegisto.cRotulo : tabelaRegisto.cRotulo}}</td>
+          <td>{{tabelaRegisto.opcao == "Inserir" ? tabelaRegisto.sRotulo : tabelaRegisto.opcao == "Remover" ? '-' + tabelaRegisto.sRotulo : tabelaRegisto.sRotulo + ' R'}}</td>
           <td>
             <div class="action-btn">
                 <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>

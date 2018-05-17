@@ -51,9 +51,17 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 				break;
 			}
 			case "Remover":{
-				alert("Foram removidas " + this.Registo.quantidade + " caixas!");
-				this.Registo.quantidade = -this.Registo.quantidade;
-				this.router.navigate(['/func/caixas']);
+				var quantidade: number = this.getQuantidade(this.Registo.idCaixa);
+				if (quantidade >= this.Registo.quantidade){
+					alert("Foram removidas " + this.Registo.quantidade + " caixas!");
+					this.Registo.quantidade = -this.Registo.quantidade;
+					this.router.navigate(['/func/caixas']);
+				}
+				else{
+					this.RegistoForm.controls['quantidade'].setValue('');
+					this.RegistoForm.markAsUntouched();
+					alert("Não existe em stock a quantidade que pretender remover!");
+				}
 				break;
 			}
 		}
@@ -81,6 +89,16 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 			comentario: '',
 			quantidade: null
 		}
+	}
+
+	// Função que retorna a quantidade de uma determinada caixa
+	getQuantidade(id: number): number{
+		var quantidade: number;
+		for (let i = 0; i < this.caixas.length; i++){
+			if (id == this.caixas[i].id)
+				quantidade = this.caixas[i].quantidade;
+		}
+		return quantidade;
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

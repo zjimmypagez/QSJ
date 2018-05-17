@@ -154,7 +154,7 @@ export class GarrafasFuncComponent implements OnInit {
 			idGarrafa: 2,
 			data: new Date(2012,3,25),
 			comentario: "2 c/ defeito",
-			opcao: "",
+			opcao: "Inserir",
 			cRotulo: 24,
 			sRotulo: 24     
 		},
@@ -163,18 +163,18 @@ export class GarrafasFuncComponent implements OnInit {
 			idGarrafa: 1,
 			data: new Date(2017,4,2),
 			comentario: "",
-			opcao: "",
+			opcao: "Remover",
 			cRotulo: 200,
-      	sRotulo: 200  
+      		sRotulo: 200  
 		},
 		{
 			id: 3,
 			idGarrafa: 1,
 			data: new Date(2001,11,22),
 			comentario: "5 partidas",
-			opcao: "",
-			cRotulo: 21,
-      	sRotulo: 0 
+			opcao: "Rotular",
+			cRotulo: 0,
+      		sRotulo: 25 
 		}];
 	}
 	

@@ -15,6 +15,17 @@ export class FiltrosService {
 		return tabelaMarca;
 	}
 
+	// Função utilizada para retornar uma tabela a partir da pesquisa do num de fatura de uma encomenda
+	pesquisaNFatura(tabela: any[], nFatura: number): any[]{
+		var tabelaNFatura: any[] = [];
+		// Pesquisa na tabela por objetos com a propriedade nfatura igual a pesquisada
+		for (let i = 0; i < tabela.length; i++){
+			if (tabela[i].nFatura == nFatura)
+				tabelaNFatura.push(tabela[i]);
+		}
+		return tabelaNFatura;
+	}
+
 	// Função que cruza os filtros Material - Capacidade - TipoVinho - Categoria e devolve a tabela que desse cruzamento é originada
 	filtroMaterialCapacidadeTipoVinhoCategoria(filtro: any, tabela: any[]): any[]{
 		var tabelaFiltro: any[] = tabela;		

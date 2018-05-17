@@ -63,8 +63,54 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	}
 
 	// Criação de um novo registo de garrafa após verificações 
-	novoRegisto(form){
-		
+	novoRegisto(form, formInserir, formRemover, formRotular){
+		this.Registo = form;
+
+		if (formInserir.cRotulo != 0 || formInserir.sRotulo != 0 || formRemover.cRotulo != 0 || formRemover.sRotulo != 0 || formRotular.sRotulo != 0){
+			switch (this.Registo.opcao){
+				case "Inserir":{
+					this.Inserir = formInserir;
+					// inserir dados na bd
+					alert("Foram inseridas: [" + this.Inserir.cRotulo + " C/Rótulo e " + this.Inserir.sRotulo + " S/Rótulo] garrafas!");
+					this.router.navigate(['/func/garrafas']);
+					break;
+				}
+				case "Remover":{
+					this.Remover = formRemover;
+					var quantidades: number[] = this.getQuantidade(this.Registo.idGarrafa);
+					if (quantidades[0] >= this.Remover.cRotulo && quantidades[1] >= this.Remover.sRotulo){
+						// remover quantidades da bd
+						alert("Foram removidas: [" + this.Remover.cRotulo + " C/Rótulo e " + this.Remover.sRotulo + " S/Rótulo] garrafas!");
+						this.router.navigate(['/func/garrafas']);
+					}
+					else{
+						alert("As quantidades que pretende remover não se encontram em stock!");
+						this.clearFormRemover();
+					}
+					break;
+				}
+				case "Rotular":{
+					this.Rotular = formRotular;
+					var quantidade: number = this.getQuantidadeSRotulo(this.Registo.idGarrafa);
+					if (quantidade >= this.Rotular.sRotulo){
+						// retirar a quantidade de garrafas a rotular da quantidade s/rotulo e adicionar a c/rotulo bd
+						alert("Foram rotuladas: [" + this.Rotular.sRotulo + " S/Rótulo] garrafas!");
+						this.router.navigate(['/func/garrafas']);
+					}
+					else{
+						alert("Não existe a quantidade de garrafas em stock a serem rotuladas!");
+						this.clearFormRotular();
+					}
+					break;
+				}
+			}
+		}
+		else{
+			this.clearFormInserir();
+			this.clearFormRemover();
+			this.clearFormRotular();
+			alert("Insira pelo menos uma quantidade positiva!");
+		}
 	}
 
 	// Select da opção escolhida
@@ -103,6 +149,19 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 			this.inserirSelecionado = false;
 			this.rotularSelecionado = false;
 		}
+	}
+
+	getEstadoForm(){		
+		if (this.RegistoForm.valid && this.InserirForm.valid)
+			return false;
+		else
+			if (this.RegistoForm.valid && this.RemoverForm.valid)
+				return false;
+			else
+				if (this.RegistoForm.valid && this.RotularForm.valid)
+					return false;
+				else
+					return true;
 	}
 
 	// Limpa os dados do Formulário
@@ -159,6 +218,29 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		this.Rotular = {
 			sRotulo: null
 		}
+	}
+
+	// Função que devolve as quantidades c/rotulo e s/rotulo
+	getQuantidade(id: number): number[]{
+		var quantidades: number[] = [];
+		for (let i = 0; i < this.garrafas.length; i++){
+			if (id == this.garrafas[i].id){
+				quantidades.push(this.garrafas[i].cRotulo);
+				quantidades.push(this.garrafas[i].sRotulo);
+			}
+		}
+		return quantidades;
+	}
+
+	// Função que devolve a quantidade s/rotulo
+	getQuantidadeSRotulo(id: number): number{
+		var quantidade: number;
+		for (let i = 0; i < this.garrafas.length; i++){
+			if (id == this.garrafas[i].id){
+				quantidade = this.garrafas[i].sRotulo;
+			}
+		}
+		return quantidade;
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

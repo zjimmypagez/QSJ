@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from '@angular/router';
 
 import { Encomenda } from '../../../../interfaces/encomenda';
 import { Caixa } from '../../../../interfaces/caixa';
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
+
+import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 
 @Component({
 	selector: 'app-inserir-encomenda-func',
@@ -17,10 +19,12 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	DadosEncomenda: formDadosEncomenda;
 
 	DadosCaixaForm: FormGroup;
-	DadosGarrafaForm: FormGroup;
 
 	caixaSelecionado: boolean = false;
 	garrafaSelecionado: boolean = false;
+
+	// Seleção de garrafas com a mesma capacidade que as caixas
+	selecaoGarrafas: Garrafa[] = [];
 
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
@@ -38,10 +42,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	modeloCaixaSelecionado: boolean = false;
 	modeloGarrafaSelecionado: boolean = false;
 
-	constructor( private router: Router, private fb: FormBuilder ) { 
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.DadosEncomendaForm = fb.group({
 			'nFatura': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'comentario': ['', Validators.maxLength(200)]
+		});
+		this.DadosCaixaForm = fb.group({
+			itemRow: fb.array([this.iniItemRow()])
 		});
 	}
 
@@ -50,14 +57,35 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
 		this.iniListaEncomendas();		
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+	}
 
-		this.tabelaCaixas = this.iniListatTableCaixas(this.caixas, this.vinhos);
-		this.tabelaGarrafas = this.iniListatTableGarrafas(this.garrafas, this.vinhos);
+	// Inicializar itemRow
+	iniItemRow(){
+		return this.fb.group({
+			'caixa': ['', Validators.required],
+			'garrafa': ['', Validators.required],
+			'quantidade': ['', Validators.compose([Validators.required, Validators.min(1)])]
+		});
+	}
+
+	// Adicionar item ao array form
+	adicionarLinha(){
+		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
+		control.push(this.iniItemRow());
+	}
+
+	// Apagar item ao array form
+	apagarLinha(index:number){
+    	const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
+   	control.removeAt(index);
 	}
 
 	// Criar encomenda após verificações
-	novoRegisto(dadosEncomenda){
+	novoRegisto(dadosEncomenda, dadosCaixas){
 		console.log(dadosEncomenda);
+		console.log(dadosCaixas);
 	}
 
 	// Selecionar encomenda por caixas
@@ -100,21 +128,25 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		}
 	}
 
-	// Obter iniciais da marca do vinho
-	public getIniciaisMarca(id: number): string{
-		var iniciais: string = "";
-		var marca: string;
-		for (let i = 0; i < this.vinhos.length; i++){
-			if (id == this.vinhos[i].id)
-				marca = this.vinhos[i].marca;
+	// Preenchimento da lista de garrafas especificas para a caixa selecionada
+	onChangeModeloCaixa(id: number, index: number){	
+		this.selecaoGarrafas = [];
+		var caixaSelecionada: Caixa = {
+			id: 0,
+			capacidade: 0,
+			garrafas: 0,
+			material: "",
+			tipoVinho: 0,
+			quantidade: 0
+		};
+		for (let i = 0; i < this.caixas.length; i++){
+			if (id == this.caixas[i].id)
+				caixaSelecionada = this.caixas[i];
+		}		
+		for (let j = 0; j < this.garrafas.length; j++){
+			if (caixaSelecionada.capacidade == this.garrafas[j].capacidade)
+				this.selecaoGarrafas.push(this.garrafas[j]);
 		}
-
-		for (let i = 0; i < marca.length; i++){
-			if(marca[i].match(/[A-Z]/) != null){
-				iniciais = iniciais + marca[i];
-		  }
-		}
-		return iniciais;
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -132,7 +164,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
          capacidade: 0.750,
          garrafas: 12,
          material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];
 	}
@@ -201,56 +233,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			comentario: '',
 			estado: true
 		 }];
-	}
-
-	// Interligação entre duas listas: Caixa e Tipo de Vinho
-	public iniListatTableCaixas(caixas: Caixa[], vinhos: TipoVinho[]): tableCaixa[]{
-		var table: tableCaixa[] = [];
-
-		for (let i = 0; i < caixas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (caixas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableCaixa = {
-						id: caixas[i].id,
-						capacidade: caixas[i].capacidade,
-						garrafas: caixas[i].garrafas,
-						material: caixas[i].material,
-						tipoVinho: vinhos[j].tipo,
-						quantidade: caixas[i].quantidade 
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
-	}
-
-	// Interligação entre duas listas: Garrafa e Tipo de Vinho
-	public iniListatTableGarrafas(garrafas: Garrafa[], vinhos: TipoVinho[]): tableGarrafa[]{
-		var table: tableGarrafa[] = [];
-
-		for (let i = 0; i < garrafas.length; i++){
-			for (let j = 0; j < vinhos.length; j++){
-				if (garrafas[i].tipoVinho == vinhos[j].id){
-					var tableObj: tableGarrafa = {
-						id: garrafas[i].id,
-						lote: "LT-" + this.getIniciaisMarca(vinhos[j].id) + "-" + garrafas[i].ano + "-" + garrafas[i].cuba,
-						cuba: garrafas[i].cuba,
-						ano: garrafas[i].ano,
-						marca: vinhos[j].marca,
-						tipo: vinhos[j].tipo, 
-						categoria: vinhos[j].categoria,
-						capacidade: garrafas[i].capacidade,
-						cRotulo: garrafas[i].cRotulo,
-						sRotulo: garrafas[i].sRotulo
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		return table;
 	}
 
 }

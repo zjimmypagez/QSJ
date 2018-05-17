@@ -5,6 +5,9 @@ import { Router } from '@angular/router';
 import { User } from '../../../interfaces/user';
 import { Encomenda } from '../../../interfaces/encomenda';
 
+import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
+import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
+
 @Component({
 	selector: 'app-encomendas-func',
 	templateUrl: './encomendas-func.component.html',
@@ -22,7 +25,7 @@ export class EncomendasFuncComponent implements OnInit {
   	// Tabela interligada entre utilizadores caixas e encomendas
 	tabelaEncomendas: tableEncomenda[];
 
-	constructor( private router: Router, private fb: FormBuilder ) { 
+	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
 			'nFatura': [null, ]
 		});
@@ -31,25 +34,18 @@ export class EncomendasFuncComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaUsers();
 		this.iniListaEncomendas();
-		this.tabelaEncomendas = this.iniListatTableEncomenda(this.users, this.encomendas);
+		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 	}
 
 	// Filtrar segundo pesquisa
 	filtrar(form){
 		var nFatura = form.nFatura;
 		if (nFatura != null){
-			var tabelaNFatura: tableEncomenda[] = [];
-			for (let i = 0; i < this.tabelaEncomendas.length; i++){
-				if (this.tabelaEncomendas[i].nFatura == nFatura)
-					tabelaNFatura.push(this.tabelaEncomendas[i]);
-			}
-			if (tabelaNFatura.length == 0){
+			this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
+			if (this.tabelaEncomendas.length == 0)
 				this.estadoTabela = false;
-			}
-			else{
+			else
 				this.estadoTabela == true;
-				this.tabelaEncomendas = tabelaNFatura;
-			}
 		}
 		else{
 			alert("Insira números válidos!");
@@ -59,7 +55,7 @@ export class EncomendasFuncComponent implements OnInit {
 
 	// Clear Tabela
 	clearTabela(){
-		this.tabelaEncomendas = this.iniListatTableEncomenda(this.users, this.encomendas);
+		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 		this.estadoTabela = true;
 		this.FiltroForm.controls['nFatura'].setValue(null);
 	}
@@ -115,35 +111,6 @@ export class EncomendasFuncComponent implements OnInit {
 			comentario: '',
 			estado: true
 		 }];
-	}
-
-	// Interligação entre duas listas: User e Encomenda
-	public iniListatTableEncomenda(users: User[], encomendas: Encomenda[]): tableEncomenda[]{
-		var table: tableEncomenda[] = [];
-
-		for (let i = 0; i < encomendas.length; i++){
-			for (let j = 0; j < users.length; j++){
-				if (encomendas[i].idUser == users[j].id){
-					var tableObj: tableEncomenda = {
-						id: encomendas[i].id,
-						username: users[j].username,
-						data: encomendas[i].data,
-						dataFinal: encomendas[i].dataFinal,
-						nFatura: encomendas[i].nFatura,
-						comentario: encomendas[i].comentario,
-						estado: encomendas[i].estado
-					}
-					table.push(tableObj);
-				}
-			}
-		}
-
-		table.sort(
-			function(obj1, obj2){
-				return obj2.data.getTime() - obj1.data.getTime();
-		})
-		
-		return table;
 	}
 
 }
