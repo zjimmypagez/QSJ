@@ -67,8 +67,9 @@
 			Máx. 200 Caracteres
 		</div>	
 		<div style="margin: 10px 0 10px 0;"></div>
-		<form [formGroup]="DadosCaixaForm" style="display: grid; grid-gap: 10px">
-			<div class="itemFormTabelaCaixasNormaisHeader">
+		<h4>Encomenda por Caixas só com um modelo de garrafa</h4>		
+		<form [formGroup]="DadosCaixaForm" style="display: grid; grid-gap: 10px;">
+			<div class="itemFormTabelaCaixasNormaisHeader" style="background-color: #27270c;">
 				<h4>Modelos Caixa</h4>
 				<h4>Modelos Garrafa</h4>
 				<h4>Quantidade Caixas</h4>
@@ -76,21 +77,58 @@
 			</div>
 			<div formArrayName="itemRow" style="display: grid; grid-gap: 10px">
 				<div class="itemFormTabelaCaixasNormais" *ngFor="let itemrow of DadosCaixaForm.controls.itemRow.controls; let i=index"  [formGroupName]="i">
-					<select formControlName="caixa" (change)="onChangeModeloCaixa($event.target.value, i)">
-						<option value="">Caixa - Id</option>
+					<select formControlName="caixa">
 						<option *ngFor="let caixa of caixas" [ngValue]="caixa.id">{{caixa.id}}</option>
 					</select>
-					<select formControlName="garrafa">
-						<option value="">Garrafa - Id</option>
+					<select formControlName="garrafa" >
 						<option *ngFor="let garrafa of garrafas" [ngValue]="garrafa.id">{{garrafa.id}}</option>
 					</select>
 					<input type="number" formControlName="quantidade" placeholder="Insira aqui a quantidade de caixas...">
 					<a class="itemClear" (click)="apagarLinha(i)" style="font-size: 11px;" *ngIf="DadosCaixaForm.controls.itemRow.controls.length > 1">Limpar Registo</a>					
 				</div>
 			</div>
-			<div style="margin: 10px 0 10px 0;"></div>
 			<div class="addRow">
-				<a class="itemClear itemAdd" (click)="adicionarLinha()" style="font-size: 11px;">Adicionar Linha</a>
+				<a class="itemClear itemAdd" (click)="adicionarLinha()" style="font-size: 11px;">Adicionar Registo</a>
+			</div>
+		</form>
+		<div style="margin: 10px 0 10px 0;"></div>
+		<h4>Encomenda por Caixas com vários modelos de garrafa</h4>
+		<form [formGroup]="DadosCaixaEspeciaisForm" style="display: grid; grid-gap: 10px;">
+			<div formArrayName="itemRowEsp" style="display: grid; grid-gap: 10px">
+				<div *ngFor="let itemrow of DadosCaixaEspeciaisForm.controls.itemRowEsp.controls; let i=index" [formGroupName]="i" style="display: grid; grid-gap: 10px">
+					<h4>Caixa Nº{{i+1}}</h4>
+					<div class="itemFormCaixaQuantidade">
+						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixa($event.target.value, itemrow.controls.itemRowGarrafa)">
+							<option value="">Modelos de Caixa</option>
+							<option *ngFor="let caixa of caixas" [value]="caixa.id">{{caixa.id}}</option>
+						</select>
+						<input type="number" formControlName="quantidadeCaixa" placeholder="Insira aqui a quantidade de caixas...">
+					</div>
+					<div style="margin: 5px 0 0 0;"></div>
+					<div class="itemFormCaixaQuantidadeHeader" style="background-color: #27270c;">
+						<h4>Modelos Garrafa</h4>
+						<h4>Quantidade Caixas</h4>
+						<h4>Acções</h4>
+					</div>
+					<div formArrayName="itemRowGarrafa" style="display: grid; grid-gap: 10px">
+						<div class="itemFormQuantidade" *ngFor="let itemrowGarrafa of itemrow.controls.itemRowGarrafa.controls; let j=index" [formGroupName]="j" style="display: grid; grid-gap: 10px">
+							<select formControlName="garrafa" >
+								<option *ngFor="let garrafa of selecaoGarrafas" [ngValue]="garrafa.id">{{garrafa.id}}</option>
+							</select>
+							<input type="number" formControlName="quantidadeGarrafa" placeholder="Insira aqui a quantidade de caixas...">
+							<a class="itemClear" (click)="apagarLinhaEspecial(itemrow.controls.itemRowGarrafa, j)" style="font-size: 11px;" *ngIf="itemrow.controls.itemRowGarrafa.length > 1">Limpar Registo</a>		
+						</div>
+					</div>
+					<div class="addRow">
+						<a class="itemClear itemAdd" (click)="adicionarLinhaEspecial(itemrow.controls.itemRowGarrafa)" style="font-size: 11px;">Adicionar Registo</a>
+					</div>
+				</div>
+				<div class="addRow">
+					<a class="itemClear itemAdd" (click)="adicionarEspecial()" style="font-size: 11px;">Nova Caixa</a>
+				</div>
+				<div class="addRow">					
+					<a class="itemClear itemAdd" (click)="apagarEspecial(i)" *ngIf="DadosCaixaEspeciaisForm.controls.itemRowEsp.controls.length > 1" style="font-size: 11px;">Limpar Caixa</a>
+				</div>
 			</div>
 		</form>
 		<div style="margin: 10px 0 10px 0;"></div>

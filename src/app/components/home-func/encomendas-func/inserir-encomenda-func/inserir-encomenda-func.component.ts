@@ -20,8 +20,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 
 	DadosCaixaForm: FormGroup;
 
+	DadosCaixaEspeciaisForm: FormGroup;
+
 	caixaSelecionado: boolean = false;
 	garrafaSelecionado: boolean = false;
+
+	// Quantidade de garrafas que leva a caixa selecionada
+	quantidadeGarrafas: number; 
 
 	// Seleção de garrafas com a mesma capacidade que as caixas
 	selecaoGarrafas: Garrafa[] = [];
@@ -44,11 +49,14 @@ export class InserirEncomendaFuncComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.DadosEncomendaForm = fb.group({
-			'nFatura': ['', Validators.compose([Validators.required, Validators.min(1)])],
+			'nFatura': ['', Validators.min(1)],
 			'comentario': ['', Validators.maxLength(200)]
 		});
 		this.DadosCaixaForm = fb.group({
 			itemRow: fb.array([this.iniItemRow()])
+		});
+		this.DadosCaixaEspeciaisForm = fb.group({
+			itemRowEsp: fb.array([this.iniitemRowEsp()])
 		});
 	}
 
@@ -61,7 +69,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 	}
 
-	// Inicializar itemRow
+	// Inicializar itemRow - Caixas Normais
 	iniItemRow(){
 		return this.fb.group({
 			'caixa': ['', Validators.required],
@@ -70,13 +78,72 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		});
 	}
 
-	// Adicionar item ao array form
+	// Inicializar itemRow - Caixas Especiais
+	iniitemRowEsp(){
+		return this.fb.group({
+			'caixa': ['', Validators.required],
+			'quantidadeCaixa': ['', Validators.compose([Validators.required, Validators.min(1)])],
+			itemRowGarrafa: this.fb.array([this.iniItemRowGarrafa()])
+		});
+	}
+
+	iniItemRowGarrafa(){
+		return this.fb.group({			
+			'garrafa': ['', Validators.required],
+			'quantidadeGarrafa': ['', Validators.compose([Validators.required, Validators.min(1)])],
+		});
+	}
+
+	// Adicionar item ao array DadosCaixaForm
 	adicionarLinha(){
 		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
 		control.push(this.iniItemRow());
 	}
 
-	// Apagar item ao array form
+	// Adicionar item ao array
+	adicionarEspecial(){
+		const control = <FormArray>this.DadosCaixaEspeciaisForm.controls['itemRowEsp'];
+		control.push(this.iniitemRowEsp());
+	}
+
+	// Adicionar linha ao array DadosCaixaEspecialForm
+	adicionarLinhaEspecial(control){
+		var qnt = control.controls[control.length - 1].controls['quantidadeGarrafa'].value;
+		var garrafa = control.controls[control.length - 1].controls['garrafa'].value;
+		if (qnt != "" && qnt != null && garrafa != "" && garrafa != null){
+			if (this.quantidadeGarrafas - qnt > 0){
+				this.quantidadeGarrafas -= qnt;
+				control.push(this.iniItemRowGarrafa());			
+			}
+			else{
+				if (this.quantidadeGarrafas - qnt == 0)
+					alert("Caixa preenchida!");
+				else{
+					control.controls[control.length - 1].controls['quantidadeGarrafa'].setValue('');
+					alert("Extravazou a quantidade da caixa!");
+				}
+			}
+		}
+		else{
+			alert("Selecione e preencha todos os campos antes de adicionar mais caixas!");
+		}
+	}
+
+	apagarEspecial(index: number){
+		const control = <FormArray>this.DadosCaixaEspeciaisForm.controls['itemRowEsp'];
+		if (confirm("Tem a certeza?")){
+			control.removeAt(index);
+		}
+	}
+
+	// Apagar linha ao array DadosCaixaEspecialForm
+	apagarLinhaEspecial(control, index: number){
+		var qnt = control.controls[index].controls['quantidadeGarrafa'].value;
+		this.quantidadeGarrafas += qnt;
+		control.removeAt(index);
+	}
+
+	// Apagar item ao array DadosCaixaForm
 	apagarLinha(index:number){
     	const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
    	control.removeAt(index);
@@ -86,6 +153,30 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	novoRegisto(dadosEncomenda, dadosCaixas){
 		console.log(dadosEncomenda);
 		console.log(dadosCaixas);
+	}
+
+	// Limpar form
+	clearDados(){
+		this.DadosEncomendaForm.reset();
+		this.DadosCaixaForm.reset();
+		this.clearDadosCaixaForm();
+	}
+
+	// Limpar array de dados DadosCaixaForm
+	clearDadosCaixaForm(){
+		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];		
+		for (let i = 0; i < control.length; i++){
+			if (control.length > 1){
+				control.removeAt(i);
+			}
+		}
+	}
+
+	// Limpar array de dados DadosCaixaEspeciaisForm
+	clearDadosCaixaEspeciaisForm(control){
+		for (let i = 0; i < control.length; i++){
+			control.controls[i].controls['garrafa'].setValue('')
+		}		
 	}
 
 	// Selecionar encomenda por caixas
@@ -129,7 +220,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	// Preenchimento da lista de garrafas especificas para a caixa selecionada
-	onChangeModeloCaixa(id: number, index: number){	
+	onChangeModeloCaixa(id: number, control){	
 		this.selecaoGarrafas = [];
 		var caixaSelecionada: Caixa = {
 			id: 0,
@@ -147,6 +238,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			if (caixaSelecionada.capacidade == this.garrafas[j].capacidade)
 				this.selecaoGarrafas.push(this.garrafas[j]);
 		}
+		this.quantidadeGarrafas = caixaSelecionada.garrafas;
+		this.clearDadosCaixaEspeciaisForm(control);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
