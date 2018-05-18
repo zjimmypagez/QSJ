@@ -19,6 +19,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	DadosEncomenda: formDadosEncomenda;
 
 	DadosCaixaForm: FormGroup;
+	DadosCaixa: formDadosCaixa[];
 
 	DadosCaixaEspeciaisForm: FormGroup;
 	DadosCaixaEspeciais: formDadosCaixaEspeciais[];
@@ -29,8 +30,10 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	// Quantidade de garrafas que leva a caixa selecionada
 	quantidadeGarrafas: number; 
 
+	caixaSelecionada: Caixa;
+
 	// Seleção de garrafas com a mesma capacidade que as caixas
-	selecaoGarrafas: Garrafa[] = [];
+	selecaoGarrafas: tableGarrafa[] = [];
 
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
@@ -62,6 +65,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {	
+		this.iniCaixaSelecionada();
 		this.iniListaCaixas();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
@@ -96,13 +100,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	// Adicionar item ao array DadosCaixaForm
-	adicionarLinha(){
-		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
+	adicionarLinha(){		
+		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];		
+		const row = control.at(control.length - 1);
 		if (control.valid){
 			control.push(this.iniItemRow());						
 		}
 		else{
-			const row = control.controls[control.length - 1];
 			row.get('caixa').markAsTouched();
 			row.get('garrafa').markAsTouched();
 			row.get('quantidade').markAsTouched();
@@ -112,50 +116,57 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	// Adicionar item ao array DadosCaixaEspeciaisForm
 	adicionarEspecial(){
 		const control = <FormArray>this.DadosCaixaEspeciaisForm.controls['itemRowEsp'];
-		this.DadosCaixaEspeciais = this.DadosCaixaEspeciaisForm.value.itemRowEsp;
-
-		for (let i = 0; i < this.DadosCaixaEspeciais.length; i++){
-			console.log(this.DadosCaixaEspeciais[i].caixa);
-			console.log(this.DadosCaixaEspeciais[i].quantidadeCaixa);
-			console.log(this.DadosCaixaEspeciais[i].itemRowGarrafa);
-		}
-
-		console.log(this.DadosCaixaEspeciais);
+		const row = control.at(control.length - 1);
+		var estadoCaixa = this.caixaPreenchida(row);
 		if (control.valid){
-			control.push(this.iniitemRowEsp());
+			if (estadoCaixa)
+				control.push(this.iniitemRowEsp());
+			else
+				alert("A caixa não está totalmente preenchida ou extravazou a quantidade!");
 		}
-		else{
-			const row = control.controls[control.length - 1];
+		else{			
 			row.get('caixa').markAsTouched();
-			row.get('quantidadeCaixa').markAsTouched();		
+			row.get('quantidadeCaixa').markAsTouched();	
+			var length: any = row.get('itemRowGarrafa.length');
+			for (let i = 0; i < length; i++){
+				row.get('itemRowGarrafa.' + i + '.garrafa').markAsTouched();
+				row.get('itemRowGarrafa.' + i + '.quantidadeGarrafa').markAsTouched();
+			}
 		}
 	}
 
 	// Adicionar linha ao array itemRowGarrafas do array DadosCaixaEspecialForm
-	adicionarLinhaEspecial(control){
+	adicionarLinhaEspecial(control, caixa){
 		var qnt = control.controls[control.length - 1].controls['quantidadeGarrafa'].value;
-		if (control.valid){
-			if (this.quantidadeGarrafas - qnt > 0){
-				this.quantidadeGarrafas -= qnt;
-				control.push(this.iniItemRowGarrafa());			
-			}
-			else{
-				if (this.quantidadeGarrafas - qnt == 0)[
-					this.quantidadeGarrafas -= qnt;
+		var soma: number = 0;
+		if (control.length > 1){
+			for (let i = 0; i < control.length; i++)
+				soma += control.controls[i].get('quantidadeGarrafa').value;
+		}
+		else
+			soma = qnt;
+		
+		if (caixa.valid){
+			if (this.quantidadeGarrafas - soma > 0)
+				control.push(this.iniItemRowGarrafa());		
+			else
+				if (this.quantidadeGarrafas - soma == 0)
 					alert("Caixa preenchida!");
-				]
 				else{
 					control.controls[control.length - 1].controls['quantidadeGarrafa'].setValue('');
 					alert("Extravazou a quantidade da caixa!");
-				}
-			}
+				}			
 		}
 		else{
-			const row = control.controls[control.length - 1];
-			row.get('garrafa').markAsTouched();
-			row.get('quantidadeGarrafa').markAsTouched();
+			caixa.get('caixa').markAsTouched();
+			caixa.get('quantidadeCaixa').markAsTouched();
+			for (let i = 0; i < control.length; i++){
+				control.controls[i].get('garrafa').markAsTouched();
+				control.controls[i].get('quantidadeGarrafa').markAsTouched();
+			}
 		}
 	}
+
 
 	// Apagar linha ao array DadosCaixaForm
 	apagarLinha(index: number){
@@ -173,19 +184,14 @@ export class InserirEncomendaFuncComponent implements OnInit {
 
 	// Apagar linha ao array DadosCaixaEspecialForm
 	apagarLinhaEspecial(control, index: number){
-		var qnt = control.controls[index - 1].controls['quantidadeGarrafa'].value;
-		var qnt2 = control.controls[index].controls['quantidadeGarrafa'].value;
-		if (this.quantidadeGarrafas + qnt2 == qnt2)
-			this.quantidadeGarrafas += qnt + qnt2;
-		else
-			this.quantidadeGarrafas += qnt;
 		control.removeAt(index);
 	}
 
 	// Criar encomenda após verificações
-	novoRegisto(dadosEncomenda, dadosCaixas){
+	novoRegisto(dadosEncomenda, dadosCaixas, dadosCaixasEspeciais){
 		console.log(dadosEncomenda);
 		console.log(dadosCaixas);
+		console.log(dadosCaixasEspeciais);
 	}
 
 	// Ver se o formulário é válido
@@ -215,7 +221,9 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	clearDados(){
 		this.DadosEncomendaForm.reset();
 		this.DadosCaixaForm.reset();
+		this.DadosCaixaEspeciaisForm.reset();
 		this.clearDadosCaixaForm();
+		this.clearDadosCaixaEspecialForm();
 	}
 
 	// Limpar array de dados DadosCaixaForm
@@ -228,11 +236,33 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		}
 	}
 
-	// Limpar array itemRowGarrafa de dados do array DadosCaixaEspeciaisForm
-	clearDadosCaixaEspeciaisForm(control){
+	// Limpar array de dados DadosCaixaEspecialForm
+	clearDadosCaixaEspecialForm(){
+		const control = <FormArray>this.DadosCaixaEspeciaisForm.controls['itemRowEsp'];		
+		for (let i = 0; i < control.length; i++){
+			if (control.length > 1){
+				control.removeAt(i);
+			}
+		}
+	}
+
+	// Limpar do array itemRowGarrafa as garrafas escolhidas de dados do array DadosCaixaEspeciaisForm
+	clearDadosCaixaEspeciaisFormGarrafa(control){
 		for (let i = 0; i < control.length; i++){
 			control.controls[i].controls['garrafa'].setValue('')
 		}		
+	}
+
+	// Função que determina se uma caixa está devidamente preenchida ou não
+	caixaPreenchida(caixas): boolean{
+		var preenchida: boolean = false, soma: number = 0;
+		var length: any = caixas.get('itemRowGarrafa.length');
+		for (let i = 0; i < length; i++){
+			soma += caixas.get('itemRowGarrafa.' + i + '.quantidadeGarrafa').value;
+		}
+		if (this.caixaSelecionada.garrafas == soma)
+			return true;
+		return false;
 	}
 
 	// Selecionar encomenda por caixas
@@ -275,27 +305,31 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		}
 	}
 
+	// Inicializar caixa selecionada
+	iniCaixaSelecionada(){
+		this.caixaSelecionada = {
+			id: null,
+			capacidade: null,
+			garrafas: null,
+			material: "",
+			tipoVinho: null,
+			quantidade: null
+		};
+	}
+
 	// Preenchimento da lista de garrafas especificas para a caixa selecionada
 	onChangeModeloCaixa(id: number, control){	
 		this.selecaoGarrafas = [];
-		var caixaSelecionada: Caixa = {
-			id: 0,
-			capacidade: 0,
-			garrafas: 0,
-			material: "",
-			tipoVinho: 0,
-			quantidade: 0
-		};
 		for (let i = 0; i < this.caixas.length; i++){
 			if (id == this.caixas[i].id)
-				caixaSelecionada = this.caixas[i];
+				this.caixaSelecionada = this.caixas[i];
 		}		
-		for (let j = 0; j < this.garrafas.length; j++){
-			if (caixaSelecionada.capacidade == this.garrafas[j].capacidade)
-				this.selecaoGarrafas.push(this.garrafas[j]);
+		for (let j = 0; j < this.tabelaGarrafas.length; j++){
+			if (this.caixaSelecionada.capacidade == this.tabelaGarrafas[j].capacidade)
+				this.selecaoGarrafas.push(this.tabelaGarrafas[j]);
 		}
-		this.quantidadeGarrafas = caixaSelecionada.garrafas;
-		this.clearDadosCaixaEspeciaisForm(control);
+		this.quantidadeGarrafas = this.caixaSelecionada.garrafas;
+		this.clearDadosCaixaEspeciaisFormGarrafa(control);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -419,6 +453,12 @@ interface formDadosCaixaEspeciais{
 	caixa: number,
 	quantidadeCaixa: number,
 	itemRowGarrafa: listaGarrafas[];
+}
+
+interface formDadosCaixa{
+	caixa: number,
+	garrafa: number,
+	quantidade: number
 }
 
 interface listaGarrafas{
