@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, AbstractControl } from "@angular/forms";
 
 import { User } from "../../../interfaces/user";
 
@@ -18,7 +18,7 @@ export class RecuperarComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder ) { 
 		this.RecuperarForm = fb.group({
-			'email': ['', Validators.compose([Validators.required, Validators.email])]
+			'email': ['', [Validators.required, Validators.email]]
 		});
 	}
 
@@ -30,21 +30,10 @@ export class RecuperarComponent implements OnInit {
 	// Recolha dos dados do formulário e verificação do email
 	recuperarPassword(form){
 		this.Recuperar = form;
-
-		var password: string;
-		var estadoRecuperar: boolean = false;
-
-		for (let i = 0; i < this.Users.length; i++){
-			if (this.Recuperar.email == this.Users[i].email){
-				estadoRecuperar = true;
-				password = this.Users[i].password;
-			}
-		}
-		
-		if (estadoRecuperar){
+		var estadoRecuperar = this.Users.filter(x => x.email == this.Recuperar.email);		
+		if (estadoRecuperar.length == 1){
 			alert("Foi enviado um email com as novas credenciais!");
 			this.router.navigate(['']);
-			// email?
 		}
 		else{
 			this.clearDados();
@@ -54,18 +43,18 @@ export class RecuperarComponent implements OnInit {
 
 	// Limpa os dados do formulário
 	clearDados(){
-		this.RecuperarForm.controls['email'].setValue('');
+		this.RecuperarForm.controls['email'].reset('');
 	}
 
 	// Iniciar o objeto Recuperar
-	public iniFormRecuperar(){
+	iniFormRecuperar(){
 		this.Recuperar = {
 			email: ''
 		}
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaUsers(){
+	iniListaUsers(){
 		this.Users = [{
 			id: 1,
 			email: 'user1@gmail.com',

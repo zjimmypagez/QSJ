@@ -41,6 +41,14 @@ select{
 
 .container .itemTitulo{
     place-self: center;
+    text-align: center;
+}
+
+.container h4{
+    text-transform: uppercase;
+    margin: 0.2rem 0;
+    font-size: 0.8rem;
+    text-align: center;
 }
 
 .main-table table{
@@ -70,7 +78,7 @@ select{
 
 .itemForm{
     display: grid;
-    grid-gap: 10px;
+    grid-gap: 5px;
 }
 
 .main-registo{
@@ -82,13 +90,6 @@ select{
 }
 
 .main-registo h4{
-    text-transform: uppercase;
-    margin: 0.2rem 0;
-    font-size: 0.8rem;
-    text-align: center;
-}
-
-.container h4{
     text-transform: uppercase;
     margin: 0.2rem 0;
     font-size: 0.8rem;
@@ -136,20 +137,19 @@ select{
     cursor: pointer;
 }
 
-.main-nav a:hover, .btn:hover{
+.btn:hover{
     background: var(--dark2);
     color: var(--light);
 }
 
-form{
-    all: unset;
-}
-
 /* media queries */
-@media(max-width: 575px){
-    select{
-        width:100%;
-        max-width: 100%;
+@media(max-width: 1200px){
+    .main-registo{
+        width: 80%; 
+    }
+
+    .registo-btn{
+        width: 60%;
     }
 }
 
@@ -163,6 +163,11 @@ form{
     .main-encomenda,
     .form-pesquisa{
         grid-template-columns: 1fr;
+    }
+
+    select{
+        width:100%;
+        max-width: 100%;
     }
     
     .registo-btn{
@@ -181,15 +186,5 @@ form{
 
     .main-pesquisa, .main-encomenda{
         width: 100%;
-    }
-}
-
-@media(max-width: 1200px){
-    .main-registo{
-        width: 80%; 
-    }
-
-    .registo-btn{
-        width: 60%;
     }
 }

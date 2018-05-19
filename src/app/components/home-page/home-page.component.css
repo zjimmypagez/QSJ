@@ -1,7 +1,7 @@
 /* pagina */
 .wrapper{
     display: grid;
-    grid-gap: 5px 0;
+    grid-gap: 15px 0;
     grid-template-columns: 100%;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
@@ -26,10 +26,6 @@
     grid-template-columns: repeat(6, 1fr);
     padding: 0;
     list-style: none;
-}
-
-li.itemLogout{
-    grid-column: 8 / 9;
 }
 
 .main-nav a{
@@ -64,11 +60,13 @@ footer p{
 }
 
 /* media queries */
-@media(max-width: 575px){
-    li.itemLogout{
-        grid-column: unset;
+@media(max-width: 650px){    
+    .main-nav ul{
+        grid-template-columns: repeat(2, 1fr);
     }
-    
+}
+
+@media(max-width: 350px){    
     .main-nav ul{
         grid-template-columns: 1fr;
     }

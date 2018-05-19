@@ -5,10 +5,10 @@
 			<h4>Email</h4>
 			<input type="text" formControlName="email" placeholder="Insira aqui a sua password...">
 		</div>
-		<div class="alerta" *ngIf="RecuperarForm.controls['email'].errors?.required  && RecuperarForm.controls['email'].touched">
+		<div class="alerta" *ngIf="RecuperarForm.controls['email'].hasError('required')  && RecuperarForm.controls['email'].touched">
 			Email obrigatório
 		</div>
-		<div class="alerta" *ngIf="!RecuperarForm.controls['email'].errors?.required && RecuperarForm.controls['email'].errors?.email">
+		<div class="alerta" *ngIf="!RecuperarForm.controls['email'].hasError('required') && RecuperarForm.controls['email'].hasError('email')">
 			Email inválido
 	  	</div>
 		<br><br>

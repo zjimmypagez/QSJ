@@ -42,7 +42,7 @@ li.itemLogout{
     text-transform: uppercase;
 }
 
-.main-nav a:hover, .btn:hover{
+.main-nav a:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -62,20 +62,24 @@ footer p{
 }
 
 /* media queries */
-@media(max-width: 875px){
+@media(max-width: 1000px){
     li.itemLogout{
         grid-column: unset;
     }
     .main-nav ul{
-        grid-template-columns: repeat(2, 1fr);
-        grid-template-rows: 1fr 1fr 1fr;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
     }
 }
 
-@media(max-width: 475px){
-    li.itemLogout{
-        grid-column: unset;
+@media(max-width: 650px){
+    .main-nav ul{
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
     }
+}
+
+@media(max-width: 425px){
     .main-nav ul{
         grid-template-columns: 1fr;
         grid-template-rows: auto;

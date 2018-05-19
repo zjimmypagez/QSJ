@@ -11,7 +11,7 @@
 
 .itemForm{
     display: grid;
-    grid-gap: 10px 0;
+    grid-gap: 5px 0;
 }
 
 .main-registo{
@@ -38,7 +38,7 @@
     text-align: center;
 }
 
-.main-nav a:hover, .btn:hover{
+.btn:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -95,18 +95,6 @@ button:disabled{
 }
 
 /* media queries */
-@media(max-width: 600px){
-    .main-nav ul{
-        grid-template-columns: 1fr;
-    }
-
-    .registo-btn{
-        grid-template-columns: 1fr;
-        grid-template-rows: 1fr 1fr;
-        grid-gap: 8px 0;
-    }
-}
-
 @media(max-width: 1200px){
     .main-registo{
         width: 80%; 
@@ -114,5 +102,13 @@ button:disabled{
 
     .registo-btn{
         width: 60%;
+    }
+}
+
+@media(max-width: 600px){
+    .registo-btn{
+        grid-template-columns: 1fr;
+        grid-template-rows: 1fr 1fr;
+        grid-gap: 8px 0;
     }
 }

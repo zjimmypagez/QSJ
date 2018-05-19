@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { FormBuilder, FormGroup, Validators, AbstractControl } from "@angular/forms";
 import { Router } from '@angular/router';
 
 import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
+import { ValidatorGarrafa, ValidatorCRotulo, ValidatorSRotulo, ValidatorRotular } from '../../../../validators/validator-garrafas';
 
 @Component({
 	selector: 'app-inserir-remover-garrafas-func',
@@ -14,16 +16,9 @@ import { JoinTablesService } from '../../../../services/funcoes-service/join-tab
 })
 export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	RegistoForm: FormGroup;	
-	Registo: formRegisto;
-
 	InserirForm: FormGroup;
-	Inserir: formInserirRemover;
-
 	RemoverForm: FormGroup;
-	Remover: formInserirRemover;
-
 	RotularForm: FormGroup;
-	Rotular: formRotular;
 
 	inserirSelecionado: boolean = false;
 	removerSelecionado: boolean = false;
@@ -43,77 +38,70 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 			'opcao': ['', Validators.required]
 		});
 		this.InserirForm = fb.group({
-			'cRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])],
-			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
-		});
-		this.RemoverForm = fb.group({
-			'cRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])],
-			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
-		});
-		this.RotularForm = fb.group({
-			'sRotulo': ['', Validators.compose([Validators.required, Validators.min(0)])]
-		});
-	}
+			'cRotulo': [null, Validators.min(1)],
+			'sRotulo': [null, Validators.min(1)]
+		}, { validator: ValidatorGarrafa }
+		);	
+	}			
 
 	ngOnInit() {
-		this.iniForms();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.iniRemoverForm();
+		this.iniRotularForm();
+	}
+
+	// Inicializar a form RemoverForm
+	iniRemoverForm(){
+		this.RemoverForm = this.fb.group({
+			'cRotulo': [null, [Validators.min(1), ValidatorCRotulo(this.garrafas, this.RegistoForm)]],
+			'sRotulo': [null, [Validators.min(1), ValidatorSRotulo(this.garrafas, this.RegistoForm)]]
+		}, { validator: ValidatorGarrafa }
+		);
+	}
+
+	// Inicializar a form RotularForm
+	iniRotularForm(){			
+		this.RotularForm = this.fb.group({
+			'sRotulo': [null, [Validators.min(1), ValidatorRotular(this.garrafas, this.RegistoForm)]]
+		});
 	}
 
 	// Criação de um novo registo de garrafa após verificações 
-	novoRegisto(form, formInserir, formRemover, formRotular){
-		this.Registo = form;
-
-		if (formInserir.cRotulo != 0 || formInserir.sRotulo != 0 || formRemover.cRotulo != 0 || formRemover.sRotulo != 0 || formRotular.sRotulo != 0){
-			switch (this.Registo.opcao){
-				case "Inserir":{
-					this.Inserir = formInserir;
-					// inserir dados na bd
-					alert("Foram inseridas: [" + this.Inserir.cRotulo + " C/Rótulo e " + this.Inserir.sRotulo + " S/Rótulo] garrafas!");
-					this.router.navigate(['/func/garrafas']);
-					break;
-				}
-				case "Remover":{
-					this.Remover = formRemover;
-					var quantidades: number[] = this.getQuantidade(this.Registo.idGarrafa);
-					if (quantidades[0] >= this.Remover.cRotulo && quantidades[1] >= this.Remover.sRotulo){
-						// remover quantidades da bd
-						alert("Foram removidas: [" + this.Remover.cRotulo + " C/Rótulo e " + this.Remover.sRotulo + " S/Rótulo] garrafas!");
-						this.router.navigate(['/func/garrafas']);
-					}
-					else{
-						alert("As quantidades que pretende remover não se encontram em stock!");
-						this.clearFormRemover();
-					}
-					break;
-				}
-				case "Rotular":{
-					this.Rotular = formRotular;
-					var quantidade: number = this.getQuantidadeSRotulo(this.Registo.idGarrafa);
-					if (quantidade >= this.Rotular.sRotulo){
-						// retirar a quantidade de garrafas a rotular da quantidade s/rotulo e adicionar a c/rotulo bd
-						alert("Foram rotuladas: [" + this.Rotular.sRotulo + " S/Rótulo] garrafas!");
-						this.router.navigate(['/func/garrafas']);
-					}
-					else{
-						alert("Não existe a quantidade de garrafas em stock a serem rotuladas!");
-						this.clearFormRotular();
-					}
-					break;
-				}
+	novoRegisto(f){
+		var form: any = f;
+		switch (this.RegistoForm.get('opcao').value){
+			case "Inserir":{
+				if (form.cRotulo == null) var cR: number = 0;
+				else cR = form.cRotulo;
+				if (form.sRotulo == null) var sR: number = 0;
+				else sR = form.sRotulo;
+				// Inserção na BD
+				alert("Foi criado um novo registo de Inserção: [" + cR + " C/Rótulo e " + sR + " S/Rótulo]");
+				this.router.navigate(['/func/garrafas']);
+				break;
 			}
-		}
-		else{
-			this.clearFormInserir();
-			this.clearFormRemover();
-			this.clearFormRotular();
-			alert("Insira pelo menos uma quantidade positiva!");
+			case "Remover":{
+				if (form.cRotulo == null) var cR: number = 0;
+				else cR = form.cRotulo;
+				if (form.sRotulo == null) var sR: number = 0;
+				else sR = form.sRotulo;
+				// Remoção na BD
+				alert("Foi criado um novo registo de Remoção: [" + cR + " C/Rótulo e " + sR + " S/Rótulo]");
+				this.router.navigate(['/func/garrafas']);
+				break;
+			}
+			case "Rotular":{
+				// Retirar quantidade de garrafas s/rotulo e adicionar a quantidade respetiva em garrafas c/rotulo
+				alert("Foi criado um novo registo de Rotulagem: [" + form.sRotulo + " C/Rótulo]");
+				this.router.navigate(['/func/garrafas']);
+				break;
+			}
 		}
 	}
 
-	// Select da opção escolhida
+	// Select da view escolhida
 	onChange(op){
 		if (op != ""){
 			switch (op){
@@ -143,14 +131,9 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 				}
 			}
 		}
-		else{
-			this.clearDados();
-			this.removerSelecionado = false;
-			this.inserirSelecionado = false;
-			this.rotularSelecionado = false;
-		}
 	}
 
+	// Verficações sobre a validação do form
 	getEstadoForm(){		
 		if (this.RegistoForm.valid && this.InserirForm.valid)
 			return false;
@@ -168,83 +151,43 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	clearDados(){
 		this.clearFormRegisto();
 		this.clearFormInserir();
+		this.inserirSelecionado = false;
 		this.clearFormRemover();
+		this.removerSelecionado = false;		
 		this.clearFormRotular();
+		this.rotularSelecionado = false;		
 	}
 
 	// Função que limpa os dados do form RegistoForm
 	clearFormRegisto(){
-		this.RegistoForm.controls['idGarrafa'].setValue('');
-		this.RegistoForm.controls['comentario'].setValue('');
-		this.RegistoForm.controls['opcao'].setValue('');	
+		this.RegistoForm.controls['idGarrafa'].reset('');
+		this.RegistoForm.controls['comentario'].reset('');
+		this.RegistoForm.controls['opcao'].reset('');	
 		this.RegistoForm.markAsUntouched();	
 	}
 
 	// Função que limpa os dados do form InserirForm
 	clearFormInserir(){
-		this.InserirForm.controls['cRotulo'].setValue('');
-		this.InserirForm.controls['sRotulo'].setValue('');
+		this.InserirForm.controls['cRotulo'].reset(null);
+		this.InserirForm.controls['sRotulo'].reset(null);
 		this.InserirForm.markAsUntouched();	
 	}
 
 	// Função que limpa os dados do form RemoverForm
 	clearFormRemover(){
-		this.RemoverForm.controls['cRotulo'].setValue('');
-		this.RemoverForm.controls['sRotulo'].setValue('');
+		this.RemoverForm.controls['cRotulo'].reset(null);
+		this.RemoverForm.controls['sRotulo'].reset(null);
 		this.RemoverForm.markAsUntouched();	
 	}
 
 	// Função que limpa os dados do form RotularForm
 	clearFormRotular(){
-		this.RotularForm.controls['sRotulo'].setValue('');
+		this.RotularForm.controls['sRotulo'].reset(null);
 		this.RotularForm.markAsUntouched();	
 	}
 
-	// Iniciar os objetos Registo, Inserir, Remover e Rotular
-	iniForms(){
-		this.Registo = {
-			idGarrafa: null,
-			comentario: '',
-			opcao: ''
-		}
-		this.Inserir = {
-			cRotulo: null,
-			sRotulo: null
-		}
-		this.Remover = {
-			cRotulo: null,
-			sRotulo: null
-		}
-		this.Rotular = {
-			sRotulo: null
-		}
-	}
-
-	// Função que devolve as quantidades c/rotulo e s/rotulo
-	getQuantidade(id: number): number[]{
-		var quantidades: number[] = [];
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (id == this.garrafas[i].id){
-				quantidades.push(this.garrafas[i].cRotulo);
-				quantidades.push(this.garrafas[i].sRotulo);
-			}
-		}
-		return quantidades;
-	}
-
-	// Função que devolve a quantidade s/rotulo
-	getQuantidadeSRotulo(id: number): number{
-		var quantidade: number;
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (id == this.garrafas[i].id){
-				quantidade = this.garrafas[i].sRotulo;
-			}
-		}
-		return quantidade;
-	}
-
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,
@@ -266,7 +209,7 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
