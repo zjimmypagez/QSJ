@@ -7,14 +7,20 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 
+import { ValidatorRemover } from '../../../../validators/validator-caixas';
+
 @Component({
 	selector: 'app-inserir-remover-caixa-func',
 	templateUrl: './inserir-remover-caixa-func.component.html',
 	styleUrls: ['./inserir-remover-caixa-func.component.css']
 })
 export class InserirRemoverCaixaFuncComponent implements OnInit {
-  	RegistoForm: FormGroup;
-	Registo: formRegisto;
+	RegistoForm: FormGroup;
+	InserirForm: FormGroup;
+	RemoverForm: FormGroup;
+
+	inserirSelecionado: boolean = false;
+	removerSelecionado: boolean = false;
 
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
@@ -27,82 +33,101 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		this.RegistoForm = fb.group({
 			'idCaixa': ['', Validators.required],
 			'opcao': ['', Validators.required],
-			'comentario': ['', Validators.maxLength(200)],
-			'quantidade': ['', Validators.compose([Validators.required, Validators.min(1)])]
+			'comentario': ['', Validators.maxLength(200)]
 		});
+		this.InserirForm = fb.group({
+			'quantidade': [null, [Validators.required, Validators.min(1)]]
+		})
 	}
 
 	ngOnInit() {
-		this.iniFormRegisto();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.iniRemoverForm();
+	}
+
+	// Inicializar objeto form RemoverForm
+	iniRemoverForm(){
+		this.RemoverForm = this.fb.group({
+			'quantidade': [null, [Validators.required, Validators.min(1), ValidatorRemover(this.caixas, this.RegistoForm)]]
+		});
 	}
 
 	// Criação de um novo registo de caixa após verificações 
 	novoRegisto(form){
-		this.Registo = form;
-
-		// Opção escolhida
-		switch (this.Registo.opcao){
+		var quantidade: any = form.quantidade;
+		switch (this.RegistoForm.get('opcao').value){
 			case "Inserir":{
-				alert("Foram inseridas " + this.Registo.quantidade + " caixas!");
+				alert("Foram inseridas " + quantidade + " caixas!");
 				this.router.navigate(['/func/caixas']);
 				break;
 			}
 			case "Remover":{
-				var quantidade: number = this.getQuantidade(this.Registo.idCaixa);
-				if (quantidade >= this.Registo.quantidade){
-					alert("Foram removidas " + this.Registo.quantidade + " caixas!");
-					this.Registo.quantidade = -this.Registo.quantidade;
-					this.router.navigate(['/func/caixas']);
-				}
-				else{
-					this.RegistoForm.controls['quantidade'].setValue('');
-					this.RegistoForm.markAsUntouched();
-					alert("Não existe em stock a quantidade que pretender remover!");
-				}
+				alert("Foram removidas " + quantidade + " caixas!");
+				this.router.navigate(['/func/caixas']);				
 				break;
 			}
 		}
+	}
+
+	// Operação selecionada
+	onChange(op){
+		switch(op){
+			case "Inserir":{
+				this.removerSelecionado = false;
+				this.clearRemoverForm();
+				this.inserirSelecionado = true;
+				break;
+			}
+			case "Remover":{
+				this.inserirSelecionado = false;
+				this.clearInserirForm();
+				this.removerSelecionado = true;
+				break;
+			}
+		}
+	}
+
+	// Validação do formulário
+	getEstadoForm(){
+		if (this.RegistoForm.valid && this.InserirForm.valid) return false;
+		else
+			if (this.RegistoForm.valid && this.RemoverForm.valid) return false;
+		return true;
 	}
 
 	// Limpa os dados do Formulário
 	clearDados(){
 		this.clearForm();
+		this.inserirSelecionado = false;
+		this.clearInserirForm();
+		this.removerSelecionado = false;
+		this.clearRemoverForm();
 	}
+
+	// Limpar dados do form InserirForm
+	clearInserirForm(){
+		this.InserirForm.get('quantidade').reset(null);
+		this.InserirForm.get('quantidade').markAsUntouched();
+	}	
+
+	// Limpar dados do form RemoverForm
+	clearRemoverForm(){
+		this.RemoverForm.get('quantidade').reset(null);
+		this.RemoverForm.get('quantidade').markAsUntouched();
+	}	
 
 	// Função que limpa os dados do form RegistoForm
 	clearForm(){
-		this.RegistoForm.controls['idCaixa'].setValue('');
-		this.RegistoForm.controls['opcao'].setValue('');
-		this.RegistoForm.controls['comentario'].setValue('');
-		this.RegistoForm.controls['quantidade'].setValue('');
+		this.RegistoForm.controls['idCaixa'].reset('');
+		this.RegistoForm.controls['opcao'].reset('');
+		this.RegistoForm.controls['comentario'].reset('');
 		this.RegistoForm.markAsUntouched();
 	}
 
-	// Iniciar o objeto Registo
-	iniFormRegisto(){
-		this.Registo = {
-			idCaixa: null,
-			opcao: '',
-			comentario: '',
-			quantidade: null
-		}
-	}
-
-	// Função que retorna a quantidade de uma determinada caixa
-	getQuantidade(id: number): number{
-		var quantidade: number;
-		for (let i = 0; i < this.caixas.length; i++){
-			if (id == this.caixas[i].id)
-				quantidade = this.caixas[i].quantidade;
-		}
-		return quantidade;
-	}
-
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaCaixas(){
+	iniListaCaixas(){
 		this.caixas = [{
       	id: 1,
 			capacidade: 1.000,
@@ -122,7 +147,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -144,13 +169,6 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 
 	}
 
-}
-
-interface formRegisto{
-	idCaixa: number,
-	opcao: string,
-	comentario: string,
-	quantidade: number
 }
 
 // Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 

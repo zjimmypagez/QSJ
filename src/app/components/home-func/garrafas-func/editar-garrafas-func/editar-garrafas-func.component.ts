@@ -67,11 +67,8 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	// Editar o registo de garrafa após verificações
 	editarRegisto(form){
 		var comentario: any = form.comentario;
-		if (this.registo.comentario != comentario){
-			alert("O comentário foi editado com sucesso!");
-			this.router.navigate(['/func/garrafas']);
-		}
-		else alert("Al!");		
+		alert("O comentário foi editado com sucesso!");
+		this.router.navigate(['/func/garrafas']);
 	}
 
 	// Reset dos dados da form

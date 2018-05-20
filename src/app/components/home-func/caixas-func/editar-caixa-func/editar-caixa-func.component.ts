@@ -8,6 +8,8 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 
+import { ValidatorComentario } from '../../../../validators/validator-caixas';
+
 @Component({
 	selector: 'app-editar-caixa-func',
 	templateUrl: './editar-caixa-func.component.html',
@@ -17,7 +19,6 @@ export class EditarCaixaFuncComponent implements OnInit {
   	id: number;
   	private sub: any;
 	RegistoForm: FormGroup;
-	Registo: formRegistoEditar;
 
 	registo: RegistoCaixa;
 	opcao: string;
@@ -32,56 +33,43 @@ export class EditarCaixaFuncComponent implements OnInit {
 	// Lista de registos de caixa a ler da BD
 	registos: RegistoCaixa[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
-		this.RegistoForm = fb.group({
-			'comentario': ['', Validators.maxLength(200)]
-		});
-	}
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { }
 
 	ngOnInit() {
 		this.iniListaRegistos();
 		this.iniListaCaixas();
 		this.iniListaVinhos();
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-
 		// Procura na lista de caixas (a ser lida da BD)
 		for (let i = 0; i < this.registos.length; i++){
 			if (this.registos[i].id == this.id)
 			  this.registo = this.registos[i];
 		}
-
-		// Selecção da opção escolhida
-		if (this.registo.quantidade > 0)
-			this.opcao = "Inserir";
-		else{
-			this.opcao = "Remover";
-		}
-
 		// Seleção do modelo de caixa escolhido
 		for (let i = 0; i < this.tabelaCaixas.length; i++){
 			if (this.tabelaCaixas[i].id == this.registo.idCaixa)
 				this.caixa = this.tabelaCaixas[i];
 		}
-
+		this.iniRegistoForm();
 		this.resetForm(this.registo);
+	}
+
+	// Inicializar o objeto form RegistoForm
+	iniRegistoForm(){
+		this.RegistoForm = this.fb.group({
+			'comentario': ['', [Validators.maxLength(200), ValidatorComentario(this.registo)]]
+		});
 	}
 
 	// Editar o registo de caixa após verificações
 	editarRegisto(form){
-		this.Registo = form;
-
-		if (this.registo.comentario != this.Registo.comentario){
-			alert("O comentário foi editado com sucesso!");
-			this.router.navigate(['/func/caixas']);
-		}
-		else{
-			alert("O comentário já existe!");
-		}		
+		var comentario: any = form.comentario;
+		alert("Comentário alterado com sucesso! Novo comentário: " + comentario);
+		this.router.navigate(['/func/caixas']);
 	}
 
 	// Reset dos dados da form
@@ -96,10 +84,11 @@ export class EditarCaixaFuncComponent implements OnInit {
 	// Coloca a form com os dados pre-selecionados
 	resetForm(registo: RegistoCaixa){
 		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
+		this.RegistoForm.controls['comentario'].markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaRegistos(){
+	iniListaRegistos(){
 		this.registos = [{
 			id: 1,
 			idCaixa: 2,
@@ -124,7 +113,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaCaixas(){
+	iniListaCaixas(){
 		this.caixas = [{
       		id: 1,
 			capacidade: 1.000,
@@ -144,7 +133,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -165,10 +154,6 @@ export class EditarCaixaFuncComponent implements OnInit {
 		}];
 	}
 
-}
-
-interface formRegistoEditar{
-	comentario: string
 }
 
 // Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 

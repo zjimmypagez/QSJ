@@ -2,60 +2,62 @@
     <h1 class="itemTitulo">Registo - Caixas</h1>
     <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
         <div class="itemNav">
-           <a routerLink="/func/caixas/inserirRemover" class="btn">Inserir/Remover Caixas</a>
-           <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
-           <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
-           <select class="itemFiltro" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-                <option value="">Material</option>
-                <option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
-            </select>
-            <select class="itemFiltro1" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-                <option value="">Capacidade</option>
-                <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
-            </select>
-            <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-                <option value="">Tipo de Vinho</option>
-                <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
-            </select>
-            <select class="itemFiltro3" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-                <option value="">Categoria</option>
-                <option value="Normal">S/Categoria</option>
-                <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
-            </select>
+            <div class="inserir">
+                <a routerLink="/func/caixas/inserirRemover" class="btn">Inserir/Remover Caixas</a>
+            </div>
+            <div class="filtros">
+                <select class="itemMaterial" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Material</option>
+                    <option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
+                </select>
+                <select class="itemCapacidade" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Capacidade</option>
+                    <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
+                </select>
+                <select class="itemVinho" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Tipo de Vinho</option>
+                    <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
+                </select>
+                <select class="itemCategoria" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Categoria</option>
+                    <option value="Normal">S/Categoria</option>
+                    <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
+                </select>
+                <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
+                <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+            </div>
         </div>
     </form>
     <div class="main-table" *ngIf="estadoTabela">
         <table>
             <tr>
-                <th>ID</th>
-                  <th>MARCA</th>
-                  <th>TIPO DE VINHO</th>
-                  <th>MATERIAL</th>
-                  <th>GARRAFAS(QNT)</th>
-                  <th>CAPACIDADE(/L)</th>
-                  <th>DATA</th>
-                  <th>COMENTÁRIO</th>
-                  <th>REGISTO(QNT)</th>
-                  <th>AÇÕES</th>
-               </tr>
-               <tr *ngFor="let tabelaRegisto of tabelaRegistos">
-                    <td>{{tabelaRegisto.id}}</td>
-                    <td>{{tabelaRegisto.marca}}</td>
-                    <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td> 
-                    <td>{{tabelaRegisto.material}}</td>
-                    <td>{{tabelaRegisto.garrafas}}</td>
-                    <td>{{tabelaRegisto.capacidade}} l</td>
-                    <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
-                    <td>{{tabelaRegisto.comentario}}</td>
-                    <td>{{tabelaRegisto.quantidade}}</td>
-                    <td>
-                        <div class="action-btn">
-                            <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
-                            <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
-                        </div>
-                    </td>
-               </tr>
-            </table>
+                <th>MARCA</th>
+                <th>TIPO DE VINHO</th>
+                <th>MATERIAL</th>
+                <th>GARRAFAS(QNT)</th>
+                <th>CAPACIDADE(/L)</th>
+                <th>DATA</th>
+                <th>COMENTÁRIO</th>
+                <th>REGISTO(QNT)</th>
+                <th>AÇÕES</th>
+            </tr>
+            <tr *ngFor="let tabelaRegisto of tabelaRegistos">
+                <td>{{tabelaRegisto.marca}}</td>
+                <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td> 
+                <td>{{tabelaRegisto.material}}</td>
+                <td>{{tabelaRegisto.garrafas}}</td>
+                <td>{{tabelaRegisto.capacidade}} l</td>
+                <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
+                <td>{{tabelaRegisto.comentario}}</td>
+                <td>{{tabelaRegisto.quantidade}}</td>
+                <td>
+                    <div class="action-btn">
+                        <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
+                        <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
     <br>
     <div *ngIf="!estadoTabela" style="text-align: center;">

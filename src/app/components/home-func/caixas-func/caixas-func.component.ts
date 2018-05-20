@@ -34,13 +34,15 @@ export class CaixasFuncComponent implements OnInit {
 	// Tabela interligada entre tabelaregisto caixas e vinhos
 	tabelaRegistos: tableRegisto[];
 
+	tabelaFiltro: tableRegisto[] = [];
+
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', Validators.minLength(1)],
-			'material': ['', ],
-			'capacidade': ['', ],
-			'tipoVinho': ['', ],
-			'categoria': ['', ]
+			'marca': ['', ],
+			'material': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
 		});
 	}
 
@@ -72,19 +74,19 @@ export class CaixasFuncComponent implements OnInit {
 
 	// Pesquisa a um determinada marca
 	pesquisaMarca(form){
-		var marca = form.marca;
-		
+		var marca = form.marca;		
 		if (marca != ""){
-			this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
-			if (this.tabelaRegistos.length == 0)
+			if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+			else this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+			if (this.tabelaRegistos.length == 0){
+				this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
 				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			}
+			else this.estadoTabela = true;
 		}
 		else{
 			this.estadoTabela = true;
-			this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
-			this.clearForm();				
+			this.tabelaRegistos = this.tabelaFiltro;
 			alert("Pesquisa inválida!");
 		}
 	}
@@ -93,17 +95,17 @@ export class CaixasFuncComponent implements OnInit {
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
 		this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
-
+		if (filtro.marca != "") this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, filtro.marca);		
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaRegistos = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaRegistos);
-			if (this.tabelaRegistos.length == 0)
-				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaRegistos);
+			this.tabelaRegistos = this.tabelaFiltro;
+			if (this.tabelaRegistos.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
 		}
 		else{
-			this.FiltroForm.controls['marca'].setValue('');
-			this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
+			if (filtro.marca != "") this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, filtro.marca);
+			else this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
+			this.tabelaFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
@@ -117,15 +119,15 @@ export class CaixasFuncComponent implements OnInit {
 
 	// Limpar Form
 	clearForm(){
-		this.FiltroForm.controls['marca'].setValue('');
-		this.FiltroForm.controls['material'].setValue('');
-		this.FiltroForm.controls['capacidade'].setValue('');
-		this.FiltroForm.controls['tipoVinho'].setValue('');
-		this.FiltroForm.controls['categoria'].setValue('');
+		this.FiltroForm.controls['marca'].reset('');
+		this.FiltroForm.controls['material'].reset(0);
+		this.FiltroForm.controls['capacidade'].reset(0);
+		this.FiltroForm.controls['tipoVinho'].reset(0);
+		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-   public iniListaCaixas(){
+   iniListaCaixas(){
    	this.caixas = [{
       	id: 1,
          capacidade: 1.000,
@@ -145,7 +147,7 @@ export class CaixasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaRegistos(){
+	iniListaRegistos(){
 		this.registos = [{
 			id: 1,
 			idCaixa: 2,
@@ -170,7 +172,7 @@ export class CaixasFuncComponent implements OnInit {
 	}
 	
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
