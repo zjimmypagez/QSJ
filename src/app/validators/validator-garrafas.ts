@@ -1,5 +1,7 @@
 import { ValidatorFn, AbstractControl } from '@angular/forms';
+
 import { Garrafa } from '../interfaces/garrafa';
+import { RegistoGarrafa } from '../interfaces/registoGarrafa';
 
 // Validator que garante que foi inserido pelo menos um dos campos, c/rotulo e s/rotulo
 export function ValidatorGarrafa (control: AbstractControl) {
@@ -49,6 +51,14 @@ export function ValidatorRotular(garrafas: Garrafa[], op: AbstractControl): Vali
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (control.value == null) return { 'WaitingCRotulo': true }
         if (garrafa.sRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
+        return null;
+    };
+}
+
+// Validator que verifica se o comentário não foi alterado
+export function ValidatorComentario(registo: RegistoGarrafa): ValidatorFn{
+    return (control: AbstractControl) : { [key: string]: boolean } | null => {
+        if (control.value == registo.comentario) return { 'ComentarioInalterado': true }
         return null;
     };
 }

@@ -28,12 +28,6 @@ button:disabled{
     color: #8B0000;
 }
 
-.help{
-    font-size: 0.7rem;
-    text-align: center;
-    color: var(--dark1);
-}
-
 select{
     font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
@@ -47,11 +41,14 @@ select{
 
 .container .itemTitulo{
     place-self: center;
+    text-align: center;
 }
 
-.main-table{
-    display: grid;   
-    overflow-x: auto; 
+.container h4{
+    text-transform: uppercase;
+    margin: 0.2rem 0;
+    font-size: 0.8rem;
+    text-align: center;
 }
 
 table{
@@ -135,7 +132,7 @@ select{
     cursor: pointer;
 }
 
-.main-nav a:hover, .btn:hover{
+.btn:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -146,11 +143,13 @@ select{
 }
 
 /* media queries */
-@media(max-width: 575px){
-    select{
-        width:100%;
-        max-width: 100%;
-        font-size: 10px;
+@media(max-width: 1200px){
+    .main-registo{
+        width: 80%; 
+    }
+
+    .registo-btn{
+        width: 60%;
     }
 }
 
@@ -164,6 +163,12 @@ select{
     .main-encomenda,
     .form-pesquisa{
         grid-template-columns: 1fr;
+    }
+
+    select{
+        width:100%;
+        max-width: 100%;
+        font-size: 10px;
     }
 
     .registo-btn{
@@ -182,15 +187,5 @@ select{
 
     .main-pesquisa, .main-encomenda{
         width: 100%;
-    }
-}
-
-@media(max-width: 1200px){
-    .main-registo{
-        width: 80%; 
-    }
-
-    .registo-btn{
-        width: 60%;
     }
 }

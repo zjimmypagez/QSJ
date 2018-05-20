@@ -232,21 +232,6 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 
 }
 
-interface formRegisto{
-	idGarrafa: number,
-	comentario: string,
-	opcao: string
-}
-
-interface formInserirRemover{
-	cRotulo: number,
-	sRotulo: number
-}
-
-interface formRotular{
-	sRotulo: number
-}
-
 // Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
 interface tableGarrafa{
 	id: number,

@@ -1,45 +1,41 @@
 <div class="container">
     <h1 class="itemTitulo">Editar Registo - Garrafas</h1>
-    <form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="editarRegisto(RegistoForm.value)">
-      <div class="main-registo">
-        <h4>Modelo da Garrafa</h4>
-        <select disabled>
-          <option>
-            L: {{garrafa.lote}}{{garrafa.cuba != null ? '-' + garrafa.cuba : ''}} | 
-            C: {{garrafa.capacidade}} l| 
-            TV: {{garrafa.tipo}} {{garrafa.categoria != "" ? ' - ' + garrafa.categoria : ""}}
-          </option>
-        </select>			
-      </div>
-      <div class="help">
-        L - Lote | C - Capacidade | TV - Tipo de Vinho
-      </div>
-      <br>
-      <div class="main-registo">
-        <h4>Operação</h4>
-        <select disabled>
-          <option value="">{{opcao}}</option>
-        </select>
-      </div>
-      <br>
+    <h4>Dados do Registo</h4>
+    <div class="main-table">
+      <table>
+         <tr>
+            <th>LOTE</th>
+            <th>TIPO DE VINHO</th>
+            <th>CAPACIDADE(/L)</th>
+            <th>DATA</th>
+            <th>OPERAÇÃO</th>
+            <th>C/RÓTULO</th>
+            <th>S/RÓTULO</th>
+         </tr>
+         <tr>
+            <td>{{garrafa.lote}}{{garrafa.cuba != null ? '-' + garrafa.cuba : ''}}</td>
+            <td>{{garrafa.tipo}} {{garrafa.categoria != "" ? ' - ' + garrafa.categoria : ''}}</td>
+            <td>{{garrafa.capacidade}}l</td>
+            <td>{{registo.data.toLocaleDateString()}}</td>
+            <td>{{registo.opcao}}</td>
+            <td>{{registo.cRotulo}}</td>
+            <td>{{registo.sRotulo}}</td>
+         </tr>
+      </table>
+   </div>
+   <br>
+    <form class="itemForm" [formGroup]="RegistoForm" (ngSubmit)="editarRegisto(RegistoForm.value)">      
       <div class="main-registo">
         <h4>Comentário</h4>
         <input type="text" formControlName="comentario" placeholder="Insira aqui um comentário acerca do registo (opcional)...">
       </div>
-      <div class="alerta" *ngIf="!RegistoForm.controls['comentario'].valid && RegistoForm.controls['comentario'].touched">
+      <div class="alerta" *ngIf="RegistoForm.controls['comentario'].hasError('ComentarioInalterado') && RegistoForm.controls['comentario'].touched">
+        Comentário Inalterado
+      </div>
+      <div class="alerta" *ngIf="!RegistoForm.controls['comentario'].hasError('ComentarioInalterado') && RegistoForm.controls['comentario'].hasError('maxlength') && RegistoForm.controls['comentario'].touched">
         Máx. 200 Caracteres
       </div>
-      <br>
-      <div class="main-registo">
-        <h4>C/Rotulo</h4>
-        <input type="number" [value]="registo.cRotulo" placeholder="Insira aqui a quantidade do modelo selecionado..." disabled>
-      </div>
-      <br>     
-      <div class="main-registo">
-          <h4>S/Rotulo</h4>
-          <input type="number" [value]="registo.sRotulo" placeholder="Insira aqui a quantidade do modelo selecionado..." disabled>
-        </div>
-        <br>  
+      <br>      
       <div class="registo-btn">
         <button type="submit" name="button" class="btn" [disabled]="!RegistoForm.valid">Editar</button>
         <a class="btn" (click)="clearDados()">Limpar</a>

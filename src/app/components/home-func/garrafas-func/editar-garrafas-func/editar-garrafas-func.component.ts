@@ -7,6 +7,7 @@ import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+import { ValidatorComentario } from '../../../../validators/validator-garrafas';
 
 @Component({
 	selector: 'app-editar-garrafas-func',
@@ -17,7 +18,6 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	id: number;
 	private sub: any;
 	RegistoForm: FormGroup;
-	Registo: formRegistoEditar;
 
 	registo: RegistoGarrafa;
 	opcao: string;
@@ -32,66 +32,46 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	// Lista de registos de caixa a ler da BD
 	registos: RegistoGarrafa[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
-		this.RegistoForm = fb.group({
-			'comentario': ['', Validators.maxLength(200)]
-		});
-	}
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { }
 
 	ngOnInit() {
 		this.iniListaRegistos();
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-
 		// Procura na lista de garrafas (a ser lida da BD)
 		for (let i = 0; i < this.registos.length; i++){
 			if (this.registos[i].id == this.id)
 			  this.registo = this.registos[i];
 		}
-
-		// Selecção da opção escolhida
-		switch (this.registo.opcao){
-			case "Inserir":{
-				this.opcao = "Inserir";
-				break;
-			}
-			case "Remover":{
-				this.opcao = "Remover";
-				break;
-			}
-			case "Rotular":{
-				this.opcao = "Rotular";
-				break;
-			}
-		}
-
 		// Seleção do modelo de garrafa escolhido
 		for (let i = 0; i < this.tabelaGarrafas.length; i++){
 			if (this.tabelaGarrafas[i].id == this.registo.idGarrafa)
 				this.garrafa = this.tabelaGarrafas[i];
 		}
-
+		this.iniRegistoForm();
 		this.resetForm(this.registo);
+	}
+
+	// Inicializar o objeto form RegistoForm
+	iniRegistoForm(){
+		this.RegistoForm = this.fb.group({
+			'comentario': ['', [Validators.maxLength(200), ValidatorComentario(this.registo)]]
+		});
 	}
 
 	// Editar o registo de garrafa após verificações
 	editarRegisto(form){
-		this.Registo = form;
-
-		if (this.registo.comentario != this.Registo.comentario){
+		var comentario: any = form.comentario;
+		if (this.registo.comentario != comentario){
 			alert("O comentário foi editado com sucesso!");
 			this.router.navigate(['/func/garrafas']);
 		}
-		else{
-			alert("O comentário já existe!");
-		}
-		
+		else alert("Al!");		
 	}
 
 	// Reset dos dados da form
@@ -106,6 +86,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	// Coloca a form com os dados pre-selecionados
 	resetForm(registo: RegistoGarrafa){
 		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
+		this.RegistoForm.controls['comentario'].markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
