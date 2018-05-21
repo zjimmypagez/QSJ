@@ -2,49 +2,53 @@
 	<h1 class="itemTitulo">Editar Modelo - Caixa</h1>
 	<form class="itemForm" [formGroup]="CaixaForm" (ngSubmit)="editarCaixa(CaixaForm.value)">
 		<div class="main-registo">
-			<h4>Capacidade(/L)</h4>
+			<h4>Capacidade Garrafas(/L)</h4>
 			<select formControlName="capacidade">
-				<option value="">-- Capacidades(L) --</option>
+				<option value="" disabled>Capacidades(L)</option>
 				<option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
 			</select>
 		</div>
-		<div class="alerta" *ngIf="!CaixaForm.controls['capacidade'].valid && CaixaForm.controls['capacidade'].touched">
+		<div class="alerta" *ngIf="CaixaForm.controls['capacidade'].hasError('required') && CaixaForm.controls['capacidade'].touched">
 			Capacidade obrigatória
 		</div>
 		<br>
 		<div class="main-registo">
 			<h4>Material</h4>
 			<select formControlName="material" (ngModelChange)="onChange($event)">
-				<option value="">-- Materiais --</option>
+				<option value="">Materiais</option>
 				<option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
 			</select>
 		</div>
-		<div class="alerta" *ngIf="!CaixaForm.controls['material'].valid && CaixaForm.controls['material'].touched">
+		<div class="alerta" *ngIf="CaixaForm.controls['material'].hasError('required') && CaixaForm.controls['material'].touched">
 			Material obrigatório
-		</div>	
+		</div>
 		<br>
 		<div class="main-registo">
-			<h4>Garrafas(qnt)</h4>
+			<h4>Quantidade Garrafas)</h4>
 			<select formControlName="garrafas">
-				<option value="">-- Garrafas --</option>
+				<option value="" disabled>Garrafas</option>
 				<option *ngFor="let garrafa of garrafas" [ngValue]="garrafa">{{garrafa}}</option>
 			</select>
 		</div>
-		<div class="alerta" *ngIf="!CaixaForm.controls['garrafas'].valid && CaixaForm.controls['garrafas'].touched">
+		<div class="alerta" *ngIf="CaixaForm.controls['garrafas'].hasError('required') && CaixaForm.controls['garrafas'].touched">
 			Quantidade obrigatória (Selecione um material)
-		</div>	
+		</div>
 		<br>
 		<div class="main-registo">
 			<h4>Tipo de Vinho</h4>
 			<select formControlName="tipoVinho">
-				<option value="">-- Vinhos --</option>
+				<option value="" disabled>Vinhos</option>
 				<option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">
 					Marca: {{vinho.marca}} | Tipo: {{vinho.tipo}} {{vinho.categoria != "" ? ' | Categoria: ' + vinho.categoria : ''}}
 				</option>
 			</select>
 		</div>
-		<div class="alerta" *ngIf="!CaixaForm.controls['tipoVinho'].valid && CaixaForm.controls['tipoVinho'].touched">
+		<div class="alerta" *ngIf="CaixaForm.controls['tipoVinho'].hasError('required') && CaixaForm.controls['tipoVinho'].touched">
 			Tipo de Vinho obrigatório
+		</div>
+		<br>
+		<div class="alerta" *ngIf="!CaixaForm.controls['capacidade'].hasError('required') &&  !CaixaForm.controls['material'].hasError('required') && !CaixaForm.controls['garrafas'].hasError('required') && !CaixaForm.controls['tipoVinho'].hasError('required') && CaixaForm.hasError('ValidatorModelo')">
+			O modelo que inseriu já existe ou encontra-se inalterado
 		</div>
 		<br>	
 		<div class="registo-btn">

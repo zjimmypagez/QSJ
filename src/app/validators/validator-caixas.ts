@@ -25,3 +25,19 @@ export function ValidatorComentario(registo: RegistoCaixa): ValidatorFn{
         return null;
     };
 }
+
+// Validator que verifica se o modelo de caixa inserido já existe
+export function ValidatorModelo(caixas: Caixa[]): ValidatorFn{
+    return (control: AbstractControl) : { [key: string]: boolean } | null => {
+        const capacidade = control.get('capacidade').value;
+        const material = control.get('material').value;
+        const garrafas = control.get('garrafas').value;
+        const tipoVinho = control.get('tipoVinho').value;
+        var existe: boolean = false;
+        for (let i = 0; i < caixas.length; i++){
+            if (capacidade == caixas[i].capacidade && material == caixas[i].material && garrafas == caixas[i].garrafas && tipoVinho == caixas[i].tipoVinho) existe = true ;
+        }        
+        if (existe) return { 'ValidatorModelo': true }
+        return null;
+    };
+}

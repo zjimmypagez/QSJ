@@ -7,6 +7,8 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
 
+import { ValidatorModelo } from '../../../../validators/validator-caixas';
+
 @Component({
 	selector: 'app-editar-caixa-admin',
 	templateUrl: './editar-caixa-admin.component.html',
@@ -16,7 +18,6 @@ export class EditarCaixaAdminComponent implements OnInit {
 	id: number;
   	private sub: any;
 	CaixaForm: FormGroup;
-	Caixa: formCaixa;
 
 	materiais: string [] = ['Cartão', 'Madeira'];
 	capacidades: number [] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
@@ -29,58 +30,44 @@ export class EditarCaixaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) {
-		this.CaixaForm = fb.group({
-			'capacidade': ['', Validators.required],
-			'material': ['', Validators.required],
-			'garrafas': ['', Validators.required],
-			'tipoVinho': ['', Validators.required]
-		});
-	}
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { }
 
 	ngOnInit() {
 		this.iniListaCaixas();
 		this.iniListaVinhos();
 		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
-
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-
 		// Procura na lista de caixas (a ser lida da BD)
 		for (let i = 0; i < this.caixas.length; i++){
 			if (this.caixas[i].id == this.id)
 			  this.caixa = this.caixas[i];
 		}
-	
+		this.iniCaixaForm();
 		this.iniGarrafas(this.caixa.material);
 		this.resetForm(this.caixa);
 	}
 
+	// Inicializar objeto form CaixaForm
+	iniCaixaForm(){
+		this.CaixaForm = this.fb.group({
+			'capacidade': ['', Validators.required],
+			'material': ['', Validators.required],
+			'garrafas': ['', Validators.required],
+			'tipoVinho': ['', Validators.required]
+		}, { validator: ValidatorModelo(this.caixas) }
+		);
+	}
+
 	// Editar o modelo de caixa após verificações
 	editarCaixa(form){
-		this.Caixa = form;
-		// Variavel que determina se a caixa está ou não pronta para ser editada
-		var estadoCaixa: boolean = true;
-
-		// Ver se já há modelos com as mesmas caracteristicas na BD
-		for (let i = 0; i < this.caixas.length; i++){
-			if (this.caixas[i].capacidade == (+this.Caixa.capacidade) && this.caixas[i].garrafas == (+this.Caixa.garrafas) && this.caixas[i].material == this.Caixa.material && this.caixas[i].tipoVinho == this.Caixa.tipoVinho){
-				estadoCaixa = false;
-			}
-		}
-
-		if (estadoCaixa){
-			if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + this.caixa.quantidade)){
-				alert("O modelo de caixa foi editado com sucesso!");
-				this.router.navigate(['/admin/caixas']);
-			}			
-		}
-		else{
-			alert("O modelo de caixa que está a editar já existe!");
-			this.resetForm(this.caixa);
-		}
+		var caixa: any = form;
+		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + this.caixa.quantidade)){
+			alert("O modelo de caixa foi editado com sucesso!");
+			this.router.navigate(['/admin/caixas']);
+		}		
 	}
 
 	// Reset dos dados da form
@@ -134,7 +121,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaCaixas(){
+	iniListaCaixas(){
 		this.caixas = [{
 			id: 1,
 			capacidade: 1.000,
@@ -154,7 +141,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -174,12 +161,4 @@ export class EditarCaixaAdminComponent implements OnInit {
 			categoria: ''
 		}];
 	}
-}
-
-// Dados recebidos do formulário
-interface formCaixa{
-	capacidade: string,
-	garrafas: number,
-	material: string,
-	tipoVinho: number
 }

@@ -29,13 +29,15 @@ export class CaixasAdminComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaCaixas: tableCaixa[];	
 
+	tabelaFiltro: tableCaixa[] = [];
+
    constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.minLength(1)],
-			'material': ['', ],
-			'capacidade': ['', ],
-			'tipoVinho': ['', ],
-			'categoria': ['', ]
+			'material': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
 		});
 	}
 
@@ -76,19 +78,20 @@ export class CaixasAdminComponent implements OnInit {
 
 	// Pesquisa a um determinada marca
 	pesquisaMarca(form){
-		var marca = form.marca;
-		
+		var marca = form.marca;		
 		if (marca != ""){
+			if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+			else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
 			this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
-			if (this.tabelaCaixas.length == 0)
+			if (this.tabelaCaixas.length == 0){
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			}
+			else this.estadoTabela = true;
 		}
 		else{
 			this.estadoTabela = true;
-			this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-			this.clearForm();				
+			this.tabelaCaixas = this.tabelaFiltro;			
 			alert("Pesquisa inválida!");
 		}
 	}
@@ -97,17 +100,17 @@ export class CaixasAdminComponent implements OnInit {
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-
+		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaCaixas = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
-			if (this.tabelaCaixas.length == 0)
-				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
+			this.tabelaCaixas = this.tabelaFiltro;
+			if (this.tabelaCaixas.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
 		}
 		else{
-			this.FiltroForm.controls['marca'].setValue('');
-			this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
+			else this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			this.tabelaFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
@@ -121,15 +124,15 @@ export class CaixasAdminComponent implements OnInit {
 
 	// Limpar Form
 	clearForm(){
-		this.FiltroForm.controls['marca'].setValue('');
-		this.FiltroForm.controls['material'].setValue('');
-		this.FiltroForm.controls['capacidade'].setValue('');
-		this.FiltroForm.controls['tipoVinho'].setValue('');
-		this.FiltroForm.controls['categoria'].setValue('');
+		this.FiltroForm.controls['marca'].reset('');
+		this.FiltroForm.controls['material'].reset(0);
+		this.FiltroForm.controls['capacidade'].reset(0);
+		this.FiltroForm.controls['tipoVinho'].reset(0);
+		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
    // Dados criados (A ser subsituido pela ligação à BD)
-   public iniListaCaixas(){
+   iniListaCaixas(){
    	this.caixas = [{
       	id: 1,
          capacidade: 1.000,
@@ -149,7 +152,7 @@ export class CaixasAdminComponent implements OnInit {
 	}
 	
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
