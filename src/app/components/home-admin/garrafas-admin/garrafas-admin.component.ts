@@ -17,11 +17,10 @@ export class GarrafasAdminComponent implements OnInit {
 	// Dados filtros
 	FiltroForm: FormGroup;
 	anos: number[] = [];
-	categorias: string[] = [];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
-	estadoTabela: boolean = true;
-
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
+	categorias: string[] = [];
+	estadoTabela: boolean = true;
 
   	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
@@ -30,13 +29,15 @@ export class GarrafasAdminComponent implements OnInit {
 	// Tabela interligada entre garrafas e vinhos
 	tabelaGarrafas: tableGarrafa[];
 
+	tabelaFiltro: tableGarrafa[] = [];
+
   	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.minLength(1)],
-			'ano': ['', ],
-			'capacidade': ['', ],
-			'tipoVinho': ['', ],
-			'categoria': ['', ]
+			'ano': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
 		});
 	  }
 
@@ -44,7 +45,6 @@ export class GarrafasAdminComponent implements OnInit {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-
 		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
 		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
 	}
@@ -80,19 +80,19 @@ export class GarrafasAdminComponent implements OnInit {
 
 	// Pesquisa a um determinada marca
 	pesquisaMarca(form){
-		var marca = form.marca;
-		
+		var marca = form.marca;		
 		if (marca != ""){
-			this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
-			if (this.tabelaGarrafas.length == 0)
+			if (this.tabelaFiltro.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+			else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+			if (this.tabelaGarrafas.length == 0){
+				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			}
+			else this.estadoTabela = true;
 		}
 		else{
 			this.estadoTabela = true;
-			this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-			this.clearForm();				
+			this.tabelaGarrafas = this.tabelaFiltro;
 			alert("Pesquisa inválida!");
 		}
 	}
@@ -101,18 +101,17 @@ export class GarrafasAdminComponent implements OnInit {
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-		this.FiltroForm.controls['marca'].setValue('');
-
+		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
 		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaGarrafas = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
-			if (this.tabelaGarrafas.length == 0)
-				this.estadoTabela = false;
-			else
-				this.estadoTabela = true;
+			this.tabelaFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
+			this.tabelaGarrafas = this.tabelaFiltro;
+			if (this.tabelaGarrafas.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
 		}
 		else{
-			this.FiltroForm.controls['marca'].setValue('');
-			this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			this.tabelaFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
@@ -126,15 +125,15 @@ export class GarrafasAdminComponent implements OnInit {
 
 	// Limpar Form
 	clearForm(){
-		this.FiltroForm.controls['marca'].setValue('');
-		this.FiltroForm.controls['ano'].setValue('');
-		this.FiltroForm.controls['capacidade'].setValue('');
-		this.FiltroForm.controls['tipoVinho'].setValue('');
-		this.FiltroForm.controls['categoria'].setValue('');
+		this.FiltroForm.controls['marca'].reset('');
+		this.FiltroForm.controls['ano'].reset(0);
+		this.FiltroForm.controls['capacidade'].reset(0);
+		this.FiltroForm.controls['tipoVinho'].reset(0);
+		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
   	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,
@@ -156,7 +155,7 @@ export class GarrafasAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',

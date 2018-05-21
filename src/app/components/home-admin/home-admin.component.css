@@ -1,7 +1,7 @@
 /* pagina */
 .wrapper{
     display: grid;
-    grid-gap: 5px 0;
+    grid-gap: 15px 0;
     grid-template-columns: 100%;
     grid-template-rows: auto 1fr auto;
     min-height: 100%;
@@ -66,8 +66,22 @@ footer p{
 /* media queries */
 @media(max-width: 575px){
     li.itemLogout{
-        grid-column: unset;
+        grid-column: 1 / 3;
+        grid-row: 3;
     }
+
+    .main-nav ul{
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+    }
+}
+
+@media(max-width: 350px){
+    li.itemLogout{
+        grid-column: unset;
+        grid-row: unset;
+    }
+
     .main-nav ul{
         grid-template-columns: 1fr;
     }

@@ -5,18 +5,21 @@
 			<h4>Marca</h4>
 			<input type="text" formControlName="marca" placeholder="Insira aqui a marca do vinho...">
 		</div>
-		<div class="alerta" *ngIf="!VinhoForm.controls['marca'].valid && VinhoForm.controls['marca'].touched">
-			Marca obrigatória (Mín. 5 caracteres)
+		<div class="alerta" *ngIf="VinhoForm.controls['marca'].hasError('required') && VinhoForm.controls['marca'].touched">
+			Marca obrigatória
+		</div>
+		<div class="alerta" *ngIf="!VinhoForm.controls['marca'].hasError('required') && VinhoForm.controls['marca'].hasError('minlength')">
+			Mín. 5 Caracteres
 		</div>
 		<br>
 		<div class="main-registo">
 			<h4>Tipo do Vinho</h4>
 			<select formControlName="tipo">
-                <option value="">-- Tipo Vinhos --</option>
-                <option *ngFor="let tipoVinho of tipoVinhos">{{tipoVinho}}</option>
+                <option value="" disabled>Tipo Vinhos</option>
+                <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
             </select>
 		</div>
-		<div class="alerta" *ngIf="!VinhoForm.controls['tipo'].valid && VinhoForm.controls['tipo'].touched">
+		<div class="alerta" *ngIf="VinhoForm.controls['tipo'].hasError('required') && VinhoForm.controls['tipo'].touched">
 			Tipo obrigatório
 		</div>
 		<br>
@@ -24,8 +27,12 @@
 			<h4>Categoria</h4>
 			<input type="text" formControlName="categoria" placeholder="Insira aqui a categoria do vinho...">
 		</div>
-		<div class="alerta" *ngIf="!VinhoForm.controls['categoria'].valid && VinhoForm.controls['categoria'].touched">
+		<div class="alerta" *ngIf="VinhoForm.controls['categoria'].hasError('minlength') && VinhoForm.controls['categoria'].touched">
 			Mín. 5 caracteres
+		</div>
+		<br>		
+		<div class="alerta" *ngIf="!VinhoForm.controls['marca'].hasError('required') && !VinhoForm.controls['marca'].hasError('minlength') && !VinhoForm.controls['tipo'].hasError('required') && !VinhoForm.controls['categoria'].hasError('minlength') && VinhoForm.hasError('ValidatorExisteVinho')">
+			O vinho que pretende inserir já existe ou inalterado
 		</div>
 		<br>
 		<div class="registo-btn">

@@ -5,36 +5,58 @@
             <h4>Email</h4>
             <input type="text" formControlName="email" placeholder="Insira aqui o email...">
         </div>
-        <div class="alerta" *ngIf="UserForm.controls['email'].errors?.required && UserForm.controls['email'].touched">
+        <div class="alerta" *ngIf="UserForm.controls['email'].hasError('required') && UserForm.controls['email'].touched">
             Email obrigatório
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['email'].errors?.required && UserForm.controls['email'].errors?.email">
+        <div class="alerta" *ngIf="!UserForm.controls['email'].hasError('required') && UserForm.controls['email'].hasError('email')">
             Email inválido
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['email'].hasError('required') && !UserForm.controls['email'].hasError('email') && UserForm.hasError('ValidEmail')"> 
+            Já existe conta com esse email
         </div>
         <br>
         <div class="main-registo">
             <h4>Username</h4>
             <input type="text" formControlName="username" placeholder="Insira aqui a password..."> 
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['username'].valid && UserForm.controls['username'].touched">
-            Username obrigatório (Mín. 5 caracteres)
+        <div class="alerta" *ngIf="UserForm.controls['username'].hasError('required') && UserForm.controls['username'].touched">
+            Username obrigatório
+        </div>
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && UserForm.controls['username'].hasError('min')">
+            Mín. 5 caracteres
+        </div>        
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('min') && UserForm.hasError('ValidUsername')">
+            Já existe conta com esse username
         </div>
         <br>
         <div class="main-registo">
             <h4>Password</h4>
             <input type="password" formControlName="password" placeholder="Insira aqui a password...">
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['password'].valid && UserForm.controls['password'].touched">
-            Password obrigatória (Mín. 5 caracteres)
+        <div class="alerta" *ngIf="UserForm.controls['password'].hasError('required') && UserForm.controls['password'].touched">
+            Password obrigatória
         </div>
+        <div class="alerta" *ngIf="!UserForm.controls['password'].hasError('required') && UserForm.controls['password'].hasError('min')">
+            Mín. 5 caracteres
+        </div> 
         <br>
         <div class="main-registo">
             <h4>Confirmação Password</h4>
             <input type="password" formControlName="cPassword" placeholder="Confirme aqui a password...">
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].valid && UserForm.controls['cPassword'].touched">
-            Confirmação de password obrigatória (Mín. 5 caracteres)
+        <div class="alerta" *ngIf="UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].touched">
+            Confirmação de password obrigatória
         </div>
+        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].hasError('min')">
+            Mín. 5 caracteres
+        </div>  
+        <br>
+        <div class="alerta" *ngIf="!UserForm.controls['email'].hasError('required') && !UserForm.controls['email'].hasError('email') && !UserForm.controls['email'].hasError('ValidEmail') && !UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('min') && !UserForm.controls['username'].hasError('ValidUsername') && !UserForm.controls['password'].hasError('required') && !UserForm.controls['password'].hasError('min') && !UserForm.controls['cPassword'].hasError('required') && !UserForm.controls['cPassword'].hasError('min') && UserForm.hasError('ValidPassword')">
+            As passwords tem de ser iguais
+        </div> 
+        <div class="alerta" *ngIf="UserForm.hasError('EditarInalterado')">
+            Já existe conta com esse username e email
+        </div> 
         <br>
         <div class="registo-btn">
             <button type="submit" name="button" class="btn" [disabled]="!UserForm.valid">Editar Conta</button>

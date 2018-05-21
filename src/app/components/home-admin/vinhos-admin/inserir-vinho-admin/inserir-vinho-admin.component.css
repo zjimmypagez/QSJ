@@ -6,11 +6,12 @@
 
 .container .itemTitulo{
     place-self: center;
+    text-align: center;
 }
 
 .itemForm{
     display: grid;
-    grid-gap: 10px;
+    grid-gap: 5px;
     justify-items: center;
 }
 
@@ -37,6 +38,13 @@
     text-align: center;
 }
 
+select{
+    text-align-last: center;
+    text-align: center;
+    -ms-text-align-last: center;
+    -moz-text-align-last: center;
+}
+
 .registo-btn{
     display: grid;
     grid-gap: 0 8px;
@@ -56,7 +64,7 @@
     cursor: pointer;
 }
 
-.main-nav a:hover, .btn:hover{
+.btn:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -97,6 +105,16 @@ select{
 }
 
 /* media queries */
+@media(max-width: 1200px){
+    .main-registo{
+        width: 80%; 
+    }
+
+    .registo-btn{
+        width: 60%;
+    }
+}
+
 @media(max-width: 600px){
     .main-nav ul, 
     .main-pesquisa, 
@@ -117,15 +135,5 @@ select{
 
     .main-pesquisa, .main-encomenda{
         width: 100%;
-    }
-}
-
-@media(max-width: 1200px){
-    .main-registo{
-        width: 80%; 
-    }
-
-    .registo-btn{
-        width: 60%;
     }
 }

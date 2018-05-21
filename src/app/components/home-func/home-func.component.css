@@ -23,13 +23,13 @@
 .main-nav ul{
     display: grid;
     grid-gap: 13px;
-    grid-template-columns: repeat(5, 1fr) 1.5fr 1fr;
+    grid-template-columns: repeat(8, 1fr);
     padding: 0;
     list-style: none;
 }
 
 li.itemLogout{
-    grid-column: 6 / 7;
+    grid-column: 7 / 8;
 }
 
 .main-nav a{
@@ -62,10 +62,21 @@ footer p{
 }
 
 /* media queries */
-@media(max-width: 1000px){
+@media(max-width: 1500px){
     li.itemLogout{
         grid-column: unset;
     }
+
+    .main-nav ul{
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+@media(max-width: 1150px){
+    li.itemLogout{
+        grid-column: unset;
+    }
+
     .main-nav ul{
         grid-template-columns: repeat(3, 1fr);
         grid-template-rows: repeat(2, 1fr);

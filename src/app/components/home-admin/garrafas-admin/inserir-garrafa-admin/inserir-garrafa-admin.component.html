@@ -5,40 +5,53 @@
             <h4>Cuba(/L)</h4>
             <input type="number" formControlName="cuba" placeholder="Insira aqui a cuba...">
         </div>
-        <div class="alerta" *ngIf="!GarrafaForm.controls['cuba'].valid && GarrafaForm.controls['cuba'].touched">
-            Cuba obrigatória (Valores positivos)
+        <div class="alerta" *ngIf="GarrafaForm.controls['cuba'].hasError('required') && GarrafaForm.controls['cuba'].touched">
+            Cuba obrigatória
+        </div>        
+        <div class="alerta" *ngIf="!GarrafaForm.controls['cuba'].hasError('required') && GarrafaForm.controls['cuba'].hasError('min')">
+            Valor tem de ser positivo
         </div>
         <br>
         <div class="main-registo">
             <h4>Ano</h4>
             <input type="number" formControlName="ano" placeholder="Insira aqui o ano...">
         </div>
-        <div class="alerta" *ngIf="!GarrafaForm.controls['ano'].valid && GarrafaForm.controls['ano'].touched">
-            Ano obrigatório (1900 - 2100)
+        <div class="alerta" *ngIf="GarrafaForm.controls['ano'].hasError('required') && GarrafaForm.controls['ano'].touched">
+            Ano obrigatório
+        </div>        
+        <div class="alerta" *ngIf="!GarrafaForm.controls['ano'].hasError('required') && GarrafaForm.controls['ano'].hasError('min')">
+            Valor tem de ser maior que 1900
+        </div>        
+        <div class="alerta" *ngIf="!GarrafaForm.controls['ano'].hasError('required') && !GarrafaForm.controls['ano'].hasError('min') && GarrafaForm.controls['ano'].hasError('max')">
+            Valor tem de ser menor que 2100
         </div>
         <br>
         <div class="main-registo">
             <h4>Tipo de Vinho</h4>
             <select formControlName="tipoVinho">
-                <option value="">-- Vinhos --</option>
+                <option value="" disabled>Vinhos</option>
                 <option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">
                    Marca: {{vinho.marca}} | Tipo: {{vinho.tipo}} {{vinho.categoria != "" ? ' | Categoria: ' + vinho.categoria : ''}}
                 </option>
             </select>
         </div>
-        <div class="alerta" *ngIf="!GarrafaForm.controls['tipoVinho'].valid && GarrafaForm.controls['tipoVinho'].touched">
+        <div class="alerta" *ngIf="GarrafaForm.controls['tipoVinho'].hasError('required') && GarrafaForm.controls['tipoVinho'].touched">
             Tipo de Vinho obrigatório
         </div>
         <br>
         <div class="main-registo">
             <h4>Capacidade(/L)</h4>
             <select formControlName="capacidade">
-                <option value="">-- Capacidades(L) --</option>
+                <option value="" disabled>Capacidades(L)</option>
                 <option *ngFor="let capacidade of capacidades">{{capacidade}}</option>
             </select>
         </div>
-        <div class="alerta" *ngIf="!GarrafaForm.controls['capacidade'].valid && GarrafaForm.controls['capacidade'].touched">
+        <div class="alerta" *ngIf="GarrafaForm.controls['capacidade'].hasError('required') && GarrafaForm.controls['capacidade'].touched">
             Capacidade obrigatória
+        </div>
+        <br>        
+        <div class="alerta" *ngIf="!GarrafaForm.controls['capacidade'].hasError('required') && !GarrafaForm.controls['cuba'].hasError('required') && !GarrafaForm.controls['cuba'].hasError('min') && !GarrafaForm.controls['ano'].hasError('required') && !GarrafaForm.controls['ano'].hasError('min') && !GarrafaForm.controls['ano'].hasError('max') && !GarrafaForm.controls['tipoVinho'].hasError('required') && GarrafaForm.hasError('ValidatorModelo')">
+            O modelo que quer inserir já existe ou inalterado
         </div>
         <br>
         <div class="registo-btn">

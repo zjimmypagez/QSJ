@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 
+import { ValidatorPassword } from '../../../validators/validator-login';
+
 @Component({
 	selector: 'app-alterar-pass-func',
 	templateUrl: './alterar-pass-func.component.html',
@@ -9,53 +11,35 @@ import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 })
 export class AlterarPassFuncComponent implements OnInit {
 	AlterarForm: FormGroup;
-	Alterar: formAlterar;
 
-	constructor( private router: Router, private fb: FormBuilder ) { 
-		this.AlterarForm = fb.group({
-			'password': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
-			'cPassword': ['', Validators.compose([Validators.required, Validators.minLength(5)])]
-		});
-	}
-
+	constructor( private router: Router, private fb: FormBuilder ) { }
 	
 	ngOnInit() {
-		this.iniFormAlterar();
+		this.iniAlterarForm();
+	}
+
+	// Inicializar objeto form AlterarForm
+	iniAlterarForm(){
+		this.AlterarForm = this.fb.group({
+			'password': ['', [Validators.required, Validators.minLength(5)]],
+			'cPassword': ['', [Validators.required, Validators.minLength(5)]]
+		}, { validator: ValidatorPassword() }
+		);
 	}
 	
+	// Alterar a password
 	editarPassword(form){
-		this.Alterar = form;
-
-		var estadoAlterar: boolean = false;
-
-		if (this.Alterar.password == this.Alterar.cPassword){
-			estadoAlterar = true;
-			this.router.navigate(['/func']);
-		}
-
-		if (estadoAlterar){
-			alert("Password alterada com sucesso!");
-		}
-		else{
-			this.clearDados();
-			alert("As passwords não são iguais!");
-		}
-
+		var password: any = form.password;
+		var cPassword: any = form.cPassword;
+		alert("Password alterada com sucesso!");
+		this.router.navigate(['/func']);
 	}
 
 	// Limpar dados do formulário
 	clearDados(){
-		this.AlterarForm.controls['password'].setValue('');
-		this.AlterarForm.controls['cPassword'].setValue('');
+		this.AlterarForm.controls['password'].reset('');
+		this.AlterarForm.controls['cPassword'].reset('');
 		this.AlterarForm.markAsUntouched();
-	}
-
-	// Iniciar o objeto Alterar
-	public iniFormAlterar(){
-		this.Alterar = {
-			password: '',
-			cPassword: ''
-		}
 	}
 
 }

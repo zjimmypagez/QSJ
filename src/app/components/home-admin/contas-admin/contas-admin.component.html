@@ -1,9 +1,17 @@
 <div class="container">
     <h1 class="itemTitulo">Utilizadores - Contas</h1>
-    <div class="itemNav">
-       <a routerLink="/admin/contas/inserir" class="btn">Novo Utilizador</a>
-    </div>
-    <div class="main-table">
+    <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaUsername(FiltroForm.value)">
+        <div class="itemNav">
+            <div class="inserir">
+                <a routerLink="/admin/contas/inserir" class="btn">Novo Utilizador</a>
+            </div>
+            <div class="filtros">
+                <input class="itemInput" type="text" formControlName="username" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+                <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
+            </div>       
+        </div>
+    </form>
+    <div class="main-table" *ngIf="estadoTabela">
        <table>
           <tr>
              <th>ID</th>
@@ -23,5 +31,9 @@
              </td>
           </tr>
        </table>
+    </div>
+    <br>
+    <div *ngIf="!estadoTabela" style="text-align: center;">
+        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de caixa com as opções indicadas!</h2>
     </div>
 </div>

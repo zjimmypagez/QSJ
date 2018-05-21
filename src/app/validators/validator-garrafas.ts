@@ -62,3 +62,19 @@ export function ValidatorComentario(registo: RegistoGarrafa): ValidatorFn{
         return null;
     };
 }
+
+// Validator que verifica se o modelo de garrafa inserido já existe
+export function ValidatorModelo(garrafas: Garrafa[]): ValidatorFn{
+    return (control: AbstractControl) : { [key: string]: boolean } | null => {
+        const cuba = control.get('cuba').value;
+        const ano = control.get('ano').value;
+        const tipoVinho = control.get('tipoVinho').value;
+        const capacidade = control.get('capacidade').value;
+        var existe: boolean = false;
+        for (let i = 0; i < garrafas.length; i++){
+            if (cuba == garrafas[i].cuba && ano == garrafas[i].ano && tipoVinho == garrafas[i].tipoVinho && capacidade == garrafas[i].capacidade) existe = true ;
+        }        
+        if (existe) return { 'ValidatorModelo': true }
+        return null;
+    };
+}

@@ -6,6 +6,8 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 import { Caixa } from '../../../../interfaces/caixa';
 import { Garrafa } from '../../../../interfaces/garrafa';
 
+import { ValidatorVinho } from '../../../../validators/validator-vinho';
+
 @Component({
 	selector: 'app-editar-vinho-admin',
 	templateUrl: './editar-vinho-admin.component.html',
@@ -15,7 +17,6 @@ export class EditarVinhoAdminComponent implements OnInit {
   	id: number;
 	private sub: any;
 	VinhoForm: FormGroup;
-	Vinho: formVinho;
 	  
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
   
@@ -27,69 +28,87 @@ export class EditarVinhoAdminComponent implements OnInit {
 	// Lista de modelos garrafa a ler da BD
 	garrafas: Garrafa[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { 
-		this.VinhoForm = fb.group({
-			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
-			'tipo': ['', Validators.required],
-			'categoria': ['', Validators.minLength(5)]
-		});
-	}
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { }
 
 	ngOnInit() {
 		this.iniListaVinhos();
 		this.iniListaCaixas();
 		this.iniListaGarrafas();
-
 		// Subscrição dos parametros do vinho escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-
 		// Procura na lista de vinhos (a ser lida da BD)
 		for (let i = 0; i < this.vinhos.length; i++){
 			if (this.vinhos[i].id == this.id)
 			  this.vinho = this.vinhos[i];
-		}
-			
+		}			
+		this.iniVinhoForm();
 		this.resetForm(this.vinho);
+	}
+
+	// Inicializar o objeto form VinhoForm
+	iniVinhoForm(){
+		this.VinhoForm = this.fb.group({
+			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
+			'tipo': ['', Validators.required],
+			'categoria': ['', Validators.minLength(5)]
+		}, { validator: ValidatorVinho(this.vinhos) }
+		);
 	}
 
 	// Editar o vinho após verificações
 	editarVinho(form){
-		this.Vinho = form;
-
-		// Variavel que determina se o tipo de vinho está ou não pronta para ser editado
-		var estadoVinho: boolean = true;
-
-		if (this.vinho.marca != this.Vinho.marca || this.vinho.tipo != this.Vinho.tipo || this.vinho.categoria != this.Vinho.categoria){
-			// Ver se o tipo de vinho escolhido esta em uso em modelos de garrafa
-			for (let i = 0; i < this.garrafas.length; i++){				
-				if (this.garrafas[i].tipoVinho == this.vinho.id){
-					estadoVinho = false;
-				}
-			}
-	
-			// Ver se o tipo de vinho escolhido esta em uso em modelos de caixa
-			for (let i = 0; i < this.caixas.length; i++){
-				if (this.caixas[i].tipoVinho == this.vinho.id){
-					estadoVinho = false;
-				}			
-			}			
-
-			if (estadoVinho){
+		var vinho: any = form;
+		var estadoGarrafa: boolean = this.checkGarrafas();	
+		var estadoCaixa: boolean = this.checkCaixas();
+		if (estadoGarrafa && estadoCaixa){
+			if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas e caixas. Pretende editá-lo mesmo assim?")){
 				alert("O tipo de vinho foi editado com sucesso!");
 				this.router.navigate(['/admin/vinhos']);
 			}
+			else this.clearDados();
+		} 
+		else{
+			if (estadoGarrafa){
+				if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas. Pretende editá-lo mesmo assim?")){
+					alert("O tipo de vinho foi editado com sucesso!");
+					this.router.navigate(['/admin/vinhos']);
+				}
+				else this.clearDados();
+			}
 			else{
-				if (confirm("O tipo de vinho: [" + this.vinho.marca + " - " + this.vinho.tipo + " - " + this.vinho.categoria + "] que pretende editar está em uso. Pretende editá-lo mesmo assim?")){
+				if (estadoCaixa){
+					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em caixas. Pretende editá-lo mesmo assim?")){
+						alert("O tipo de vinho foi editado com sucesso!");
+						this.router.navigate(['/admin/vinhos']);
+					}
+					else this.clearDados();
+				}
+				else{
 					alert("O tipo de vinho foi editado com sucesso!");
 					this.router.navigate(['/admin/vinhos']);
 				}
 			}
 		}
-		else{
-			alert("O tipo de vinho que quer editar já existe!");
-		}
+	}
+
+	// Ver se existem, em stock, garrafas associadas a um determinado vinho
+	checkGarrafas(): boolean{
+		var estado: boolean = false;
+		for (let i = 0; i < this.garrafas.length; i++){				
+			if (this.garrafas[i].tipoVinho == this.vinho.id) estado = true;
+		}	
+		return estado;
+	}
+
+	// Ver se existem, em stock, caixas associadas a um determinado vinho
+	checkCaixas(): boolean{
+		var estado: boolean = false;
+		for (let i = 0; i < this.caixas.length; i++){				
+			if (this.caixas[i].tipoVinho == this.vinho.id) estado = true;
+		}	
+		return estado;
 	}
 
 	// Reset dos dados da form
@@ -109,7 +128,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -131,7 +150,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaCaixas(){
+	iniListaCaixas(){
 		this.caixas = [{
       	id: 1,
          capacidade: 1.000,
@@ -151,7 +170,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,

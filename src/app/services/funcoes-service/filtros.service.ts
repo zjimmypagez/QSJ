@@ -26,6 +26,35 @@ export class FiltrosService {
 		return tabelaNFatura;
 	}
 
+	// Função utilizada para retornar uma tabela a partir da pesquisa do username de utilizador
+	pesquisaUsername(tabela: any[], username: string): any[]{
+		var tabelaUsername: any[] = [];
+		// Pesquisa na tabela por objetos com a propriedade username igual a pesquisada
+		for (let i = 0; i < tabela.length; i++){
+			if (tabela[i].username == username)
+				tabelaUsername.push(tabela[i]);
+		}
+		return tabelaUsername;
+	}
+
+	// Função que cruza os filtros TipoVinho - Categoria e devolve a tabela que desse cruzamento é originada
+	filtroTipoVinhoCategoria(filtro: any, tabela: any[]): any[]{
+		var tabelaFiltro: any[] = tabela;	
+		if (filtro.tipoVinho != "" && filtro.categoria != ""){
+			tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);
+			tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
+		}
+		else{
+			if (filtro.tipoVinho != ""){	
+				tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);	
+			}
+			else{
+				tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);	
+			}
+		}
+		return tabelaFiltro;
+	}
+
 	// Função que cruza os filtros Material - Capacidade - TipoVinho - Categoria e devolve a tabela que desse cruzamento é originada
 	filtroMaterialCapacidadeTipoVinhoCategoria(filtro: any, tabela: any[]): any[]{
 		var tabelaFiltro: any[] = tabela;		

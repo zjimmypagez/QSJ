@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 import { User } from '../../../interfaces/user';
+
+import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
 
 @Component({
 	selector: 'app-contas-admin',
@@ -9,10 +12,17 @@ import { User } from '../../../interfaces/user';
 	styleUrls: ['./contas-admin.component.css']
 })
 export class ContasAdminComponent implements OnInit {
+	FiltroForm: FormGroup;
+	estadoTabela: boolean = true;
+
   	// Lista de utilizadores a ler da BD
   	users: User[];
 
-  	constructor( private router: Router ) { }
+  	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService ) { 
+		this.FiltroForm = fb.group({
+			'username': ['', ] 
+		});
+	}
 
   	ngOnInit() {
 		this.iniListaUsers();
@@ -38,8 +48,38 @@ export class ContasAdminComponent implements OnInit {
 		}
 	}
 
+	// Pesquisa a um determinado username
+	pesquisaUsername(form){
+		var username = form.username;
+		this.iniListaUsers();
+		if (username != ""){
+			this.users = this.filtroService.pesquisaUsername(this.users, username);
+			if (this.users.length == 0){
+				this.iniListaUsers();
+				this.estadoTabela = false;
+			}
+			else this.estadoTabela = true;
+		}
+		else{
+			this.estadoTabela = true;
+			alert("Pesquisa Inválida");
+		}
+	}
+
+	// Limpar pesquisa
+	clearTabela(){
+		this.iniListaUsers();
+		this.estadoTabela = true;
+		this.clearForm();
+	}
+
+	// Limpar Form
+	clearForm(){
+		this.FiltroForm.controls['username'].reset('');
+	}
+
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaUsers(){
+	iniListaUsers(){
 		this.users = [{
 			id: 1,
 			email: 'user1@gmail.com',

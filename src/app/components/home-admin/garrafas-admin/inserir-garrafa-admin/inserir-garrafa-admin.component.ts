@@ -7,6 +7,8 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
 
+import { ValidatorModelo } from '../../../../validators/validator-garrafas';
+
 @Component({
 	selector: 'app-inserir-garrafa-admin',
 	templateUrl: './inserir-garrafa-admin.component.html',
@@ -14,7 +16,6 @@ import { OrdenarTablesService } from '../../../../services/funcoes-service/orden
 })
 export class InserirGarrafaAdminComponent implements OnInit {
 	GarrafaForm: FormGroup;
-	Garrafa: formGarrafa;
 
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 
@@ -23,44 +24,31 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) {
-		this.GarrafaForm = fb.group({
+	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { }
+
+	ngOnInit() {
+		this.iniListaGarrafas();
+		this.iniListaVinhos();
+		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
+		this.iniGarrafaForm();
+	}
+
+	// Inicializar objeto form GarrafaForm
+	iniGarrafaForm(){
+		this.GarrafaForm = this.fb.group({
 			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
-		});
-	}
-
-	ngOnInit() {
-		this.iniFormGarrafa();
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
+		}, { validator: ValidatorModelo(this.garrafas) }
+		);
 	}
 
 	// Criação do novo modelo de garrafa após verificações 
 	novaGarrafa(form){
-		this.Garrafa = form;		
-		
-		// Variavel que determina se a caixa está ou não pronta para ser inserida
-		var estadoGarrafa: boolean = true;
-
-		// Ver se já há modelos com as mesma caracteristicas na BD
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.garrafas[i].cuba == this.Garrafa.cuba && this.garrafas[i].ano == this.Garrafa.ano && this.garrafas[i].tipoVinho == this.Garrafa.tipoVinho && this.garrafas[i].capacidade == (+this.Garrafa.capacidade)){
-				estadoGarrafa = false;
-			}
-		}
-
-		if (estadoGarrafa){
-			alert("O modelo de garrafa foi criado com sucesso!");
-			this.router.navigate(['/admin/garrafas']);
-		}
-		else{
-			alert("O modelo de garrafa que está a criar já existe!");
-			this.clearForm();
-		}
+		var garrafa: any = form;
+		alert("O modelo de garrafa foi criado com sucesso!");
+		this.router.navigate(['/admin/garrafas']);
 	}
 
 	// Limpa os dados do Formulário
@@ -68,27 +56,17 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		this.clearForm();
 	}
 
-	// Iniciar o objeto Garrafa
-	iniFormGarrafa(){
-		this.Garrafa = {
-			cuba: null,
-			ano: null,
-			tipoVinho: null,
-			capacidade: ''
-		}
-	}
-
 	// Função que limpa os dados do form GarrafaForm
 	clearForm(){
-		this.GarrafaForm.controls['cuba'].setValue('');
-		this.GarrafaForm.controls['ano'].setValue('');
-		this.GarrafaForm.controls['tipoVinho'].setValue('');
-		this.GarrafaForm.controls['capacidade'].setValue('');
+		this.GarrafaForm.controls['cuba'].reset('');
+		this.GarrafaForm.controls['ano'].reset('');
+		this.GarrafaForm.controls['tipoVinho'].reset('');
+		this.GarrafaForm.controls['capacidade'].reset('');
 		this.GarrafaForm.markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,
@@ -110,7 +88,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -131,12 +109,4 @@ export class InserirGarrafaAdminComponent implements OnInit {
 		}];
 	}
 
-}
-
-// Dados recebidos do formulário
-interface formGarrafa{
-	cuba: number,
-	ano: number,
-	tipoVinho: number,
-	capacidade: string
 }

@@ -5,18 +5,24 @@
 			<h4>Password</h4>
 			<input type="password" formControlName="password" placeholder="Insira aqui a nova password..."> 
 		</div>
-		<div class="alerta" *ngIf="!AlterarForm.controls['password'].valid  && AlterarForm.controls['password'].touched">
-			Password obrigatória (Mín. 5 caracteres)
+		<div class="alerta" *ngIf="AlterarForm.controls['password'].hasError('required')  && AlterarForm.controls['password'].touched">
+			Password obrigatória
+		</div>
+		<div class="alerta" *ngIf="!AlterarForm.controls['password'].hasError('required')  && AlterarForm.controls['password'].hasError('minlength')">
+			Mín. 5 caracteres
 		</div>
 		<br>
 		<div class="main-registo">
 			<h4>Confirmação da Password</h4>
 			<input type="password" formControlName="cPassword" placeholder="Insira de novo a nova password...">
 		</div>
-		<div class="alerta" *ngIf="!AlterarForm.controls['cPassword'].valid  && AlterarForm.controls['cPassword'].touched">
-			Confirmaçãp da password obrigatória (Mín. 5 caracteres)
+		<div class="alerta" *ngIf="AlterarForm.controls['cPassword'].hasError('required')  && AlterarForm.controls['cPassword'].touched">
+			Confirmação da password obrigatória
 		</div>
-		<br><br>
+		<div class="alerta" *ngIf="!AlterarForm.controls['cPassword'].hasError('required')  && AlterarForm.hasError('ValidPassword')">
+			As passwords tem de ser iguais
+		</div>
+		<br>
 		<div class="registo-btn">
 			<button type="submit" name="button" class="btn" [disabled]="!AlterarForm.valid">Alterar Password</button>
 			<a class="btn" (click)="clearDados()">Limpar</a>

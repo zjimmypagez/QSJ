@@ -2,32 +2,35 @@
    <h1 class="itemTitulo">Modelos - Garrafas</h1>
    <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
       <div class="itemNav">
-         <a routerLink="/admin/garrafas/inserir" class="btn">Novo Modelo</a>
-         <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
-         <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
-         <select class="itemFiltro" formControlName="ano" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-            <option value="">Ano</option>
-            <option *ngFor="let ano of anos" [ngValue]="ano">{{ano}}</option>
-         </select>
-         <select class="itemFiltro1" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-            <option value="">Capacidade</option>
-            <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
-         </select>
-         <select class="itemFiltro2" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-            <option value="">Tipo de Vinho</option>
-            <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
-         </select>
-         <select class="itemFiltro3" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
-            <option value="">Categoria</option>
-            <option value="Normal">S/Categoria</option>
-            <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
-         </select>
+          <div class="inserir">
+              <a routerLink="/admin/garrafas/inserir" class="btn">Novo Modelo</a>
+          </div>
+          <div class="filtros">
+              <select class="itemAno" formControlName="ano" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                  <option [ngValue]="0">Ano</option>
+                  <option *ngFor="let ano of anos" [ngValue]="ano">{{ano}}</option>
+                </select>
+                <select class="itemCapacidade" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Capacidade</option>
+                    <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
+                </select>
+                <select class="itemVinho" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Tipo de Vinho</option>
+                    <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
+                </select>
+                <select class="itemCategoria" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                    <option [ngValue]="0">Categoria</option>
+                    <option value="Normal">S/Categoria</option>
+                    <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
+                </select>
+                <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
+                <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+            </div>
       </div>
    </form>
    <div class="main-table" *ngIf="estadoTabela">
       <table>
          <tr>
-            <th>ID</th>
             <th>LOTE</th>
             <th>TIPO VINHO</th>
             <th>CAPACIDADE(/L)</th>
@@ -36,7 +39,6 @@
             <th>AÇÕES</th>
          </tr>
          <tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
-            <td>{{tabelaGarrafa.id}}</td>
             <td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
             <td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
             <td>{{tabelaGarrafa.capacidade}} l</td>

@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
+import { ValidatorVinho } from '../../../../validators/validator-vinho';
+
 @Component({
 	selector: 'app-inserir-vinho-admin',
 	templateUrl: './inserir-vinho-admin.component.html',
@@ -11,48 +13,34 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 })
 export class InserirVinhoAdminComponent implements OnInit {
   	VinhoForm: FormGroup;
-	Vinho: formVinho;
 
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private router: Router, private fb: FormBuilder ) { 
-		this.VinhoForm = fb.group({
+	constructor( private router: Router, private fb: FormBuilder ) { }
+
+	ngOnInit() {
+		this.iniListaVinhos();
+		this.iniVinhoForm();
+	}
+
+	// Inicializar o objeto form VinhoForm
+	iniVinhoForm(){
+		this.VinhoForm = this.fb.group({
 			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
 			'tipo': ['', Validators.required],
 			'categoria': ['', Validators.minLength(5)]
-		});
-	}
-
-	ngOnInit() {
-		this.iniFormVinho();
-		this.iniListaVinhos();
+		}, { validator: ValidatorVinho(this.vinhos) }
+		);
 	}
 
 	// Criação do tipo de vinho após verificações 
 	novoVinho(form){
-		this.Vinho = form;
-		
-		// Variavel que determina se o tipo está ou não pronto para ser inserido
-		var estadoVinho: boolean = true;
-
-		// Ver se já há tipos de vinho com as mesma caracteristicas na BD
-		for (let i = 0; i < this.vinhos.length; i++){
-			if (this.vinhos[i].marca == this.Vinho.marca && this.vinhos[i].tipo == this.Vinho.tipo && this.vinhos[i].categoria == this.Vinho.categoria){
-				estadoVinho = false;
-			}
-		}
-
-		if (estadoVinho){
-			alert("O tipo de vinho foi criado com sucesso!");
-			this.router.navigate(['/admin/vinhos']);
-		}
-		else{
-			alert("O tipo de vinho que está a criar já existe!");
-			this.clearForm();
-		}
+		var vinho: any = form;
+		alert("O tipo de vinho foi criado com sucesso!");
+		this.router.navigate(['/admin/vinhos']);
 	}
 
 	// Limpa os dados do Formulário
@@ -60,25 +48,16 @@ export class InserirVinhoAdminComponent implements OnInit {
 		this.clearForm();
 	}
 
-	// Iniciar o objeto Vinho
-	iniFormVinho(){
-		this.Vinho = {
-			marca: '',
-			tipo: '',
-			categoria: ''
-		}
-	}
-
 	// Função que limpa os dados do form VinhoForm
 	clearForm(){
-		this.VinhoForm.controls['marca'].setValue('');
-		this.VinhoForm.controls['tipo'].setValue('');
-		this.VinhoForm.controls['categoria'].setValue('');
+		this.VinhoForm.controls['marca'].reset('');
+		this.VinhoForm.controls['tipo'].reset('');
+		this.VinhoForm.controls['categoria'].reset('');
 		this.VinhoForm.markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',

@@ -24,39 +24,33 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniFormLogin();
 		this.iniListaUsers();
 	}
 
 	// Recolha dos dados do formulário e verificação das credenciais: username e password
 	login(form){
-		this.Login = form;
+		var username: any = form.username;
+		var password: any = form.password;
 		var estadoLogin: boolean = false;		
-		if (this.Login.username == "admin" && this.Login.password == "admin"){
+		if (username == "admin" && password == "admin"){
 			estadoLogin = true;
 			this.router.navigate(['/admin']);
 		}
 		else{
 			for (let i = 0; i < this.Users.length; i++){
-				if (this.Login.username == this.Users[i].username && this.Login.password == this.Users[i].password){
+				if (username == this.Users[i].username && password == this.Users[i].password){
 					estadoLogin = true;
 					this.router.navigate(['/func']);
 				}
 			}
 		}		
-		if (estadoLogin) alert("Bem-vindo " + this.Login.username + "!");
+		if (estadoLogin) alert("Bem-vindo " + username + "!");
 		else{			
-			this.LoginForm.controls['username'].setValue('');
-			this.LoginForm.controls['password'].setValue('');
+			this.LoginForm.controls['username'].reset('');
+			this.LoginForm.controls['password'].reset('');
+			this.LoginForm.controls['username'].markAsUntouched();
+			this.LoginForm.controls['password'].markAsUntouched();
 			alert("Credenciais incorretas!");
-		}
-	}
-
-	// Iniciar o objeto Login
-	iniFormLogin(){
-		this.Login = {
-			username: '',
-			password: ''
 		}
 	}
 
