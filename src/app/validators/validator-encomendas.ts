@@ -13,29 +13,21 @@ export function ValidatorEncomendaCaixasNormaisQuantidade(caixas: Caixa[], garra
         for (let i = 0; i < caixas.length; i++){
             if (idCaixa == caixas[i].id) caixa = caixas[i];
         }
-        console.log(control);
-        console.log(caixa);
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
         var garrafa: Garrafa;
         for (let i = 0; i < garrafas.length; i++){
             if (idGarrafa == garrafas[i].id) garrafa = garrafas[i];
         }
-        console.log(control);
-        console.log(garrafa);
         if (garrafa == undefined) return { 'WaitingModeloGarrafa': true }
         var quantidadeCaixa: number = 0;
         for (let i = 0; i < control.parent.length; i++){
             if (control.parent.at(i).get('caixa').value == idCaixa) quantidadeCaixa += control.parent.at(i).get('quantidade').value;
         }
-        console.log(control);
-        console.log(quantidadeCaixa);
         if (caixa.quantidade < quantidadeCaixa) return { 'ValidQuantidadeCaixas': true }
         var quantidadeGarrafa: number = 0;
         for (let i = 0; i < control.parent.length; i++){
             if (control.parent.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafa += control.parent.at(i).get('quantidade').value * caixa.garrafas;
         }
-        console.log(control);
-        console.log(quantidadeGarrafa);
         if (garrafa.cRotulo < quantidadeGarrafa) return { 'ValidQuantidadeGarrafas': true }
         return null;
     };
