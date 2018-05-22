@@ -27,7 +27,7 @@ export class EncomendasFuncComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'nFatura': [null, ]
+			'nFatura': ['', ]
 		});
 	}
 
@@ -40,16 +40,18 @@ export class EncomendasFuncComponent implements OnInit {
 	// Filtrar segundo pesquisa
 	filtrar(form){
 		var nFatura = form.nFatura;
-		if (nFatura != null){
+		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
+		if (nFatura != ''){
 			this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
-			if (this.tabelaEncomendas.length == 0)
+			if (this.tabelaEncomendas.length == 0){
+				this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 				this.estadoTabela = false;
-			else
-				this.estadoTabela == true;
+			}
+			else this.estadoTabela = true;
 		}
 		else{
-			alert("Insira números válidos!");
-			this.FiltroForm.controls['nFatura'].setValue(null);
+			this.estadoTabela = true;
+			alert("Pesquisa Inválida!");
 		}
 	}
 
@@ -57,7 +59,12 @@ export class EncomendasFuncComponent implements OnInit {
 	clearTabela(){
 		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 		this.estadoTabela = true;
-		this.FiltroForm.controls['nFatura'].setValue(null);
+		this.clearForm();
+	}
+
+	// Limpar Form
+	clearForm(){
+		this.FiltroForm.controls['nFatura'].reset('');
 	}
 
 	// Função responsável por selecionar a encomenda a ser visualizada
@@ -76,7 +83,7 @@ export class EncomendasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaUsers(){
+	iniListaUsers(){
 		this.users = [{
 			id: 1,
 			email: 'user1@gmail.com',
@@ -92,7 +99,7 @@ export class EncomendasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaEncomendas(){
+	iniListaEncomendas(){
 		this.encomendas = [{
 			id: 1,
 			idUser: 2,

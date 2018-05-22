@@ -120,7 +120,7 @@ select{
     cursor: pointer;
 }
 
-.btn:hover{
+.btn:hover, .itemClear:hover{
     background: var(--dark2);
     color: var(--light);
 }

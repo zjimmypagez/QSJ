@@ -2,31 +2,33 @@
   <h1 class="itemTitulo">Registo - Encomendas</h1>
   <form [formGroup]="FiltroForm" (ngSubmit)="filtrar(FiltroForm.value)">
     <div class="itemNav">
+      <div class="inserir">
         <a routerLink="/func/encomendas/inserir" class="btn">Inserir Encomenda</a>
-        <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Todas Encomendas</a>
+      </div>
+      <div class="filtros">
         <input class="itemInput" type="number" formControlName="nFatura" placeholder="Insira aqui o número de fatura a pesquisar...">
+        <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
+      </div>
     </div>
   </form>
   <div class="main-table" *ngIf="estadoTabela">
       <table>
         <tr>
-          <th>ID</th>
           <th>FUNCIONÁRIO</th>
           <th>Nº FATURA</th>
           <th>DATA REGISTO</th>
-          <th>DATA FINAL</th>
+          <th>DATA ENREGA</th>
           <th>COMENTÁRIO</th>
           <th>ESTADO</th>
           <th>AÇÕES</th>
        </tr>
        <tr *ngFor="let tabelaEncomenda of tabelaEncomendas">
-        <td>{{tabelaEncomenda.id}}</td>
         <td>{{tabelaEncomenda.username}}</td>
         <td>{{tabelaEncomenda.nFatura}}</td>
         <td>{{tabelaEncomenda.data.toLocaleDateString()}}</td>
         <td>{{tabelaEncomenda.dataFinal != null ? tabelaEncomenda.dataFinal.toLocaleDateString() : tabelaEncomenda.dataFinal}}</td>
         <td>{{tabelaEncomenda.comentario}}</td>
-        <td>{{tabelaEncomenda.estado ? "Finalizada" : "Em Espera"}}</td>
+        <td>{{tabelaEncomenda.estado ? "Entregue" : "Em Espera"}}</td>
         <td>
           <div class="encomenda-action-btn">
             <a class="btn" (click)="verEncomenda(tabelaEncomenda.id)">Ver</a>

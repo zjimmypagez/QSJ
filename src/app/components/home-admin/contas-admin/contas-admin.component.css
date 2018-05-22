@@ -98,7 +98,7 @@
     padding: 0.4rem 0.1rem 0.4rem 0.1rem;
 }
 
-.btn:hover{
+.btn:hover, .itemClear:hover{
     background: var(--dark2);
     color: var(--light);
 }

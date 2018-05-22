@@ -9,6 +9,8 @@ import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 
+import { ValidatorEncomendaCaixasNormaisRegisto, ValidatorEncomendaCaixasNormaisQuantidade } from '../../../../validators/validator-encomendas';
+
 @Component({
 	selector: 'app-inserir-encomenda-func',
 	templateUrl: './inserir-encomenda-func.component.html',
@@ -51,13 +53,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	modeloCaixaSelecionado: boolean = false;
 	modeloGarrafaSelecionado: boolean = false;
 
+	// Array individual, usado em cada item do form array
+	modeloCapacidadeGarrafa: any[] = [];
+
 	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
 		this.DadosEncomendaForm = fb.group({
 			'nFatura': ['', Validators.min(1)],
 			'comentario': ['', Validators.maxLength(200)]
-		});
-		this.DadosCaixaForm = fb.group({
-			itemRow: fb.array([this.iniItemRow()])
 		});
 		this.DadosCaixaEspeciaisForm = fb.group({
 			itemRowEsp: fb.array([this.iniitemRowEsp()])
@@ -72,15 +74,78 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.iniListaEncomendas();		
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.iniDadosCaixasForm();
 	}
 
-	// Inicializar itemRow - Caixas Normais
-	iniItemRow(){
+	// Inicializar objeto form DadosCaixasForm - Caixas Normais
+	iniDadosCaixasForm(){
+		this.DadosCaixaForm = this.fb.group({
+			linhaCaixas: this.fb.array([this.iniLinhaCaixas()])
+		});
+	}
+
+	// Inicializar objeto formArray linhaCaixas do objeto form DadosCaixasForm - Caixas Normais
+	iniLinhaCaixas(){	
 		return this.fb.group({
 			'caixa': ['', Validators.required],
 			'garrafa': ['', Validators.required],
-			'quantidade': ['', Validators.compose([Validators.required, Validators.min(1)])]
-		});
+			'quantidade': ['', [Validators.required, Validators.min(1)]]
+		}, { validator: [ValidatorEncomendaCaixasNormaisRegisto(), ValidatorEncomendaCaixasNormaisQuantidade(this.caixas, this.garrafas)] }
+		);
+	}
+
+	// Adicionar item ao formarray do form DadosCaixaForm
+	adicionarLinhaCaixasNormais(){		
+		const control = <FormArray>this.DadosCaixaForm.controls['linhaCaixas'];		
+		const linhaAtual = control.at(control.length - 1);
+		if (control.valid) control.push(this.iniLinhaCaixas());
+		else{
+			for (let i = 0; i < control.length; i++){
+				control.at(i).get('caixa').markAsTouched();
+				control.at(i).get('garrafa').markAsTouched();
+				control.at(i).get('quantidade').markAsTouched();
+			}
+		}				
+	}
+
+	// Apagar linha ao formarray do form DadosCaixaForm
+	apagarLinhaCaixasNormais(index: number){
+		const control = <FormArray>this.DadosCaixaForm.controls['linhaCaixas'];		
+		this.modeloCapacidadeGarrafa.splice(index, 1);
+		control.removeAt(index);
+	}
+
+	// Selecionar a tabela a mostrar: Caixas ou Garrafas
+	onChange(opcao){
+		if (opcao != ""){
+			if (opcao == "Caixa"){
+				this.modeloGarrafaSelecionado = false;
+				this.modeloCaixaSelecionado = true;
+			}
+			else{
+				this.modeloCaixaSelecionado = false;
+				this.modeloGarrafaSelecionado = true;
+			}
+		}
+		else{
+			this.modeloGarrafaSelecionado = false;
+			this.modeloCaixaSelecionado = false;
+		}
+	}
+
+	// Preenchimento da lista de garrafas especificas para a caixa selecionada
+	onChangeModeloCaixa(id: number, index: number){	
+		var modeloCaixa: any;
+		for (let i = 0; i < this.caixas.length; i++){
+			if (id == this.caixas[i].id) modeloCaixa = this.caixas[i];
+		}
+		var listaGarrafas: Garrafa[] = [];
+		for (let i = 0; i < this.garrafas.length; i++){
+			if (modeloCaixa.capacidade == this.garrafas[i].capacidade) listaGarrafas.push(this.garrafas[i]);
+		}		
+		this.modeloCapacidadeGarrafa[index] = listaGarrafas;
+		const control = <FormArray>this.DadosCaixaForm.controls['linhaCaixas'];
+		control.at(index).get('garrafa').reset('');
 	}
 
 	// Inicializar itemRow - Caixas Especiais
@@ -97,20 +162,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			'garrafa': ['', Validators.required],
 			'quantidadeGarrafa': ['', Validators.compose([Validators.required, Validators.min(1)])],
 		});
-	}
-
-	// Adicionar item ao array DadosCaixaForm
-	adicionarLinha(){		
-		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];		
-		const row = control.at(control.length - 1);
-		if (control.valid){
-			control.push(this.iniItemRow());						
-		}
-		else{
-			row.get('caixa').markAsTouched();
-			row.get('garrafa').markAsTouched();
-			row.get('quantidade').markAsTouched();
-		}
 	}
 
 	// Adicionar item ao array DadosCaixaEspeciaisForm
@@ -165,13 +216,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 				control.controls[i].get('quantidadeGarrafa').markAsTouched();
 			}
 		}
-	}
-
-
-	// Apagar linha ao array DadosCaixaForm
-	apagarLinha(index: number){
-		const control = <FormArray>this.DadosCaixaForm.controls['itemRow'];
-		control.removeAt(index);
 	}
 	
 	// Apagar linha ao array DadosCaixaEspeciaisForm
@@ -287,24 +331,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		}
 	}
 
-	// Selecionar a tabela a mostrar
-	onChange(opcao){
-		if (opcao != ""){
-			if (opcao == "Caixa"){
-				this.modeloGarrafaSelecionado = false;
-				this.modeloCaixaSelecionado = true;
-			}
-			else{
-				this.modeloCaixaSelecionado = false;
-				this.modeloGarrafaSelecionado = true;
-			}
-		}
-		else{
-			this.modeloGarrafaSelecionado = false;
-			this.modeloCaixaSelecionado = false;
-		}
-	}
-
 	// Inicializar caixa selecionada
 	iniCaixaSelecionada(){
 		this.caixaSelecionada = {
@@ -317,23 +343,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		};
 	}
 
-	// Preenchimento da lista de garrafas especificas para a caixa selecionada
-	onChangeModeloCaixa(id: number, control){	
-		this.selecaoGarrafas = [];
-		for (let i = 0; i < this.caixas.length; i++){
-			if (id == this.caixas[i].id)
-				this.caixaSelecionada = this.caixas[i];
-		}		
-		for (let j = 0; j < this.tabelaGarrafas.length; j++){
-			if (this.caixaSelecionada.capacidade == this.tabelaGarrafas[j].capacidade)
-				this.selecaoGarrafas.push(this.tabelaGarrafas[j]);
-		}
-		this.quantidadeGarrafas = this.caixaSelecionada.garrafas;
-		this.clearDadosCaixaEspeciaisFormGarrafa(control);
-	}
-
 	// Dados criados (A ser subsituido pela ligação à BD)
-   public iniListaCaixas(){
+   iniListaCaixas(){
    	this.caixas = [{
       	id: 1,
          capacidade: 1.000,
@@ -353,7 +364,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,
@@ -371,11 +382,20 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			capacidade: 0.750,
 			cRotulo: 150,
 			sRotulo: 0
+		},
+		{
+			id: 3,
+			cuba: 10000,
+			ano: 2015,
+			tipoVinho: 2,
+			capacidade: 1.000,
+			cRotulo: 1500,
+			sRotulo: 0
 		}];
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -397,7 +417,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaEncomendas(){
+	iniListaEncomendas(){
 		this.encomendas = [{
 			id: 1,
 			idUser: 2,

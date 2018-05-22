@@ -7,28 +7,40 @@
 
 .container .itemTitulo{
     place-self: center;
+    text-align: center;
 }
 
 .container .itemNav{
     display: grid;
     grid-gap: 0 8px;
-    grid-template-columns: 250px repeat(6, 1fr) 2fr;
+    grid-template-columns: 250px auto;
     align-items: center
 }
 
+.itemNav .inserir{
+    display: grid;
+}
+
+.itemNav .filtros{
+    display: grid;
+    grid-gap: 5px 5px;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.itemInput{
+    grid-column: 4 / 7;
+    align-self: end;
+}
+
 .itemClear{
-    grid-column: 7 / 8;
     cursor: pointer;
     align-self: end;
     background: var(--primary);
     color: var(--dark1);
     padding: 0.1rem;
     text-decoration: none;
-    box-shadow: var(--shadow);
-    text-align: center;    
-}
-
-.itemInput{
+    text-align: center;     
+    border-radius: 0.2rem;
     align-self: end;
 }
 
@@ -78,30 +90,18 @@
     cursor: pointer;
 }
 
-.main-nav a:hover, .btn:hover, .itemClear:hover{
+.btn:hover, .itemClear:hover{
     background: var(--dark2);
     color: var(--light);
 }
 
-.main-registo input[type=text], input[type=password], input[type=number], select{
+input[type=text], input[type=password], input[type=number], select{
     border: var(--primary);
     padding: 0 0.5rem;
     border-radius: 0.2rem;
     background: var(--dark1);
     color: var(--light);
     text-align: center;
-}
-
-.main-registo input[type=text], select, input[type=number]{
-    justify-self: stretch;
-    width: auto;
-}
-
-select{
-    text-align-last: center;
-    text-align: center;
-    -ms-text-align-last: center;
-    -moz-text-align-last: center;
 }
 
 .itemNav a{
@@ -114,18 +114,8 @@ select{
     font-size: 10px;
 }
 
-.alerta{
-    font-size: 0.7rem;
-    text-align: center;
-    color: #8B0000;
-}
-
 /* media queries */
 @media(max-width: 1075px){
-    .main-table{
-        overflow-x: scroll;        
-    }
-
     .encomenda-action-btn{
         grid-template-columns: 1fr;
     }
@@ -140,43 +130,56 @@ select{
     
 }
 
-@media(max-width: 875px){
+@media(max-width: 975px){
+    .main-table{
+        overflow-x: auto;        
+    }
+
     select{
         width:100%;
         max-width: 100%;
     }
 
-    .itemInput, .itemClear{
-        grid-column: unset;
+    .itemInput{
+        grid-column: 1 / 4;
     }
 
+    .itemNav .filtros{
+        display: grid;
+        grid-gap: 5px 5px;
+        grid-template-columns: repeat(4, 1fr);
+    }   
+}
+
+@media(max-width: 675px){
     .container .itemNav{
-        grid-template-columns: 1fr 1fr 1fr;
+        grid-gap: 10px;
+        grid-template-columns: 1fr;        
     }
+    
+    .itemNav .filtros{
+        display: grid;
+        grid-gap: 5px 5px;
+        grid-template-columns: repeat(4, 1fr);
+    }  
 }
 
 @media(max-width: 475px){
     select{
         font-size: 12px;
-        width:100%;
+        width: 100%;
         max-width: 100%;
     }
+}
 
-    .main-table{
-        overflow-x: auto;        
-    }
-
-    .itemInput, .itemClear{
+@media(max-width: 425px){
+    .itemInput{
         grid-column: unset;
-        align-self: center;
-    }
+    }   
 
-    .container .itemNav{
+    .itemNav .filtros{
+        display: grid;
+        grid-gap: 5px 5px;
         grid-template-columns: 1fr;
-        grid-template-rows: repeat(3, 1fr);
-    }
-
-    .encomenda-action-btn{
-        grid-template-columns: 1fr;
-    }
+    }  
 }
