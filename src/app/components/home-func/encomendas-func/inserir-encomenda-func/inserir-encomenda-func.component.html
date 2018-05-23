@@ -86,9 +86,9 @@
 							Não existe essa quantidade de caixas em stock
 						</div>
 						<div class="alerta itemQuantidade" *ngIf="!linha.controls['quantidade'].hasError('required') && !linha.controls['quantidade'].hasError('min') && !linha.hasError('ValidQuantidadeCaixas') && linha.hasError('ValidQuantidadeGarrafas')">
-							Não existe essa quantidade de garrafas rotulas em stock
+							Não existe essa quantidade de garrafas rotuladas em stock
 						</div>						
-						<div class="alerta itemErro" *ngIf="!linha.controls['caixa'].hasError('required') && !linha.controls['garrafa'].hasError('required') && linha.hasError('ValidCaixasNormaisRegisto')">
+						<div class="alerta itemErro" *ngIf="!linha.controls['caixa'].hasError('required') && !linha.controls['garrafa'].hasError('required') && linha.hasError('ValidCaixasRegisto')">
 							Já existe na lista de encomenda um registo com o mesmo modelo de caixa e de garrafa
 						</div>
 						<a class="itemClear" (click)="apagarLinhaCaixasNormais(i)" style="font-size: 11px;" *ngIf="DadosCaixaForm.controls.linhaCaixas.controls.length > 1">Limpar Registo</a>	
@@ -98,56 +98,69 @@
 					<a class="itemClear itemAdd" (click)="adicionarLinhaCaixasNormais()" style="font-size: 11px;">Adicionar Caixas</a>
 				</div>
 			</div>
-		</form>
-		<div style="margin: 10px 0 10px 0;"></div>
-		<h4>Encomenda por Caixas com vários modelos de garrafa</h4>
-		<form [formGroup]="DadosCaixaEspeciaisForm" style="display: grid; grid-gap: 10px;">
-			<div formArrayName="itemRowEsp" style="display: grid;">
-				<div *ngFor="let itemrow of DadosCaixaEspeciaisForm.controls.itemRowEsp.controls; let i=index" [formGroupName]="i" style="display: grid; grid-gap: 10px">
+			<div style="margin: 10px 0 10px 0;"></div>
+			<h4>Encomenda por Caixas com vários modelos de garrafa</h4>
+			<div formArrayName="linhaModelo" style="display: grid; grid-gap: 5px">
+				<div *ngFor="let linha of DadosCaixaForm.controls.linhaModelo.controls; let i=index" [formGroupName]="i" style="display: grid; grid-gap: 5px">
 					<h4>Caixa especial Nº{{i+1}}</h4>
 					<div class="itemFormCaixaQuantidade">
-						<select class="itemFormCaixa" formControlName="caixa">
-							<option value="">Modelos de Caixa</option>
-							<option *ngFor="let caixa of tabelaCaixas" [value]="caixa.id">
-								{{caixa.id}}, {{caixa.tipo}}{{caixa.categoria != "" ? ' - ' + caixa.categoria : ''}}, {{caixa.material}}, {{caixa.garrafas}}, {{caixa.capacidade}}l
-							</option>
+						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixaEspecial($event.target.value, i)">
+							<option value="" disabled>Modelos Caixa</option>
+							<option *ngFor="let caixa of tabelaCaixas" [value]="caixa.id">{{caixa.id}}</option>
 						</select>									
-						<div class="alerta itemAlerta2" *ngIf="!itemrow.controls['caixa'].valid && itemrow.controls['caixa'].touched">
+						<div class="alerta itemGarrafa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa
 						</div>
 						<input type="number" formControlName="quantidadeCaixa" placeholder="Insira aqui a quantidade de caixas...">									
-						<div class="alerta itemAlerta3" *ngIf="!itemrow.controls['quantidadeCaixa'].valid && itemrow.controls['quantidadeCaixa'].touched">
+						<div class="alerta itemQuantidade" *ngIf="linha.controls['quantidadeCaixa'].hasError('required') && linha.controls['quantidadeCaixa'].touched">
+							Quantidade obrigatória
+						</div>
+						<div class="alerta itemQuantidade" *ngIf="!linha.controls['quantidadeCaixa'].hasError('required') && linha.controls['quantidadeCaixa'].hasError('min')">
 							Insira uma quantidade positiva
+						</div>
+						<div class="alerta itemQuantidade" *ngIf="!linha.controls['quantidadeCaixa'].hasError('required') && !linha.controls['quantidadeCaixa'].hasError('min') && linha.hasError('ValidQuantidadeCaixas')">
+							Não existe essa quantidade de caixas em stock
 						</div>
 					</div>
 					<div style="margin: 5px 0 0 0;"></div>
-					<div class="itemFormCaixaQuantidadeHeader" style="background-color: #27270c;">
+					<div class="itemFormQuantidade" style="background-color: #27270c;">
 						<h4>Modelos Garrafa</h4>
 						<h4>Quantidade Garrafas</h4>
 						<h4>Acções</h4>
 					</div>
-					<div formArrayName="itemRowGarrafa" style="display: grid; grid-gap: 10px;">
-						<div class="itemFormQuantidade" *ngFor="let itemrowGarrafa of itemrow.controls.itemRowGarrafa.controls; let j=index" [formGroupName]="j" style="display: grid;">
+					<div formArrayName="linhaGarrafa" style="display: grid; grid-gap: 5px">
+						<div class="itemFormQuantidade" *ngFor="let linhaG of linha.controls.linhaGarrafa.controls; let j=index" [formGroupName]="j">
 							<select formControlName="garrafa">
-								<option *ngFor="let garrafa of tabelaGarrafas" [ngValue]="garrafa.id">
-									{{garrafa.lote}}{{garrafa.categoria != "" ? ' - ' + garrafa.categoria : ''}}, {{garrafa.capacidade}}l
-								</option>
+								<option value="" disabled>Modelos Garrafa</option>
+								<option *ngFor="let garrafa of modeloCapacidadeGarrafaEspecial[i]" [ngValue]="garrafa.id">{{garrafa.id}}</option>
 							</select>
-							<div class="alerta itemAlerta1" *ngIf="!itemrowGarrafa.controls['garrafa'].valid && itemrowGarrafa.controls['garrafa'].touched">
+							<div class="alerta itemCaixa" *ngIf="linhaG.controls['garrafa'].hasError('required') && linhaG.controls['garrafa'].touched">
 								Selecione um Modelo de Garrafa
 							</div>
 							<input type="number" formControlName="quantidadeGarrafa" placeholder="Insira aqui a quantidade de caixas...">
-							<div class="alerta itemAlerta2" *ngIf="!itemrowGarrafa.controls['quantidadeGarrafa'].valid && itemrowGarrafa.controls['quantidadeGarrafa'].touched">
-								Insira uma quantidade positiva
+							<div class="alerta itemGarrafa" *ngIf="linhaG.controls['quantidadeGarrafa'].hasError('required') && linhaG.controls['quantidadeGarrafa'].touched">
+								Quantidade obrigatória
 							</div>
-							<a class="itemClear" (click)="apagarLinhaEspecial(itemrow.controls.itemRowGarrafa, j)" style="font-size: 11px;" *ngIf="itemrow.controls.itemRowGarrafa.length > 1">Limpar Registo</a>		
+							<div class="alerta itemGarrafa" *ngIf="!linhaG.controls['quantidadeGarrafa'].hasError('required') && linhaG.controls['quantidadeGarrafa'].hasError('min')">
+								Insira uma quantidade positiva
+							</div>						
+							<div class="alerta itemGarrafa" *ngIf="!linhaG.controls['quantidadeGarrafa'].hasError('required') && !linhaG.controls['quantidadeGarrafa'].hasError('min') && !linhaG.hasError('ValidQuantidadeCaixas') && linhaG.hasError('ValidQuantidadeGarrafas')">
+								Não existe essa quantidade de garrafas rotuladas em stock
+							</div>															
+							<div class="alerta itemGarrafa" *ngIf="!linhaG.controls['quantidadeGarrafa'].hasError('required') && !linhaG.controls['quantidadeGarrafa'].hasError('min') && !linhaG.hasError('ValidQuantidadeCaixas') && !linhaG.hasError('ValidQuantidadeGarrafas') && linhaG.hasError('ValidQuantidadeGarrafasPreenchidas')">
+								Extravazou o limite de garrafas da caixa
+							</div>	
+							<div class="alerta itemErroEspecial" *ngIf="!linhaG.controls['garrafa'].hasError('required') && linhaG.hasError('ValidCaixasEspeciaisRegisto')">
+								Já existe na lista de encomenda um registo com o mesmo modelo de garrafa
+							</div>
+							<a class="itemClear" (click)="apagarLinhaEspecial(linha.controls.linhaGarrafa, j)" style="font-size: 11px;" *ngIf="linha.controls.linhaGarrafa.length > 1">Limpar Registo</a>		
 						</div>
 					</div>
 					<div class="addRow">
-						<a class="itemClear itemAdd" (click)="adicionarLinhaEspecial(itemrow.controls.itemRowGarrafa, itemrow)" style="font-size: 11px;">Adicionar Registo</a>
+						<a class="itemClear itemAdd" (click)="adicionarLinhaCaixasEspeciais(linha)" style="font-size: 11px;">Adicionar Garrafas</a>
 					</div>
 					<div class="addRow">					
-						<a class="itemClear itemAdd" (click)="apagarEspecial(i)" *ngIf="DadosCaixaEspeciaisForm.controls.itemRowEsp.controls.length > 1" style="font-size: 11px; margin-bottom: 25px;">Limpar Caixa</a>
+						<a class="itemClear itemAdd" (click)="apagarEspecial(i)" *ngIf="DadosCaixaForm.controls.linhaModelo.controls.length > 1" style="font-size: 11px; margin-bottom: 25px;">Limpar Caixa</a>
 					</div>
 				</div>
 				<div class="addRow">

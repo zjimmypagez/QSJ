@@ -115,16 +115,14 @@ select{
     grid-row: 2;
 }
 
+.itemErroEspecial{
+    grid-row: 2;
+}
+
 .itemFormTabelaCaixasNormais{
     display: grid;
     grid-gap: 0 8px;
     grid-template-columns: repeat(4, 1fr);
-}
-
-.itemFormCaixaQuantidadeHeader{    
-    display: grid;
-    grid-gap: 10px 8px;
-    grid-template-columns: 2fr repeat(2, 1fr);
 }
 
 .itemFormQuantidade{
@@ -165,7 +163,7 @@ select{
     text-align: center;
 }
 
-.itemFormTabelaCaixasNormais h4, .itemFormCaixaQuantidadeHeader h4{
+.itemFormTabelaCaixasNormais h4, .itemFormQuantidade h4{
     text-transform: uppercase;
     margin: 0.2rem 0;
     font-size: 0.8rem;
