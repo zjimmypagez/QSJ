@@ -11,7 +11,6 @@ import { User } from "../../../interfaces/user";
 })
 export class RecuperarComponent implements OnInit {
   	RecuperarForm: FormGroup;
-	Recuperar: formRecuperar;
 
 	// Lista de utilizadores a ler da BD
 	Users: User[];
@@ -23,14 +22,13 @@ export class RecuperarComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniFormRecuperar();
 		this.iniListaUsers();
 	}
 
 	// Recolha dos dados do formulário e verificação do email
 	recuperarPassword(form){
-		this.Recuperar = form;
-		var estadoRecuperar = this.Users.filter(x => x.email == this.Recuperar.email);		
+		var email: any = form;
+		var estadoRecuperar = this.Users.filter(x => x.email == email);		
 		if (estadoRecuperar.length == 1){
 			alert("Foi enviado um email com as novas credenciais!");
 			this.router.navigate(['']);
@@ -44,13 +42,6 @@ export class RecuperarComponent implements OnInit {
 	// Limpa os dados do formulário
 	clearDados(){
 		this.RecuperarForm.controls['email'].reset('');
-	}
-
-	// Iniciar o objeto Recuperar
-	iniFormRecuperar(){
-		this.Recuperar = {
-			email: ''
-		}
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -69,9 +60,4 @@ export class RecuperarComponent implements OnInit {
 		}];
 	}
 
-}
-
-// Dados recebidos do formulário
-interface formRecuperar{
-	email: string
 }

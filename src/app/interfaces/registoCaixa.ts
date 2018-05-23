@@ -3,5 +3,6 @@ export interface RegistoCaixa {
     idCaixa: number,
     data: Date,
     comentario: string,
+    opcao: string,
     quantidade: number
 }

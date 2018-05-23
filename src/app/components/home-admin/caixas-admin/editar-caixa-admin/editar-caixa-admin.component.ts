@@ -41,10 +41,7 @@ export class EditarCaixaAdminComponent implements OnInit {
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de caixas (a ser lida da BD)
-		for (let i = 0; i < this.caixas.length; i++){
-			if (this.caixas[i].id == this.id)
-			  this.caixa = this.caixas[i];
-		}
+		this.caixa = this.caixas.find(x => x.id == this.id);
 		this.iniCaixaForm();
 		this.iniGarrafas(this.caixa.material);
 		this.resetForm(this.caixa);

@@ -200,14 +200,10 @@ export class JoinTablesService {
 		var iniciais: string = "";
 		var marca: string;
 		for (let i = 0; i < vinhos.length; i++){
-			if (id == vinhos[i].id)
-				marca = vinhos[i].marca;
+			if (id == vinhos[i].id) marca = vinhos[i].marca;
 		}
-
 		for (let i = 0; i < marca.length; i++){
-			if(marca[i].match(/[A-Z]/) != null){
-				iniciais = iniciais + marca[i];
-		  }
+			if (marca[i].match(/[A-Z]/) != null) iniciais = iniciais + marca[i];
 		}
 		return iniciais;
 	}

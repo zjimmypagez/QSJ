@@ -21,7 +21,6 @@ export class EditarCaixaFuncComponent implements OnInit {
 	RegistoForm: FormGroup;
 
 	registo: RegistoCaixa;
-	opcao: string;
 	caixa: tableCaixa;
 
 	// Lista de modelos de caixa a ler da BD
@@ -45,15 +44,9 @@ export class EditarCaixaFuncComponent implements OnInit {
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de caixas (a ser lida da BD)
-		for (let i = 0; i < this.registos.length; i++){
-			if (this.registos[i].id == this.id)
-			  this.registo = this.registos[i];
-		}
+		this.registo = this.registos.find(x => x.id == this.id);
 		// Seleção do modelo de caixa escolhido
-		for (let i = 0; i < this.tabelaCaixas.length; i++){
-			if (this.tabelaCaixas[i].id == this.registo.idCaixa)
-				this.caixa = this.tabelaCaixas[i];
-		}
+		this.caixa = this.tabelaCaixas.find(x => x.id == this.registo.idCaixa);
 		this.iniRegistoForm();
 		this.resetForm(this.registo);
 	}
@@ -94,6 +87,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 			idCaixa: 2,
 			data: new Date(2005,12,17),
 			comentario: "2 c/ defeito",
+			opcao: "Remover",
 			quantidade: -2      
 		},
 		{
@@ -101,6 +95,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 			idCaixa: 1,
 			data: new Date(2012,6,2),
 			comentario: "",
+			opcao: "Inserir",
 			quantidade: 12 
 		},
 		{
@@ -108,6 +103,7 @@ export class EditarCaixaFuncComponent implements OnInit {
 			idCaixa: 1,
 			data: new Date(2013,4,26),
 			comentario: "12 c/ defeito",
+			opcao: "Inserir",
 			quantidade: 120 
 		}];
 	}

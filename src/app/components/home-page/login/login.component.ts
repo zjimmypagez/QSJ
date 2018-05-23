@@ -11,7 +11,6 @@ import { User } from "../../../interfaces/user";
 })
 export class LoginComponent implements OnInit {
 	LoginForm: FormGroup;
-	Login: formLogin;
 
 	// Lista de utilizadores a ler da BD
 	Users: User[];
@@ -69,11 +68,4 @@ export class LoginComponent implements OnInit {
 			password: '123456'
 		}];
 	}
-}
-
-
-// Dados recebidos do formulário
-interface formLogin{
-	username: string,
-	password: string
 }

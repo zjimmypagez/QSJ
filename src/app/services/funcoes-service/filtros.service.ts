@@ -5,35 +5,19 @@ export class FiltrosService {
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa da marca do vinho
 	pesquisaMarca(tabela: any[], marca: string): any[]{
-		var tabelaMarca: any[] = [];
-		// Pesquisa na tabela por objetos com a propriedade marca igual a pesquisada
-		for (let i = 0; i < tabela.length; i++){
-			if (marca.toUpperCase() === tabela[i].marca.toUpperCase()){
-				tabelaMarca.push(tabela[i]);
-			}
-		}
+		var tabelaMarca: any[] = tabela.filter(x => x.marca.toUpperCase() == marca.toUpperCase());
 		return tabelaMarca;
 	}
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa do num de fatura de uma encomenda
 	pesquisaNFatura(tabela: any[], nFatura: number): any[]{
-		var tabelaNFatura: any[] = [];
-		// Pesquisa na tabela por objetos com a propriedade nfatura igual a pesquisada
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].nFatura == nFatura)
-				tabelaNFatura.push(tabela[i]);
-		}
+		var tabelaNFatura: any[] = tabela.filter(x => x.nFatura == nFatura);
 		return tabelaNFatura;
 	}
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa do username de utilizador
 	pesquisaUsername(tabela: any[], username: string): any[]{
-		var tabelaUsername: any[] = [];
-		// Pesquisa na tabela por objetos com a propriedade username igual a pesquisada
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].username == username)
-				tabelaUsername.push(tabela[i]);
-		}
+		var tabelaUsername: any[] = tabela.filter(x => x.username == username);
 		return tabelaUsername;
 	}
 
@@ -45,12 +29,8 @@ export class FiltrosService {
 			tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 		}
 		else{
-			if (filtro.tipoVinho != ""){	
-				tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);	
-			}
-			else{
-				tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);	
-			}
+			if (filtro.tipoVinho != "") tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);	
+			else tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 		}
 		return tabelaFiltro;
 	}
@@ -119,22 +99,12 @@ export class FiltrosService {
 													tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 												}
 												else{
-													if (filtro.material != ""){
-														tabelaFiltro = this.filtrarMaterial(filtro, tabelaFiltro);
-													}
-													else{
-														if (filtro.capacidade != ""){
-															tabelaFiltro = this.filtrarCapacidade(filtro, tabelaFiltro);
-														}
-														else{
-															if (filtro.tipoVinho != ""){
-																tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);
-															}
-															else{
-																tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
-															}
-														}
-													}
+													if (filtro.material != "") tabelaFiltro = this.filtrarMaterial(filtro, tabelaFiltro);
+													else
+														if (filtro.capacidade != "") tabelaFiltro = this.filtrarCapacidade(filtro, tabelaFiltro);
+														else
+															if (filtro.tipoVinho != "") tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);
+															else tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 												}
 											}
 										}
@@ -213,22 +183,12 @@ export class FiltrosService {
 													tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 												}
 												else{
-													if (filtro.ano != ""){
-														tabelaFiltro = this.filtrarAno(filtro, tabelaFiltro);
-													}
-													else{
-														if (filtro.capacidade != ""){
-															tabelaFiltro = this.filtrarCapacidade(filtro, tabelaFiltro);
-														}
-														else{
-															if (filtro.tipoVinho != ""){
-																tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);
-															}
-															else{
-																tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
-															}
-														}
-													}
+													if (filtro.ano != "") tabelaFiltro = this.filtrarAno(filtro, tabelaFiltro);
+													else
+														if (filtro.capacidade != "") tabelaFiltro = this.filtrarCapacidade(filtro, tabelaFiltro);
+														else
+															if (filtro.tipoVinho != "") tabelaFiltro = this.filtrarTipoVinho(filtro, tabelaFiltro);
+															else tabelaFiltro = this.filtrarCategoriaVinho(filtro, tabelaFiltro);
 												}
 											}
 										}
@@ -245,65 +205,33 @@ export class FiltrosService {
 
 	// Função que filtra ano, tabela representa a tabela da qual é filtrado o ano
 	public filtrarAno(filtro: any, tabela: any[]): any[]{
-		var tabelaAno: any[] = [];
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].ano == filtro.ano){
-				tabelaAno.push(tabela[i]);
-			}
-		}
+		var tabelaAno: any[] = tabela.filter(x => x.ano == filtro.ano);
 		return tabelaAno;
 	}
 
 	// Função que filtra ano, tabela representa a tabela da qual é filtrado o material
 	filtrarMaterial(filtro: any, tabela: any[]): any[]{
-		var tabelaAno: any[] = [];
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].material == filtro.material){
-				tabelaAno.push(tabela[i]);
-			}
-		}
+		var tabelaAno: any[] = tabela.filter(x => x.material == filtro.material);
 		return tabelaAno;
 	}
 
 	// Função que filtra capacidade, tabela representa a tabela da qual é filtrado a capacidade
 	filtrarCapacidade(filtro: any, tabela: any[]): any[]{
-		var tabelaCapacidade: any[] = [];
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].capacidade == filtro.capacidade){
-				tabelaCapacidade.push(tabela[i]);
-			}
-		}
+		var tabelaCapacidade: any[] = tabela.filter(x => x.capacidade == filtro.capacidade);
 		return tabelaCapacidade;
 	}
 
 	// Função que filtra tipo de vinho, tabela representa a tabela da qual é filtrado o tipo de vinho
 	filtrarTipoVinho(filtro: any, tabela: any[]): any[]{
-		var tabelaTipoVinho: any[] = [];
-		for (let i = 0; i < tabela.length; i++){
-			if (tabela[i].tipo == filtro.tipoVinho){
-				tabelaTipoVinho.push(tabela[i]);
-			}
-		}
+		var tabelaTipoVinho: any[] = tabela.filter(x => x.tipo == filtro.tipoVinho);
 		return tabelaTipoVinho;
 	}
 
 	// Função que filtra categoria do vinho, tabela representa a tabela da qual é filtrado a categoria do vinho
 	filtrarCategoriaVinho(filtro: any, tabela: any[]): any[]{
 		var tabelaCategoriaVinho: any[] = [];
-		if (filtro.categoria != "Normal"){
-			for (let i = 0; i < tabela.length; i++){
-				if (tabela[i].categoria == filtro.categoria){
-					tabelaCategoriaVinho.push(tabela[i]);
-				}
-			}
-		}
-		else{
-			for (let i = 0; i < tabela.length; i++){
-				if (tabela[i].categoria == ""){
-					tabelaCategoriaVinho.push(tabela[i]);
-				}
-			}
-		}
+		if (filtro.categoria != "Normal") tabelaCategoriaVinho = tabela.filter(x => x.categoria == filtro.categoria);
+		else tabelaCategoriaVinho = tabela.filter(x => x.categoria == "");
 		return tabelaCategoriaVinho;
 	}
 
@@ -311,26 +239,21 @@ export class FiltrosService {
 	iniFiltroCategoria(vinhos: any[]): string[]{
 		var categorias: string[] = [];
 		var first: number = 0;
-
 		for (let i = 0; i < vinhos.length; i++){
 			if (vinhos[i].categoria != "" && first == 0){
 				categorias.push(vinhos[i].categoria);
 				first++;
 			}
 		}
-
 		for (let i = 1; i < vinhos.length; i++){
 			var count: number = 0;
 			if (vinhos[i].categoria != ""){
 				for (let j = 0; j < categorias.length; j++){
-					if (vinhos[i].categoria == categorias[j])
-						count++;
+					if (vinhos[i].categoria == categorias[j]) count++;
 				}
-				if (count == 0)
-					categorias.push(vinhos[i].categoria);
+				if (count == 0) categorias.push(vinhos[i].categoria);
 			}
 		}
-
 		return categorias;
 	}
 
@@ -338,15 +261,11 @@ export class FiltrosService {
 	public iniFiltroAno(garrafas: any[]): number[]{
 		var anos: number[] = [];
 		var anoMax: number = 0;
-		var anoMin: number = 2100;		
-
+		var anoMin: number = 2100;	
 		for (let i = 0; i < garrafas.length; i++){
-			if (garrafas[i].ano > anoMax)
-				anoMax = garrafas[i].ano;
-			if (garrafas[i].ano < anoMin)
-				anoMin = garrafas[i].ano;
+			if (garrafas[i].ano > anoMax) anoMax = garrafas[i].ano;
+			if (garrafas[i].ano < anoMin) anoMin = garrafas[i].ano;
 		}
-
 		for (let i = anoMin; i <= anoMax; i++){
 			anos.push(i);
 		}

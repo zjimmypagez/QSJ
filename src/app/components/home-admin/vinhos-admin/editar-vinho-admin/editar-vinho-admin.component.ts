@@ -39,10 +39,7 @@ export class EditarVinhoAdminComponent implements OnInit {
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de vinhos (a ser lida da BD)
-		for (let i = 0; i < this.vinhos.length; i++){
-			if (this.vinhos[i].id == this.id)
-			  this.vinho = this.vinhos[i];
-		}			
+		this.vinho = this.vinhos.find(x => x.id == this.id);
 		this.iniVinhoForm();
 		this.resetForm(this.vinho);
 	}
@@ -95,20 +92,16 @@ export class EditarVinhoAdminComponent implements OnInit {
 
 	// Ver se existem, em stock, garrafas associadas a um determinado vinho
 	checkGarrafas(): boolean{
-		var estado: boolean = false;
-		for (let i = 0; i < this.garrafas.length; i++){				
-			if (this.garrafas[i].tipoVinho == this.vinho.id) estado = true;
-		}	
-		return estado;
+		var garrafa: Garrafa = this.garrafas.find(x => x.tipoVinho == this.vinho.id);
+		if (garrafa == undefined) return false;
+		else return true;
 	}
 
 	// Ver se existem, em stock, caixas associadas a um determinado vinho
 	checkCaixas(): boolean{
-		var estado: boolean = false;
-		for (let i = 0; i < this.caixas.length; i++){				
-			if (this.caixas[i].tipoVinho == this.vinho.id) estado = true;
-		}	
-		return estado;
+		var caixa: Caixa = this.caixas.find(x => x.tipoVinho == this.vinho.id);
+		if (caixa == undefined) return false;
+		return true;
 	}
 
 	// Reset dos dados da form
@@ -164,7 +157,7 @@ export class EditarVinhoAdminComponent implements OnInit {
          capacidade: 0.750,
          garrafas: 12,
          material: 'Cartão',
-			tipoVinho: 6,
+			tipoVinho: 2,
 			quantidade: 50
       }];   
 	}
@@ -191,10 +184,4 @@ export class EditarVinhoAdminComponent implements OnInit {
 		}];
 	}
 
-}
-
-interface formVinho{
-	marca: string,
-	tipo: string,
-	categoria: string
 }

@@ -135,16 +135,12 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 
 	// Verficações sobre a validação do form
 	getEstadoForm(){		
-		if (this.RegistoForm.valid && this.InserirForm.valid)
-			return false;
+		if (this.RegistoForm.valid && this.InserirForm.valid) return false;
 		else
-			if (this.RegistoForm.valid && this.RemoverForm.valid)
-				return false;
+			if (this.RegistoForm.valid && this.RemoverForm.valid) return false;
 			else
-				if (this.RegistoForm.valid && this.RotularForm.valid)
-					return false;
-				else
-					return true;
+				if (this.RegistoForm.valid && this.RotularForm.valid) return false;
+				else return true;
 	}
 
 	// Limpa os dados do Formulário

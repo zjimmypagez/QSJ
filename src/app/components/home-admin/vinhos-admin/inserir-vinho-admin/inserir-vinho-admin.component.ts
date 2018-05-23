@@ -79,9 +79,3 @@ export class InserirVinhoAdminComponent implements OnInit {
 	}
 
 }
-
-interface formVinho{
-	marca: string,
-	tipo: string,
-	categoria: string
-}

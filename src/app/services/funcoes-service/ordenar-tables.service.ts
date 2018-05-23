@@ -7,12 +7,8 @@ export class OrdenarTablesService {
 		var tabelaOrdenada: any[] = [];
 		tabelaOrdenada = vinhos.sort(
 			function(obj1, obj2){
-				if (obj1.marca < obj2.marca){
-					return -1;
-				}
-				if (obj1.marca > obj2.marca){
-					return 1;
-				}
+				if (obj1.marca < obj2.marca) return -1;
+				if (obj1.marca > obj2.marca) return 1;
 				return 0;
 			}
 		);

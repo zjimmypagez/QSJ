@@ -33,15 +33,12 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
 		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
-		// Subscrição dos parametros do modelo da garrafa escolhido para editar
+		// Subscrição dos parametros do modelo da garrafa escolhido para editar		
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de garrafas (a ser lida da BD)
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.garrafas[i].id == this.id)
-			  this.garrafa = this.garrafas[i];
-		}
+		this.garrafa = this.garrafas.find(x => x.id == this.id);
 		this.iniGarrafaForm();			
 		this.resetForm(this.garrafa);
 	}

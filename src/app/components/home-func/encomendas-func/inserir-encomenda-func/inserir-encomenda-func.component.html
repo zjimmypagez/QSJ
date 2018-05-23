@@ -49,7 +49,7 @@
 	   </table>
 	</div>
 	<div style="margin: 5px 0 5px 0;"></div>
-	<form class="itemForm" [formGroup]="DadosEncomendaForm" (ngSubmit)="novoRegisto(DadosEncomendaForm.value, DadosCaixaForm.value, DadosCaixaEspeciaisForm.value)">
+	<form class="itemForm" [formGroup]="DadosEncomendaForm" (ngSubmit)="novoRegisto(DadosEncomendaForm.value, DadosCaixaForm.value)">
 		<h4>Encomenda por Caixas só com um modelo de garrafa</h4>		
 		<form [formGroup]="DadosCaixaForm" style="display: grid; grid-gap: 5px;">
 			<div class="itemFormTabelaCaixasNormais" style="background-color: #27270c;">
@@ -61,9 +61,9 @@
 			<div formArrayName="linhaCaixas" style="display: grid; grid-gap: 5px">
 				<div *ngFor="let linha of DadosCaixaForm.controls.linhaCaixas.controls; let i=index" [formGroupName]="i">
 					<div class="itemFormTabelaCaixasNormais">
-						<select formControlName="caixa" (change)="onChangeModeloCaixa($event.target.value, i)">
+						<select formControlName="caixa" (change)="onChangeModeloCaixa(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of tabelaCaixas" [value]="caixa.id"> {{caixa.id}} </option>
+							<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id"> {{caixa.id}} </option>
 						</select>
 						<div class="alerta itemCaixa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa
@@ -104,9 +104,9 @@
 				<div *ngFor="let linha of DadosCaixaForm.controls.linhaModelo.controls; let i=index" [formGroupName]="i" style="display: grid; grid-gap: 5px">
 					<h4>Caixa especial Nº{{i+1}}</h4>
 					<div class="itemFormCaixaQuantidade">
-						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixaEspecial($event.target.value, i)">
+						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixaEspecial(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of tabelaCaixas" [value]="caixa.id">{{caixa.id}}</option>
+							<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id">{{caixa.id}}</option>
 						</select>									
 						<div class="alerta itemGarrafa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa

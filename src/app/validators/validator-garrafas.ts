@@ -16,10 +16,8 @@ export function ValidatorGarrafa (control: AbstractControl) {
 export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa;
-        for (let i = 0; i < garrafas.length; i++){
-            if (idGarrafa == garrafas[i].id) garrafa = garrafas[i];
-        }
+        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (garrafa.cRotulo < control.value) return { 'ValidRemoverCRotulo': true };     
         return null;
@@ -30,10 +28,8 @@ export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa;
-        for (let i = 0; i < garrafas.length; i++){
-            if (idGarrafa == garrafas[i].id) garrafa = garrafas[i];
-        }
+        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (garrafa.sRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
         return null;
@@ -44,10 +40,8 @@ export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 export function ValidatorRotular(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa;
-        for (let i = 0; i < garrafas.length; i++){
-            if (idGarrafa == garrafas[i].id) garrafa = garrafas[i];
-        }
+        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (control.value == null) return { 'WaitingCRotulo': true }
         if (garrafa.sRotulo < control.value) return { 'ValidRemoverSRotulo': true };        

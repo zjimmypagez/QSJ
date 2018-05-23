@@ -30,10 +30,7 @@ export class EditarContaAdminComponent implements OnInit {
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de utilizadores (a ser lida da BD)
-		for (let i = 0; i < this.users.length; i++){
-			if (this.users[i].id == this.id)
-			  this.user = this.users[i];
-		}
+		this.user = this.users.find(x => x.id == this.id);
 		this.iniUserForm();
 		this.resetForm(this.user);	  
 	}

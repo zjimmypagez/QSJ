@@ -153,6 +153,7 @@ export class CaixasFuncComponent implements OnInit {
 			idCaixa: 2,
 			data: new Date(2005,12,17),
 			comentario: "2 c/ defeito",
+			opcao: "Remover",
 			quantidade: -2      
 		},
 		{
@@ -160,6 +161,7 @@ export class CaixasFuncComponent implements OnInit {
 			idCaixa: 1,
 			data: new Date(2012,6,2),
 			comentario: "",
+			opcao: "Inserir",
 			quantidade: 12 
 		},
 		{
@@ -167,6 +169,7 @@ export class CaixasFuncComponent implements OnInit {
 			idCaixa: 1,
 			data: new Date(2013,4,26),
 			comentario: "12 c/ defeito",
+			opcao: "Inserir",
 			quantidade: 120 
 		}];
 	}

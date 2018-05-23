@@ -20,7 +20,6 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	RegistoForm: FormGroup;
 
 	registo: RegistoGarrafa;
-	opcao: string;
 	garrafa: tableGarrafa;
 
 	// Lista de modelos de garrafa a ler da BD
@@ -44,15 +43,9 @@ export class EditarGarrafasFuncComponent implements OnInit {
 			params => { this.id = +params['id']; }
 		)
 		// Procura na lista de garrafas (a ser lida da BD)
-		for (let i = 0; i < this.registos.length; i++){
-			if (this.registos[i].id == this.id)
-			  this.registo = this.registos[i];
-		}
+		this.registo = this.registos.find(x => x.id == this.id);
 		// Seleção do modelo de garrafa escolhido
-		for (let i = 0; i < this.tabelaGarrafas.length; i++){
-			if (this.tabelaGarrafas[i].id == this.registo.idGarrafa)
-				this.garrafa = this.tabelaGarrafas[i];
-		}
+		this.garrafa = this.tabelaGarrafas.find(x => x.id == this.registo.idGarrafa);
 		this.iniRegistoForm();
 		this.resetForm(this.registo);
 	}
@@ -87,7 +80,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaRegistos(){
+	iniListaRegistos(){
 		this.registos = [{
 			id: 1,
 			idGarrafa: 2,
@@ -118,7 +111,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaGarrafas(){
+	iniListaGarrafas(){
 		this.garrafas = [{
 			id: 1,
 			cuba: 5000,
@@ -140,7 +133,7 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	public iniListaVinhos(){
+	iniListaVinhos(){
 		this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
@@ -161,10 +154,6 @@ export class EditarGarrafasFuncComponent implements OnInit {
 		}];
 	}
 
-}
-
-interface formRegistoEditar{
-	comentario: string
 }
 
 // Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
