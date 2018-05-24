@@ -80,9 +80,14 @@ export class CaixasAdminComponent implements OnInit {
 	pesquisaMarca(form){
 		var marca = form.marca;		
 		if (marca != ""){
-			if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-			else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
-			this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
+				if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			}
+			else{
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			} 													
 			if (this.tabelaCaixas.length == 0){
 				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 				this.estadoTabela = false;
@@ -91,7 +96,7 @@ export class CaixasAdminComponent implements OnInit {
 		}
 		else{
 			this.estadoTabela = true;
-			this.tabelaCaixas = this.tabelaFiltro;			
+			if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.tabelaFiltro;			
 			alert("Pesquisa inválida!");
 		}
 	}

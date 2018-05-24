@@ -77,8 +77,14 @@ export class GarrafasFuncComponent implements OnInit {
 	pesquisaMarca(form){
 		var marca = form.marca;		
 		if (marca != ""){
-			if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-			else this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
+				if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+				else this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+			}
+			else{
+				this.tabelaRegistos = this.joinTableService.iniListaTableRegistosGarrafa(this.tabelaGarrafaRegistos, this.vinhos);
+				this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+			}
 			if (this.tabelaRegistos.length == 0) {
 				this.tabelaRegistos = this.joinTableService.iniListaTableRegistosGarrafa(this.tabelaGarrafaRegistos, this.vinhos);
 				this.estadoTabela = false;
@@ -87,7 +93,7 @@ export class GarrafasFuncComponent implements OnInit {
 		}
 		else {
 			this.estadoTabela = true;
-			this.tabelaRegistos = this.tabelaFiltro;
+			if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.tabelaFiltro;
 			alert("Pesquisa inválida!");
 		}
 	}

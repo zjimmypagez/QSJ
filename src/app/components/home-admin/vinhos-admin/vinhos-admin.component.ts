@@ -100,7 +100,7 @@ export class VinhosAdminComponent implements OnInit {
 		}
 		else {
 			this.estadoTabela = true;
-			this.vinhos = this.tabelaFiltro;
+			if (this.tabelaFiltro.length != 0) this.vinhos = this.tabelaFiltro;
 			alert("Pesquisa inválida!");
 		}
 	}

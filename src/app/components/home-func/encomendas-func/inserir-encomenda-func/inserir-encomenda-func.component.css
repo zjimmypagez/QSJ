@@ -44,6 +44,13 @@ select{
     text-align: center;
 }
 
+.container .itemNav{
+    display: grid;
+    grid-gap: 0 8px;
+    grid-template-columns: repeat(6, 1fr);
+    align-items: center
+}
+
 .main-table table{
     display: table;
     width: 100%;
@@ -236,6 +243,26 @@ form{
 }
 
 /* media queries */
+@media(max-width: 1200px){
+    .main-registo{
+        width: 80%; 
+    }
+
+    .registo-btn{
+        width: 60%;
+    }
+}
+
+@media(max-width: 975px){    
+    .container .itemNav{
+        display: grid;
+        grid-gap: 5px 8px;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(2, 1fr);
+        align-items: center
+    }
+}
+
 @media(max-width: 675px){
     .itemCaixa, .itemGarrafa, .itemQuantidade, .itemFormCaixa{
         grid-column: unset;
@@ -245,6 +272,14 @@ form{
     .itemFormTabelaCaixasNormais, .itemFormCaixaQuantidade, .itemFormQuantidade{   
         grid-gap: 5px;     
         grid-template-columns: 1fr;
+    }
+
+    .container .itemNav{
+        display: grid;
+        grid-gap: 5px 8px;
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        align-items: center
     }
 }
 
@@ -264,6 +299,13 @@ form{
 
     .itemAdd{
         grid-column: unset;
+    }
+
+    .container .itemNav{
+        display: grid;
+        grid-gap: 5px 8px;
+        grid-template-columns: 1fr;
+        align-items: center
     }
 }
 
@@ -295,15 +337,5 @@ form{
 
     .main-pesquisa, .main-encomenda{
         width: 100%;
-    }
-}
-
-@media(max-width: 1200px){
-    .main-registo{
-        width: 80%; 
-    }
-
-    .registo-btn{
-        width: 60%;
     }
 }

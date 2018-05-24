@@ -8,6 +8,7 @@ import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorEncomendaCaixasEspeciaisRegisto, ValidatorEncomendaCaixasRegisto, ValidatorEncomendaQuantidadeCaixas, ValidatorEncomendaQuantidadeCaixasEspeciais, ValidatorEncomendaQuantidadeGarrafas, ValidatorEncomendaQuantidadeGarrafasEspeciais, ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida } from '../../../../validators/validator-encomendas';
 
@@ -19,6 +20,13 @@ import { ValidatorEncomendaCaixasEspeciaisRegisto, ValidatorEncomendaCaixasRegis
 export class InserirEncomendaFuncComponent implements OnInit {
 	DadosEncomendaForm: FormGroup;
 	DadosCaixaForm: FormGroup;
+	FiltroCaixaForm: FormGroup;
+	FiltroGarrafaForm: FormGroup;
+	materiais: string[] = ["Cartão", "Madeira"];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
+	categorias: string[] = [];
+	anos: number[] = [];
 
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
@@ -35,16 +43,35 @@ export class InserirEncomendaFuncComponent implements OnInit {
 
 	modeloCaixaSelecionado: boolean = false;
 	modeloGarrafaSelecionado: boolean = false;
+	estadoTabelaCaixa: boolean = true;
+	estadoTabelaGarrafa: boolean = true;
 
 	// Array individual, usado em cada item do form array
 	modeloCapacidadeGarrafa: any[] = [];
 	// Array individual, usado em cada item do form array
 	modeloCapacidadeGarrafaEspecial: any[] = [];
 
-	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
+	tabelaFiltroCaixa: tableCaixa[] = [];	
+	tabelaFiltroGarrafa: tableGarrafa[] = [];	
+
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
 		this.DadosEncomendaForm = fb.group({
 			'nFatura': ['', Validators.min(1)],
 			'comentario': ['', Validators.maxLength(200)]
+		});
+		this.FiltroCaixaForm = fb.group({
+			'marca': ['', ],
+			'material': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
+		});
+		this.FiltroGarrafaForm = fb.group({
+			'marca': ['', ],
+			'ano': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
 		});
 	}
 
@@ -56,6 +83,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 		this.iniDadosCaixasForm();
+		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
+		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
 	}
 
 	// Inicializar objeto form DadosCaixasForm - Caixas Normais
@@ -187,16 +216,20 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		if (opcao != ""){
 			if (opcao == "Caixa"){
 				this.modeloGarrafaSelecionado = false;
+				this.clearTabelaGarrafa();
 				this.modeloCaixaSelecionado = true;
 			}
 			else{
 				this.modeloCaixaSelecionado = false;
+				this.clearTabelaCaixa();
 				this.modeloGarrafaSelecionado = true;
 			}
 		}
 		else{
 			this.modeloGarrafaSelecionado = false;
+			this.clearTabelaGarrafa();
 			this.modeloCaixaSelecionado = false;
+			this.clearTabelaCaixa();
 		}
 	}
 
@@ -264,6 +297,126 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		controlModelo.at(0).get('quantidadeCaixa').markAsUntouched();
 		linhaGarrafa.at(0).get('garrafa').markAsUntouched();
 		linhaGarrafa.at(0).get('quantidadeGarrafa').markAsUntouched();
+	}
+
+	// Pesquisa na tabela caixa
+	pesquisaMarcaCaixa(form){
+		var marca = form.marca;		
+		if (marca != ""){
+			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
+				if (this.tabelaFiltroCaixa.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltroCaixa, marca);
+				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			}
+			else{
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			} 
+			if (this.tabelaCaixas.length == 0){
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.estadoTabelaCaixa = false;
+			}
+			else this.estadoTabelaCaixa = true;
+		}
+		else{
+			this.estadoTabelaCaixa = true;
+			if (this.tabelaFiltroCaixa.length != 0) this.tabelaCaixas = this.tabelaFiltroCaixa;
+			alert("Pesquisa inválida!");
+		}
+	}
+
+	// Filtragem caixa
+	onChangeCaixa(){
+		var filtro: any = this.FiltroCaixaForm.value;
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);		
+		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
+			this.tabelaFiltroCaixa = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
+			this.tabelaCaixas = this.tabelaFiltroCaixa;
+			if (this.tabelaCaixas.length == 0) this.estadoTabelaCaixa = false;
+			else this.estadoTabelaCaixa = true;
+		}
+		else{
+			if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
+			else this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			this.tabelaFiltroCaixa = [];
+			this.estadoTabelaCaixa = true;
+		}
+	}
+
+	// Limpar pesquisa Caixa
+	clearTabelaCaixa(){
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.estadoTabelaCaixa = true;
+		this.clearFormCaixa();
+	}
+
+	// Limpar Form
+	clearFormCaixa(){
+		this.FiltroCaixaForm.controls['marca'].reset('');
+		this.FiltroCaixaForm.controls['material'].reset(0);
+		this.FiltroCaixaForm.controls['capacidade'].reset(0);
+		this.FiltroCaixaForm.controls['tipoVinho'].reset(0);
+		this.FiltroCaixaForm.controls['categoria'].reset(0);
+	}
+
+	// Pesquisa na tabela garrafa
+	pesquisaMarcaGarrafa(form){
+		var marca = form.marca;		
+		if (marca != ""){
+			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
+				if (this.tabelaFiltroGarrafa.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltroGarrafa, marca);
+				else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+			}
+			else{
+				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+				this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+			}
+			if (this.tabelaGarrafas.length == 0) {
+				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+				this.estadoTabelaGarrafa = false;
+			}				
+			else this.estadoTabelaGarrafa = true;
+		}
+		else {
+			this.estadoTabelaGarrafa = true;
+			if (this.tabelaFiltroGarrafa.length != 0) this.tabelaGarrafas = this.tabelaFiltroGarrafa;
+			alert("Pesquisa inválida!");
+		}
+	}
+
+	// Filtragem Garrafa
+	onChangeGarrafa(){
+		var filtro: any = this.FiltroGarrafaForm.value;
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+		if (filtro.ano != 0 || filtro.capacidade != 0 || filtro.tipoVinho != 0 || filtro.categoria != 0){
+			this.tabelaFiltroGarrafa = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
+			this.tabelaGarrafas = this.tabelaFiltroGarrafa;
+			if (this.tabelaGarrafas.length == 0) this.estadoTabelaGarrafa = false;
+			else this.estadoTabelaGarrafa = true;
+		}
+		else{
+			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			this.tabelaFiltroGarrafa = [];
+			this.estadoTabelaGarrafa = true;
+		}
+	}
+
+	// Limpar pesquisa garrafa
+	clearTabelaGarrafa(){
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.estadoTabelaGarrafa = true;
+		this.clearFormGarrafa();
+	}
+
+	// Limpar Form
+	clearFormGarrafa(){
+		this.FiltroGarrafaForm.controls['marca'].reset('');
+		this.FiltroGarrafaForm.controls['ano'].reset(0);
+		this.FiltroGarrafaForm.controls['capacidade'].reset(0);
+		this.FiltroGarrafaForm.controls['tipoVinho'].reset(0);
+		this.FiltroGarrafaForm.controls['categoria'].reset(0);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
