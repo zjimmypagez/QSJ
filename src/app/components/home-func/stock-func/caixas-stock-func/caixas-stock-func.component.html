@@ -1,0 +1,55 @@
+<div class="container">
+  <h1 class="itemTitulo">Caixas - Stock</h1>
+  <form [formGroup]="FiltroForm" (ngSubmit)="pesquisaMarca(FiltroForm.value)">
+      <div class="itemNav">
+          <div class="inserir">
+              <h4>Total: {{totalCaixas}}</h4>
+          </div>
+          <div class="filtros">
+              <select class="itemMaterial" formControlName="material" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                  <option [ngValue]="0">Material</option>
+                  <option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
+              </select>
+              <select class="itemCapacidade" formControlName="capacidade" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                  <option [ngValue]="0">Capacidade</option>
+                  <option *ngFor="let capacidade of capacidades" [ngValue]="capacidade">{{capacidade}}</option>
+              </select>
+              <select class="itemVinho" formControlName="tipoVinho" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                  <option [ngValue]="0">Tipo de Vinho</option>
+                  <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
+              </select>
+              <select class="itemCategoria" formControlName="categoria" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+                  <option [ngValue]="0">Categoria</option>
+                  <option value="Normal">S/Categoria</option>
+                  <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
+              </select>
+              <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
+              <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+          </div>
+      </div>
+  </form>
+  <div class="main-table" *ngIf="estadoTabela">
+     <table>
+        <tr>
+           <th>MARCA</th>
+           <th>TIPO VINHO</th>
+           <th>MATERIAL</th>
+           <th>GARRAFAS(QNT)</th>
+           <th>CAPACIDADE(/L)</th>
+           <th>QUANTIDADE</th>
+        </tr>
+        <tr *ngFor="let tabelaCaixa of tabelaCaixas">
+           <td>{{tabelaCaixa.marca}}</td>
+           <td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
+           <td>{{tabelaCaixa.material}}</td>
+           <td>{{tabelaCaixa.garrafas}}</td>
+           <td>{{tabelaCaixa.capacidade}} l</td>
+           <td>{{tabelaCaixa.quantidade}}</td>
+        </tr>      
+     </table>
+  </div>
+  <br>
+  <div *ngIf="!estadoTabela" style="text-align: center;">
+      <h2 style="color: #8B0000;">Não foram encontrados nenhuns modelos de caixa com o filtro selecionado!</h2>
+  </div>
+</div>   

@@ -8,6 +8,7 @@ import { Garrafa } from '../../../interfaces/garrafa';
 
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
 @Component({
 	selector: 'app-vinhos-admin',
@@ -30,7 +31,7 @@ export class VinhosAdminComponent implements OnInit {
 
 	tabelaFiltro: TipoVinho[] = [];
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService ) { 
+	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private ordenarService: OrdenarTablesService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', ],
 			'tipoVinho': [0, ],
@@ -158,6 +159,7 @@ export class VinhosAdminComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
+		this.ordenarService.ordenarTabelaMV(this.vinhos);
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

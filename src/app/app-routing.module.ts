@@ -32,6 +32,9 @@ import { EditarGarrafasFuncComponent } from './components/home-func/garrafas-fun
 import { AlterarPassFuncComponent } from './components/home-func/alterar-pass-func/alterar-pass-func.component';
 import { EncomendasFuncComponent } from './components/home-func/encomendas-func/encomendas-func.component';
 import { InserirEncomendaFuncComponent } from './components/home-func/encomendas-func/inserir-encomenda-func/inserir-encomenda-func.component';
+import { StockFuncComponent } from './components/home-func/stock-func/stock-func.component';
+import { GarrafasStockFuncComponent } from './components/home-func/stock-func/garrafas-stock-func/garrafas-stock-func.component';
+import { CaixasStockFuncComponent } from './components/home-func/stock-func/caixas-stock-func/caixas-stock-func.component';
 
 const appRoutes: Routes = [
    {
@@ -73,6 +76,9 @@ const appRoutes: Routes = [
 			{ path: 'alterarPass', component: AlterarPassFuncComponent },
 			{ path: 'encomendas', component: EncomendasFuncComponent },
 			{ path: 'encomendas/inserir', component: InserirEncomendaFuncComponent },
+			{ path: 'stock', component: StockFuncComponent },
+			{ path: 'stock/garrafas', component: GarrafasStockFuncComponent },
+			{ path: 'stock/caixas', component: CaixasStockFuncComponent }
 		]
 	}
 ];

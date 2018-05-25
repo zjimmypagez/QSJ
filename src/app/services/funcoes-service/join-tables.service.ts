@@ -1,7 +1,13 @@
 import { Injectable } from '@angular/core';
 
+import { OrdenarTablesService } from './ordenar-tables.service';
+
 @Injectable()
 export class JoinTablesService {
+	constructor( private ordenarService: OrdenarTablesService ){
+
+	}
+
 	// Interligação entre duas listas: Caixa e Tipo de Vinho
 	iniListaTableCaixas(caixas: any[], vinhos: any[]): any[]{
 		var table: any[] = [];
@@ -23,6 +29,7 @@ export class JoinTablesService {
 				}
 			}
 		}
+		this.ordenarService.ordenarTabelaMV(table);
 		return table;
 	}
 
@@ -49,6 +56,7 @@ export class JoinTablesService {
 				}
 			}
 		}
+		this.ordenarService.ordenarTabelaMV(table);
 		return table;
 	}
 
@@ -73,6 +81,12 @@ export class JoinTablesService {
 				}
 			}
 		}		
+		// Ordenar as lista por data
+		table.sort(
+			function(obj1, obj2){
+				return obj2.data.getTime() - obj1.data.getTime();
+			}
+		);		
 		return table;
 	}
 
@@ -130,7 +144,13 @@ export class JoinTablesService {
 					table.push(tableObj);
 				}
 			}
-		}		
+		}	
+		// Ordenar as lista por data
+		table.sort(
+			function(obj1, obj2){
+				return obj2.data.getTime() - obj1.data.getTime();
+			}
+		);			
 		return table;
 	}	
 
