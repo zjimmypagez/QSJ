@@ -14,12 +14,13 @@ import { ValidatorVinho } from '../../../../validators/validator-vinho';
 	styleUrls: ['./editar-vinho-admin.component.css']
 })
 export class EditarVinhoAdminComponent implements OnInit {
+	// Vinho selecionado
   	id: number;
 	private sub: any;
 	VinhoForm: FormGroup;
-	  
+	// DropDowns
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
-  
+	// Vinho selecionado
 	vinho: TipoVinho;
   	// Lista de tipos de vinho a ler da BD
 	vinhos: TipoVinho[];
@@ -31,13 +32,13 @@ export class EditarVinhoAdminComponent implements OnInit {
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { }
 
 	ngOnInit() {
-		this.iniListaVinhos();
-		this.iniListaCaixas();
-		this.iniListaGarrafas();
 		// Subscrição dos parametros do vinho escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
+		this.iniListaVinhos();
+		this.iniListaCaixas();
+		this.iniListaGarrafas();
 		// Procura na lista de vinhos (a ser lida da BD)
 		this.vinho = this.vinhos.find(x => x.id == this.id);
 		this.iniVinhoForm();
@@ -56,52 +57,36 @@ export class EditarVinhoAdminComponent implements OnInit {
 
 	// Editar o vinho após verificações
 	editarVinho(form){
-		var vinho: any = form;
-		var estadoGarrafa: boolean = this.checkGarrafas();	
-		var estadoCaixa: boolean = this.checkCaixas();
-		if (estadoGarrafa && estadoCaixa){
-			if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas e caixas. Pretende editá-lo mesmo assim?")){
-				alert("O tipo de vinho foi editado com sucesso!");
-				this.router.navigate(['/admin/vinhos']);
-			}
-			else this.clearDados();
-		} 
+		// Array com caixas com o tipo de vinho selecionado
+		var caixasComIdVinho: Caixa[] = this.caixas.filter(x => x.tipoVinho == this.vinho.id);
+		// Array com garrafas com o tipo de vinho selecionado
+		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.tipoVinho == this.vinho.id);
+		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0) alert("O tipo de vinho foi editado com sucesso!");
 		else{
-			if (estadoGarrafa){
-				if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas. Pretende editá-lo mesmo assim?")){
+			if (caixasComIdVinho.length != 0 && garrafasComIdVinho.length != 0){
+				if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas e caixas. Pretende editá-lo mesmo assim?")){
 					alert("O tipo de vinho foi editado com sucesso!");
 					this.router.navigate(['/admin/vinhos']);
 				}
 				else this.clearDados();
 			}
 			else{
-				if (estadoCaixa){
+				if (caixasComIdVinho.length != 0){
 					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em caixas. Pretende editá-lo mesmo assim?")){
 						alert("O tipo de vinho foi editado com sucesso!");
 						this.router.navigate(['/admin/vinhos']);
 					}
 					else this.clearDados();
-				}
+				} 
 				else{
-					alert("O tipo de vinho foi editado com sucesso!");
-					this.router.navigate(['/admin/vinhos']);
+					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas. Pretende editá-lo mesmo assim?")){
+						alert("O tipo de vinho foi editado com sucesso!");
+						this.router.navigate(['/admin/vinhos']);
+					}
+					else this.clearDados();
 				}
 			}
-		}
-	}
-
-	// Ver se existem, em stock, garrafas associadas a um determinado vinho
-	checkGarrafas(): boolean{
-		var garrafa: Garrafa = this.garrafas.find(x => x.tipoVinho == this.vinho.id);
-		if (garrafa == undefined) return false;
-		else return true;
-	}
-
-	// Ver se existem, em stock, caixas associadas a um determinado vinho
-	checkCaixas(): boolean{
-		var caixa: Caixa = this.caixas.find(x => x.tipoVinho == this.vinho.id);
-		if (caixa == undefined) return false;
-		return true;
+		}		
 	}
 
 	// Reset dos dados da form
@@ -109,15 +94,15 @@ export class EditarVinhoAdminComponent implements OnInit {
 		this.resetForm(this.vinho);
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
 	// Coloca a form com os dados pre-selecionados
 	resetForm(vinho: TipoVinho){
 		this.VinhoForm.controls['marca'].setValue(vinho.marca);
 		this.VinhoForm.controls['tipo'].setValue(vinho.tipo);
 		this.VinhoForm.controls['categoria'].setValue(vinho.categoria);
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

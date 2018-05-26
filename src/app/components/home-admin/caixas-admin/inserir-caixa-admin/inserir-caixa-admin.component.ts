@@ -16,12 +16,11 @@ import { ValidatorModelo } from '../../../../validators/validator-caixas';
 })
 export class InserirCaixaAdminComponent implements OnInit {
 	CaixaForm: FormGroup;
-
+	// DropDowns
 	materiais: string [] = ['Cartão', 'Madeira'];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	// Lista que, consoante o material escolhido, apresenta a quantidade pré-definida
 	garrafas: number[] = [];
-
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de vinhos a ler da BD
@@ -32,7 +31,7 @@ export class InserirCaixaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaCaixas();
 		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
+		this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
 		this.iniCaixaForm();
 	}
 
@@ -61,19 +60,12 @@ export class InserirCaixaAdminComponent implements OnInit {
 
 	// Material selecionado
 	onChange(material){
-		if (material == this.materiais[0]/* Cartão */){
-			this.garrafas = [2, 3, 6, 12];
-			this.CaixaForm.controls['garrafas'].setValue('');
-		}
+		this.CaixaForm.controls['garrafas'].reset('');
+		this.CaixaForm.controls['garrafas'].markAsTouched();
+		if (material == this.materiais[0]/* Cartão */) this.garrafas = [2, 3, 6, 12];
 		else{
-			if (material == this.materiais[1]/* Madeira */){
-				this.garrafas = [1, 2, 3];
-				this.CaixaForm.controls['garrafas'].setValue('');
-			}
-			else{
-				this.garrafas = [];
-				this.CaixaForm.controls['garrafas'].setValue('');
-			}
+			if (material == this.materiais[1]/* Madeira */) this.garrafas = [1, 2, 3]; 
+			else this.garrafas = [];  
 		}
 	}
 

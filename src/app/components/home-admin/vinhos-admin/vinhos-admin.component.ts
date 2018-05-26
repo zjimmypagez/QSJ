@@ -16,12 +16,14 @@ import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-
 	styleUrls: ['./vinhos-admin.component.css']
 })
 export class VinhosAdminComponent implements OnInit {
-	// Dados filtros
 	FiltroForm: FormGroup;
+	// Dados filtros
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
-
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: TipoVinho[] = [];
 	// Lista de tipos de vinho a ler da BD
 	vinhos: TipoVinho[];
 	// Lista de modelos caixa a ler da BD
@@ -29,11 +31,9 @@ export class VinhosAdminComponent implements OnInit {
 	// Lista de modelos garrafa a ler da BD
 	garrafas: Garrafa[];
 
-	tabelaFiltro: TipoVinho[] = [];
-
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private ordenarService: OrdenarTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', ],
+			'marca': ['', Validators.required],
 			'tipoVinho': [0, ],
 			'categoria': [0, ]
 		});
@@ -53,37 +53,22 @@ export class VinhosAdminComponent implements OnInit {
 	
 	// Função responsável por eliminar o tipo de vinho selecionado
 	eliminarVinho(id: number){
-		// Variavel que verifica se um vinho pode ser eliminado (false) ou não (true)
-		var estadoVinho: boolean = true;
-		var erro: number[] = [0, 0, 0]; // Index: 0 - existe em modelos de garrafas
-												  // Index: 1 - existe em modelos de caixas
-												  // Index: 2 - existe em ambos os modelos
-		// Ver se o tipo de vinho selecionado esta em uso em modelos de garrafa
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (this.garrafas[i].tipoVinho == id){
-				estadoVinho = false;
-				erro[0] = 1;
-			}
-		}
-		// Ver se o tipo de vinho selecionado esta em uso em modelos de caixa
-		for (let i = 0; i < this.caixas.length; i++){
-			if (this.caixas[i].tipoVinho == id){
-				estadoVinho = false;
-				erro[1] = 1;
-			}
-		}
-		if ((erro[0] * erro[1]) == 1) erro[2] = 1;
-		if (estadoVinho){
+		// Array com caixas com o tipo de vinho selecionado
+		var caixasComIdVinho: Caixa[] = this.caixas.filter(x => x.tipoVinho == id);
+		// Array com garrafas com o tipo de vinho selecionado
+		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.tipoVinho == id);
+		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0){
 			if (confirm("Quer mesmo eliminar este tipo de vinho?")){
 				alert("O tipo de vinho foi eliminado com sucesso!");
 				this.router.navigate(['/admin/vinhos']);
 			}
 		}
 		else{
-			if (erro[2] == 1) alert("O tipo de vinho que pretende eliminar está em uso, quer em modelos de garrafa quer em modelos de caixa.");
-			else
-				if (erro[0] == 1) alert("O tipo de vinho que pretende eliminar está em uso, em modelos de garrafa.");
-				if (erro[1] == 1) alert("O tipo de vinho que pretende eliminar está em uso, em modelos de caixa.");			
+			if (caixasComIdVinho.length != 0 && garrafasComIdVinho.length != 0) alert("O tipo de vinho que pretende eliminar está em uso, quer em modelos de garrafa quer em modelos de caixa.");
+			else{
+				if (caixasComIdVinho.length != 0) alert("O tipo de vinho que pretende eliminar está em uso, em modelos de caixa.");
+				else alert("O tipo de vinho que pretende eliminar está em uso, em modelos de garrafa.");
+			}
 		}
 	}
 
@@ -98,11 +83,6 @@ export class VinhosAdminComponent implements OnInit {
 				this.estadoTabela = false;
 			}				
 			else this.estadoTabela = true;
-		}
-		else {
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0) this.vinhos = this.tabelaFiltro;
-			alert("Pesquisa inválida!");
 		}
 	}
 
@@ -159,6 +139,7 @@ export class VinhosAdminComponent implements OnInit {
 			tipo: 'Tinto',
 			categoria: ''
 		}];
+		// Ordenar o array após a leitura dos dados a partir da BD
 		this.ordenarService.ordenarTabelaMV(this.vinhos);
 	}
 

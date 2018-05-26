@@ -14,13 +14,12 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 export class ContasAdminComponent implements OnInit {
 	FiltroForm: FormGroup;
 	estadoTabela: boolean = true;
-
   	// Lista de utilizadores a ler da BD
   	users: User[];
 
   	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService ) { 
 		this.FiltroForm = fb.group({
-			'username': ['', ] 
+			'username': ['', Validators.required] 
 		});
 	}
 
@@ -37,9 +36,7 @@ export class ContasAdminComponent implements OnInit {
 	eliminarUser(id: number){
 		// Variavel que determina se um utilizador pode ser eliminado
 		var estadoUser: boolean = true;
-
 		// Verificar junto dos registo se existem registos feitos por o utilizador a eliminar
-
 		if (estadoUser){
 			if (confirm("Quer mesmo eliminar este utilizador?")){
 				alert("O utilizador foi eliminado com sucesso!");
@@ -60,10 +57,11 @@ export class ContasAdminComponent implements OnInit {
 			}
 			else this.estadoTabela = true;
 		}
-		else{
-			this.estadoTabela = true;
-			alert("Pesquisa Inválida");
-		}
+	}
+
+	// Limpar Form
+	clearForm(){
+		this.FiltroForm.controls['username'].reset('');
 	}
 
 	// Limpar pesquisa
@@ -71,11 +69,6 @@ export class ContasAdminComponent implements OnInit {
 		this.iniListaUsers();
 		this.estadoTabela = true;
 		this.clearForm();
-	}
-
-	// Limpar Form
-	clearForm(){
-		this.FiltroForm.controls['username'].reset('');
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

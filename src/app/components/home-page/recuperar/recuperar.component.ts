@@ -11,7 +11,6 @@ import { User } from "../../../interfaces/user";
 })
 export class RecuperarComponent implements OnInit {
   	RecuperarForm: FormGroup;
-
 	// Lista de utilizadores a ler da BD
 	Users: User[];
 

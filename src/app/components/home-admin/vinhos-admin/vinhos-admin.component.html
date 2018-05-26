@@ -17,6 +17,7 @@
               </select>
               <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
               <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+              <button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroForm.valid">Pesquisar</button>
         </div>
       </div>
    </form>
@@ -28,7 +29,7 @@
              <th>CATEGORIA</th>
              <th>AÇÕES</th>
           </tr>
-          <tr *ngFor="let vinho of vinhos">
+          <tr *ngFor="let vinho of vinhos | paginate: { id: 'vinhos', itemsPerPage: 10, currentPage: p }">
              <td>{{vinho.marca}}</td>
              <td>{{vinho.tipo}}</td>
              <td>{{vinho.categoria}}</td>
@@ -41,8 +42,9 @@
           </tr>
        </table>
     </div>
+    <pagination-controls *ngIf="estadoTabela" class="pagination" id="vinhos" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
     <br>
     <div *ngIf="!estadoTabela" style="text-align: center;">
-        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de caixa com as opções indicadas!</h2>
+        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de vinhos com as opções indicadas!</h2>
     </div>
 </div>

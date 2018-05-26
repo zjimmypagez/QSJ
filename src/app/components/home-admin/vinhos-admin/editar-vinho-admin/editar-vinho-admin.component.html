@@ -19,7 +19,7 @@
                 <option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
             </select>
 		</div>
-		<div class="alerta" *ngIf="!VinhoForm.controls['tipo'].hasError('required') && VinhoForm.controls['tipo'].touched">
+		<div class="alerta" *ngIf="VinhoForm.controls['tipo'].hasError('required') && VinhoForm.controls['tipo'].touched">
 			Tipo obrigatório
 		</div>
 		<br>

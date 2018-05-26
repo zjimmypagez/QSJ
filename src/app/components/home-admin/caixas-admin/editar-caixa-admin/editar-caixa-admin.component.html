@@ -15,7 +15,7 @@
 		<div class="main-registo">
 			<h4>Material</h4>
 			<select formControlName="material" (ngModelChange)="onChange($event)">
-				<option value="">Materiais</option>
+				<option value="" disabled>Materiais</option>
 				<option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
 			</select>
 		</div>
@@ -24,7 +24,7 @@
 		</div>
 		<br>
 		<div class="main-registo">
-			<h4>Quantidade Garrafas)</h4>
+			<h4>Quantidade Garrafas</h4>
 			<select formControlName="garrafas">
 				<option value="" disabled>Garrafas</option>
 				<option *ngFor="let garrafa of garrafas" [ngValue]="garrafa">{{garrafa}}</option>

@@ -13,7 +13,6 @@ import { ValidatorPassword, ValidatorUsername, ValidatorEmail } from '../../../.
 })
 export class InserirContaAdminComponent implements OnInit {
 	UserForm: FormGroup;
-
 	// Lista de utilizadores a ler da BD
 	users: User[];
 

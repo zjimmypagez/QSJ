@@ -16,9 +16,8 @@ import { ValidatorModelo } from '../../../../validators/validator-garrafas';
 })
 export class InserirGarrafaAdminComponent implements OnInit {
 	GarrafaForm: FormGroup;
-
+	// DropDowns
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
-
 	// Lista de modelos de caixa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de vinhos a ler da BD
@@ -29,7 +28,7 @@ export class InserirGarrafaAdminComponent implements OnInit {
 	ngOnInit() {
 		this.iniListaGarrafas();
 		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
+		this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
 		this.iniGarrafaForm();
 	}
 

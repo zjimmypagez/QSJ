@@ -12,23 +12,23 @@ import { ValidatorPassword, ValidatorEditar } from '../../../../validators/valid
 	styleUrls: ['./editar-conta-admin.component.css']
 })
 export class EditarContaAdminComponent implements OnInit {
+	// Utilizador selecionado
 	id: number;
 	private sub: any;
 	UserForm: FormGroup;
-
+	// Utilizador selecionado
 	user: User;
-
   	// Lista de utilizadores a ler da BD
 	users: User[];
 
   	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { }
 
   	ngOnInit() {
-    	this.iniListaUsers();
-    	// Subscrição dos parametros do utilizador escolhido para editar
+		// Subscrição dos parametros do utilizador escolhido para editar
 		this.sub = this.route.params.subscribe(
-			params => { this.id = +params['id']; }
+		  params => { this.id = +params['id']; }
 		)
+    	this.iniListaUsers();
 		// Procura na lista de utilizadores (a ser lida da BD)
 		this.user = this.users.find(x => x.id == this.id);
 		this.iniUserForm();

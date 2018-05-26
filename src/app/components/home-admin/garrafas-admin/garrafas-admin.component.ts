@@ -14,14 +14,16 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 	styleUrls: ['./garrafas-admin.component.css']
 })
 export class GarrafasAdminComponent implements OnInit {
-	// Dados filtros
 	FiltroForm: FormGroup;
+	// Dados filtros
 	anos: number[] = [];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
-
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableGarrafa[] = [];
   	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de modelos de caixa a ler da BD
@@ -29,11 +31,9 @@ export class GarrafasAdminComponent implements OnInit {
 	// Tabela interligada entre garrafas e vinhos
 	tabelaGarrafas: tableGarrafa[];
 
-	tabelaFiltro: tableGarrafa[] = [];
-
   	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', Validators.minLength(1)],
+			'marca': ['', Validators.required],
 			'ano': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -56,26 +56,16 @@ export class GarrafasAdminComponent implements OnInit {
 	
 	// Função responsável por eliminar o modelo de garrafa selecionado
 	eliminarGarrafa(id: number){
-		// Variavel que verifica se um modelo de garrafa pode ser eliminado (false) ou não (true)
-		var estadoGarrafa: boolean = true;
-
-		for (let i = 0; i < this.garrafas.length; i++){
-			if (id == this.garrafas[i].id){
-				var quantidade: number = this.garrafas[i].cRotulo + this.garrafas[i].sRotulo;
-				if (quantidade > 0){
-					estadoGarrafa = false;
-				}
-			}
-		}
-
-		if (estadoGarrafa){
+		// Garrafa selecionada
+		var garrafa: Garrafa = this.garrafas.find(x => x.id == id);
+		var quantidade: number = garrafa.cRotulo + garrafa.sRotulo;
+		if (quantidade == 0){
 			if (confirm("Quer mesmo eliminar este modelo?")){
 				alert("O modelo de garrafa foi eliminado com sucesso!");
 				this.router.navigate(['/admin/garrafas']);
 			}
 		}
-		else
-			alert("O modelo de garrafa que pretende eliminar existe, em stock, no armazém.")
+		else alert("O modelo de garrafa que pretende eliminar existe, em stock, no armazém. [STOCK TOTAL] = " + quantidade);
 	}
 
 	// Pesquisa a um determinada marca
@@ -95,11 +85,6 @@ export class GarrafasAdminComponent implements OnInit {
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
-		}
-		else{
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0) this.tabelaGarrafas = this.tabelaFiltro;
-			alert("Pesquisa inválida!");
 		}
 	}
 
@@ -148,8 +133,7 @@ export class GarrafasAdminComponent implements OnInit {
 			capacidade: 1.000,
 			cRotulo: 250,
 			sRotulo: 100
-		},
-		{
+		},{
 			id: 2,
 			cuba: 10000,
 			ano: 2015,
@@ -167,14 +151,12 @@ export class GarrafasAdminComponent implements OnInit {
 			marca: 'Flor São José',
 			tipo: 'Verde',
 			categoria: ''
-		},
-		{
+		},{
 			id: 2,
 			marca: 'Quinta São José',
 			tipo: 'Rosé',
 			categoria: 'Grande Reserva'
-		},
-		{
+		},{
 			id: 3,
 			marca: 'Quinta São José',
 			tipo: 'Tinto',

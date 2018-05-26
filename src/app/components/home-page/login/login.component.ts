@@ -11,7 +11,6 @@ import { User } from "../../../interfaces/user";
 })
 export class LoginComponent implements OnInit {
 	LoginForm: FormGroup;
-
 	// Lista de utilizadores a ler da BD
 	Users: User[];
 
@@ -45,12 +44,17 @@ export class LoginComponent implements OnInit {
 		}		
 		if (estadoLogin) alert("Bem-vindo " + username + "!");
 		else{			
-			this.LoginForm.controls['username'].reset('');
-			this.LoginForm.controls['password'].reset('');
-			this.LoginForm.controls['username'].markAsUntouched();
-			this.LoginForm.controls['password'].markAsUntouched();
+			this.clearDados();
 			alert("Credenciais incorretas!");
 		}
+	}
+
+	// Limpar Form
+	clearDados(){
+		this.LoginForm.controls['username'].reset('');
+		this.LoginForm.controls['password'].reset('');
+		this.LoginForm.controls['username'].markAsUntouched();
+		this.LoginForm.controls['password'].markAsUntouched();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

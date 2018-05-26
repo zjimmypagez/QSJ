@@ -9,9 +9,9 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 
 @Component({
-    selector: 'app-caixas-admin',
-    templateUrl: './caixas-admin.component.html',
-    styleUrls: ['./caixas-admin.component.css']
+   selector: 'app-caixas-admin',
+   templateUrl: './caixas-admin.component.html',
+   styleUrls: ['./caixas-admin.component.css']
 })
 export class CaixasAdminComponent implements OnInit {	
 	FiltroForm: FormGroup;	
@@ -41,7 +41,7 @@ export class CaixasAdminComponent implements OnInit {
 		});
 	}
 
-	ngOnInit() {
+	ngOnInit(){
 	  this.iniListaCaixas();
 	  this.iniListaVinhos();
 	  this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
@@ -55,25 +55,15 @@ export class CaixasAdminComponent implements OnInit {
 	
 	// Função responsável por eliminar o modelo de caixa selecionado
 	eliminarCaixa(id: number){
-		// Variavel que verifica se um modelo de caixa pode ser eliminado (false) ou não (true)
-		var estadoCaixa: boolean = true;
-
-		for (let i = 0; i < this.caixas.length; i++){
-			if (id == this.caixas[i].id){
-				if (this.caixas[i].quantidade > 0){
-					estadoCaixa = false;
-				}
-			}
-		}
-
-		if (estadoCaixa){
+		// Caixa selecionada
+		var caixa: Caixa = this.caixas.find(x => x.id == id)
+		if (caixa.quantidade == 0){
 			if (confirm("Quer mesmo eliminar este modelo?")){
 				alert("O modelo de caixa foi eliminado com sucesso!");
 				this.router.navigate(['/admin/caixas']);
 			}
 		}
-		else
-			alert("O modelo de caixa que pretende eliminar existe, em stock, no armazém.")
+		else alert("O modelo de caixa que pretende eliminar existe, em stock, no armazém. [STOCK] = " + caixa.quantidade);
 	}
 
 	// Pesquisa a um determinada marca

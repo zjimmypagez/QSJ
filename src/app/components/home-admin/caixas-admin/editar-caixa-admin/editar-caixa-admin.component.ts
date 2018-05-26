@@ -15,16 +15,17 @@ import { ValidatorModelo } from '../../../../validators/validator-caixas';
 	styleUrls: ['./editar-caixa-admin.component.css']
 })
 export class EditarCaixaAdminComponent implements OnInit {
+	// Selecionar o ID da caixa selecionada
 	id: number;
   	private sub: any;
 	CaixaForm: FormGroup;
-
+	// DropDowns
 	materiais: string [] = ['Cartão', 'Madeira'];
 	capacidades: number [] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500];
-	caixa: Caixa;
 	// Lista que, consoante o material escolhido, apresenta a quantidade pré-definida
 	garrafas: number[] = [];
-
+	// Caixa selecionada
+	caixa: Caixa;	
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de vinhos a ler da BD
@@ -33,17 +34,17 @@ export class EditarCaixaAdminComponent implements OnInit {
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { }
 
 	ngOnInit() {
-		this.iniListaCaixas();
-		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
+		this.iniListaCaixas();
+		this.iniListaVinhos();
+		this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
 		// Procura na lista de caixas (a ser lida da BD)
 		this.caixa = this.caixas.find(x => x.id == this.id);
 		this.iniCaixaForm();
-		this.iniGarrafas(this.caixa.material);
+		this.onChange(this.caixa.material);
 		this.resetForm(this.caixa);
 	}
 
@@ -74,38 +75,12 @@ export class EditarCaixaAdminComponent implements OnInit {
 
 	// Material selecionado
 	onChange(material){
-		if (material == this.materiais[0]/* Cartão */){
-			this.garrafas = [2, 3, 6, 12];
-			this.CaixaForm.controls['garrafas'].setValue('');
-		}
+		this.CaixaForm.controls['garrafas'].reset('');
+		this.CaixaForm.controls['garrafas'].markAsTouched();
+		if (material == this.materiais[0]/* Cartão */) this.garrafas = [2, 3, 6, 12];
 		else{
-			if (material == this.materiais[1]/* Madeira */){
-				this.garrafas = [1, 2, 3];
-				this.CaixaForm.controls['garrafas'].setValue('');
-			}
-			else{
-				this.garrafas = [];
-				this.CaixaForm.controls['garrafas'].setValue('');
-			}
-		}
-	}
-
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
-	// Inicializar o array garrafas
-	iniGarrafas(material: string){
-		if (material == this.materiais[0]/* Cartão */){
-			this.garrafas = [2, 3, 6, 12];
-		}
-		else{
-			if (material == this.materiais[1]/* Madeira */){
-				this.garrafas = [1, 2, 3];
-			}
-			else{
-				this.garrafas = [];
-			}
+			if (material == this.materiais[1]/* Madeira */) this.garrafas = [1, 2, 3];			
+			else this.garrafas = []; 
 		}
 	}
 
@@ -115,6 +90,10 @@ export class EditarCaixaAdminComponent implements OnInit {
 		this.CaixaForm.controls['material'].setValue(caixa.material);
 		this.CaixaForm.controls['garrafas'].setValue(caixa.garrafas);
 		this.CaixaForm.controls['tipoVinho'].setValue(caixa.tipoVinho);
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

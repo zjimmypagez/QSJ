@@ -13,9 +13,8 @@ import { ValidatorVinho } from '../../../../validators/validator-vinho';
 })
 export class InserirVinhoAdminComponent implements OnInit {
   	VinhoForm: FormGroup;
-
+	// DropDowns
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
-
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 

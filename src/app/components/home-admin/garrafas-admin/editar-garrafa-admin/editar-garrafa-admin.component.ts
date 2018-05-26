@@ -15,13 +15,13 @@ import { ValidatorModelo } from '../../../../validators/validator-garrafas';
 	styleUrls: ['./editar-garrafa-admin.component.css']
 })
 export class EditarGarrafaAdminComponent implements OnInit {
+	// Garrafa selecionada
 	id: number;
-	private sub: any;
+	private sub: any;	
 	GarrafaForm: FormGroup;
-	
+	// DropDowns
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	garrafa: Garrafa;
-
 	// Lista de modelos de caixa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de vinhos a ler da BD
@@ -30,13 +30,13 @@ export class EditarGarrafaAdminComponent implements OnInit {
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { }
 
 	ngOnInit() {
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarVinhos(this.vinhos);
 		// Subscrição dos parametros do modelo da garrafa escolhido para editar		
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
+		this.iniListaGarrafas();
+		this.iniListaVinhos();
+		this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
 		// Procura na lista de garrafas (a ser lida da BD)
 		this.garrafa = this.garrafas.find(x => x.id == this.id);
 		this.iniGarrafaForm();			
@@ -69,16 +69,16 @@ export class EditarGarrafaAdminComponent implements OnInit {
 		this.resetForm(this.garrafa);
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
 	// Coloca a form com os dados pre-selecionados
 	resetForm(garrafa: Garrafa){
 		this.GarrafaForm.controls['cuba'].setValue(garrafa.cuba);
 		this.GarrafaForm.controls['ano'].setValue(garrafa.ano);
 		this.GarrafaForm.controls['tipoVinho'].setValue(garrafa.tipoVinho);
 		this.GarrafaForm.controls['capacidade'].setValue(garrafa.capacidade);
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
