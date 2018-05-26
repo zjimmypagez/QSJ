@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { NgxPaginationModule } from 'ngx-pagination'
 
 // Módulo com todos os caminhos da aplicação
 import { AppRoutingModule } from "./app-routing.module";
@@ -84,7 +85,8 @@ import { CaixasStockFuncComponent } from './components/home-func/stock-func/caix
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
-        AppRoutingModule
+        AppRoutingModule,
+        NgxPaginationModule
     ],
     providers: [
         FiltrosService,

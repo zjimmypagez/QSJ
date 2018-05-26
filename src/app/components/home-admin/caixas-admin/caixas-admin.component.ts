@@ -14,14 +14,16 @@ import { JoinTablesService } from '../../../services/funcoes-service/join-tables
     styleUrls: ['./caixas-admin.component.css']
 })
 export class CaixasAdminComponent implements OnInit {	
+	FiltroForm: FormGroup;	
 	// Dados filtros
-	FiltroForm: FormGroup;
 	materiais: string[] = ["Cartão", "Madeira"];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
-	categorias: string[] = [];
-	estadoTabela: boolean = true;
-	
+	categorias: string[] = [];	
+	// Estado que determina se resulta alguma tabela do processo de filtragem
+	estadoTabela: boolean = true;	
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableCaixa[] = [];
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de modelos de vinho a ler da BD
@@ -29,11 +31,9 @@ export class CaixasAdminComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaCaixas: tableCaixa[];	
 
-	tabelaFiltro: tableCaixa[] = [];
-
    constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', Validators.minLength(1)],
+			'marca': ['', Validators.required],
 			'material': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -93,11 +93,6 @@ export class CaixasAdminComponent implements OnInit {
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
-		}
-		else{
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.tabelaFiltro;			
-			alert("Pesquisa inválida!");
 		}
 	}
 

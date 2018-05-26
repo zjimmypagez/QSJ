@@ -25,6 +25,7 @@
                 </select>
                 <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
                 <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+                <button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroForm.valid">Pesquisar</button>
             </div>
         </div>
     </form>
@@ -39,7 +40,7 @@
              <th>QUANTIDADE</th>
              <th>AÇÕES</th>
           </tr>
-          <tr *ngFor="let tabelaCaixa of tabelaCaixas">
+          <tr *ngFor="let tabelaCaixa of tabelaCaixas | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
              <td>{{tabelaCaixa.marca}}</td>
              <td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
              <td>{{tabelaCaixa.material}}</td>
@@ -55,6 +56,7 @@
           </tr>      
        </table>
     </div>
+    <pagination-controls *ngIf="estadoTabela" class="pagination" id="caixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
     <br>
     <div *ngIf="!estadoTabela" style="text-align: center;">
         <h2 style="color: #8B0000;">Não foram encontrados nenhuns modelos de caixa com o filtro selecionado!</h2>
