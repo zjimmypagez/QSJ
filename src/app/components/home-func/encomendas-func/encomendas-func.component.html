@@ -6,7 +6,13 @@
         <a routerLink="/func/encomendas/inserir" class="btn">Inserir Encomenda</a>
       </div>
       <div class="filtros">
+          <select class="itemEstado" formControlName="estado" (change)="onChange()" style="background: #eaeaae; color: #27270c;">
+             <option [ngValue]="0">Estado</option>
+             <option value="EmEspera">Em Espera</option>
+             <option value="Entregue">Entregue</option>
+         </select>
         <input class="itemInput" type="number" formControlName="nFatura" placeholder="Insira aqui o número de fatura a pesquisar...">
+        <button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroForm.valid">Pesquisar</button>
         <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
       </div>
     </div>
@@ -22,7 +28,7 @@
           <th>ESTADO</th>
           <th>AÇÕES</th>
        </tr>
-       <tr *ngFor="let tabelaEncomenda of tabelaEncomendas">
+       <tr *ngFor="let tabelaEncomenda of tabelaEncomendas | paginate: { id: 'encomendas', itemsPerPage: 10, currentPage: p }">
         <td>{{tabelaEncomenda.username}}</td>
         <td>{{tabelaEncomenda.nFatura}}</td>
         <td>{{tabelaEncomenda.data.toLocaleDateString()}}</td>
@@ -39,6 +45,7 @@
        </tr>
       </table>
   </div>
+  <pagination-controls *ngIf="estadoTabela" class="pagination" id="encomendas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
   <br>
   <div *ngIf="!estadoTabela" style="text-align: center;">
       <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>

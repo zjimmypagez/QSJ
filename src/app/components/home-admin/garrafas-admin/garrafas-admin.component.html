@@ -39,7 +39,7 @@
             <th>S/RÓTULO</th>
             <th>AÇÕES</th>
          </tr>
-         <tr *ngFor="let tabelaGarrafa of tabelaGarrafas  | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
+         <tr *ngFor="let tabelaGarrafa of tabelaGarrafas | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
             <td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
             <td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
             <td>{{tabelaGarrafa.capacidade}} l</td>

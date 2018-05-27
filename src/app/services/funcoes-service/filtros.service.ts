@@ -35,6 +35,13 @@ export class FiltrosService {
 		return tabelaFiltro;
 	}
 
+	// Função que filtra por Estado de encomenda e devolve a tabela que desse cruzamento é originada
+	filtroEstado(filtro: any, tabela: any[]): any[]{
+		var tabelaFiltro: any[] = tabela;	
+		if (filtro.estado != "") tabelaFiltro = this.filtrarEstado(filtro, tabelaFiltro);
+		return tabelaFiltro;
+	}
+
 	// Função que cruza os filtros Material - Capacidade - TipoVinho - Categoria e devolve a tabela que desse cruzamento é originada
 	filtroMaterialCapacidadeTipoVinhoCategoria(filtro: any, tabela: any[]): any[]{
 		var tabelaFiltro: any[] = tabela;		
@@ -204,7 +211,7 @@ export class FiltrosService {
 	}
 
 	// Função que filtra ano, tabela representa a tabela da qual é filtrado o ano
-	public filtrarAno(filtro: any, tabela: any[]): any[]{
+	filtrarAno(filtro: any, tabela: any[]): any[]{
 		var tabelaAno: any[] = tabela.filter(x => x.ano == filtro.ano);
 		return tabelaAno;
 	}
@@ -233,6 +240,14 @@ export class FiltrosService {
 		if (filtro.categoria != "Normal") tabelaCategoriaVinho = tabela.filter(x => x.categoria == filtro.categoria);
 		else tabelaCategoriaVinho = tabela.filter(x => x.categoria == "");
 		return tabelaCategoriaVinho;
+	}
+
+	// Função que filtra estado, tabela representa a tabela da qual é filtrado o estado
+	filtrarEstado(filtro: any, tabela: any[]): any[]{
+		var tabelaEstado: any[] = tabela.filter(x => x.ano == filtro.ano);
+		if (filtro.estado != "EmEspera") tabelaEstado = tabela.filter(x => x.estado == true);
+		else tabelaEstado = tabela.filter(x => x.estado == false);
+		return tabelaEstado;
 	}
 
 	// Função que incializa o filtro categorias

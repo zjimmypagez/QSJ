@@ -22,12 +22,18 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	DadosCaixaForm: FormGroup;
 	FiltroCaixaForm: FormGroup;
 	FiltroGarrafaForm: FormGroup;
+	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
 	anos: number[] = [];
-
+	// Estado que determina se resulta alguma tabela do processo de filtragem
+	estadoTabelaCaixa: boolean = true;
+	estadoTabelaGarrafa: boolean = true;
+	// Tabelas auxiliares no processo de filtragem
+	tabelaFiltroCaixa: tableCaixa[] = [];	
+	tabelaFiltroGarrafa: tableGarrafa[] = [];	
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de modelos de garrafa a ler da BD
@@ -40,19 +46,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	tabelaCaixas: tableCaixa[];	
 	// Tabela interligada entre garrafas e vinhos
 	tabelaGarrafas: tableGarrafa[];
-
+	// Modelo selecionado
 	modeloCaixaSelecionado: boolean = false;
 	modeloGarrafaSelecionado: boolean = false;
-	estadoTabelaCaixa: boolean = true;
-	estadoTabelaGarrafa: boolean = true;
-
 	// Array individual, usado em cada item do form array
 	modeloCapacidadeGarrafa: any[] = [];
 	// Array individual, usado em cada item do form array
 	modeloCapacidadeGarrafaEspecial: any[] = [];
-
-	tabelaFiltroCaixa: tableCaixa[] = [];	
-	tabelaFiltroGarrafa: tableGarrafa[] = [];	
 
 	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
 		this.DadosEncomendaForm = fb.group({
@@ -60,14 +60,14 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			'comentario': ['', Validators.maxLength(200)]
 		});
 		this.FiltroCaixaForm = fb.group({
-			'marca': ['', ],
+			'marca': ['', Validators.required],
 			'material': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
 			'categoria': [0, ]
 		});
 		this.FiltroGarrafaForm = fb.group({
-			'marca': ['', ],
+			'marca': ['', Validators.required],
 			'ano': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -317,11 +317,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			}
 			else this.estadoTabelaCaixa = true;
 		}
-		else{
-			this.estadoTabelaCaixa = true;
-			if (this.tabelaFiltroCaixa.length != 0) this.tabelaCaixas = this.tabelaFiltroCaixa;
-			alert("Pesquisa inválida!");
-		}
 	}
 
 	// Filtragem caixa
@@ -376,11 +371,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 				this.estadoTabelaGarrafa = false;
 			}				
 			else this.estadoTabelaGarrafa = true;
-		}
-		else {
-			this.estadoTabelaGarrafa = true;
-			if (this.tabelaFiltroGarrafa.length != 0) this.tabelaGarrafas = this.tabelaFiltroGarrafa;
-			alert("Pesquisa inválida!");
 		}
 	}
 

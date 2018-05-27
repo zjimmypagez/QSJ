@@ -44,6 +44,38 @@ select{
     text-align: center;
 }
 
+.container .itemNav{
+    display: grid;
+    grid-gap: 0 8px;
+    grid-template-columns: repeat(4, 1fr) 2fr repeat(2, 1fr);
+    align-items: center
+}
+
+.itemBtn{
+    background: var(--primary);
+    color: var(--dark1);
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;    
+    border-radius: 0.2rem;
+}
+
+.itemClear{
+    cursor: pointer;
+    align-self: end;
+    background: var(--primary);
+    color: var(--dark1);
+    padding: 0.1rem;
+    text-decoration: none;
+    text-align: center;    
+    border-radius: 0.2rem;
+}
+
+.itemNav a, .itemNav button{
+    text-transform: uppercase;
+    font-size: 13px;
+}
+
 .container h4{
     text-transform: uppercase;
     margin: 0.2rem 0;
@@ -96,7 +128,7 @@ select{
     text-align: center;
 }
 
-.main-registo input[type=text], input[type=password], input[type=number], select{
+input[type=text], input[type=password], input[type=number], select{
     border: var(--primary);
     padding: 0 0.5rem;
     border-radius: 0.2rem;
@@ -105,7 +137,7 @@ select{
     text-align: center;
 }
 
-.main-registo input[type=text], select, input[type=number]{
+input[type=text], select, input[type=number]{
     justify-self: stretch;
     width: auto;
 }
@@ -137,7 +169,28 @@ select{
     cursor: pointer;
 }
 
-.btn:hover{
+.btn:hover, .itemClear:hover, .itemBtn:hover{
+    background: var(--dark2);
+    color: var(--light);
+}
+
+.pagination /deep/ .ngx-pagination{
+    text-align: center;
+    font-size: 12px;
+    margin-top: 0;
+    padding-left: 0;
+}
+
+.pagination /deep/ .ngx-pagination .current{
+    background: var(--dark1);
+    color: var(--primary);
+}
+
+.pagination /deep/ .ngx-pagination a{
+    color: var(--dark1);
+}
+
+.pagination /deep/ .ngx-pagination a:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -150,6 +203,22 @@ select{
 
     .registo-btn{
         width: 60%;
+    }
+}
+
+@media(max-width: 875px){
+    .itemInput{
+        grid-column: 1 / 3;
+    }
+
+    .container .itemNav{
+        grid-gap: 5px 8px;
+        grid-template-columns: repeat(4, 1fr);
+        grid-template-rows: repeat(2, 1fr);        
+    }
+
+    .action-btn{
+        grid-template-columns: 1fr;
     }
 }
 
@@ -187,4 +256,27 @@ select{
     .main-pesquisa, .main-encomenda{
         width: 100%;
     }
+}
+
+@media(max-width: 475px){
+    .itemInput{
+        grid-column: 1 / 3;
+        grid-row: 3;
+    }
+
+    .container .itemNav{
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: repeat(4, 1fr);
+    } 
+}
+
+@media(max-width: 425px){
+    .itemInput{
+        grid-column: unset;
+        grid-row: 5;
+    }
+
+    .container .itemNav{
+        grid-template-columns: 1fr;
+    }  
 }

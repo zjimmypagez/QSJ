@@ -27,9 +27,12 @@
     grid-template-columns: repeat(7, 1fr);
 }
 
+.itemEstado{
+    grid-column: 2 / 3;
+}
+
 .itemInput{
-    grid-column: 4 / 7;
-    align-self: end;
+    grid-column: 3 / 6;
 }
 
 .itemClear{
@@ -42,6 +45,15 @@
     text-align: center;     
     border-radius: 0.2rem;
     align-self: end;
+}
+
+.itemBtn{   
+    background: var(--primary);
+    color: var(--dark1);
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;    
+    border-radius: 0.2rem;
 }
 
 .btn{
@@ -90,7 +102,7 @@
     cursor: pointer;
 }
 
-.btn:hover, .itemClear:hover{
+.btn:hover, .itemClear:hover, .itemBtn:hover{
     background: var(--dark2);
     color: var(--light);
 }
@@ -104,7 +116,7 @@ input[type=text], input[type=password], input[type=number], select{
     text-align: center;
 }
 
-.itemNav a{
+.itemNav a, .itemNav button{
     text-transform: uppercase;
     font-size: 13px;
 }
@@ -112,6 +124,54 @@ input[type=text], input[type=password], input[type=number], select{
 .encomenda-action-btn a{
     text-transform: uppercase;
     font-size: 10px;
+}
+
+.pagination /deep/ .ngx-pagination{
+    text-align: center;
+    font-size: 12px;
+    margin-top: 0;
+    padding-left: 0;
+}
+
+.pagination /deep/ .ngx-pagination .current{
+    background: var(--dark1);
+    color: var(--primary);
+}
+
+.pagination /deep/ .ngx-pagination a{
+    color: var(--dark1);
+}
+
+.pagination /deep/ .ngx-pagination a:hover{
+    background: var(--dark2);
+    color: var(--light);
+}
+
+select{
+    text-align-last: center;
+    text-align: center;
+    -ms-text-align-last: center;
+    -moz-text-align-last: center;
+}
+
+button{
+    align-items: unset;
+    text-align: unset;
+    box-sizing: unset;
+    border-width: unset;
+    border-style: unset;
+    border-color: unset;
+    border-image: unset;
+    text-rendering: unset;
+    letter-spacing: unset;
+    word-spacing: unset;
+    display: unset;
+    font: unset;
+}
+
+button:disabled{
+    color: gray;
+    cursor: not-allowed;
 }
 
 /* media queries */
@@ -140,18 +200,42 @@ input[type=text], input[type=password], input[type=number], select{
         max-width: 100%;
     }
 
+    .itemEstado{
+        grid-column: unset;
+    }
+
     .itemInput{
-        grid-column: 1 / 4;
+        grid-column: 2 / 4;
+    }
+
+    .itemNav .filtros{
+        display: grid;
+        grid-gap: 5px 5px;
+        grid-template-columns: repeat(5, 1fr);
+    }   
+}
+
+@media(max-width: 875px){ 
+    .main-table{
+        overflow-x: auto;        
+    }
+
+    .container{
+        grid-template-rows: 75px .5fr auto;
+    }
+
+    .itemInput{
+        grid-column: 2 / 3;
     }
 
     .itemNav .filtros{
         display: grid;
         grid-gap: 5px 5px;
         grid-template-columns: repeat(4, 1fr);
-    }   
+    }    
 }
 
-@media(max-width: 675px){
+@media(max-width: 775px){
     .container .itemNav{
         grid-gap: 10px;
         grid-template-columns: 1fr;        
@@ -164,15 +248,13 @@ input[type=text], input[type=password], input[type=number], select{
     }  
 }
 
-@media(max-width: 475px){
+@media(max-width: 575px){
     select{
         font-size: 12px;
         width: 100%;
         max-width: 100%;
     }
-}
 
-@media(max-width: 425px){
     .itemInput{
         grid-column: unset;
     }   

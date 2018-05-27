@@ -15,13 +15,14 @@ import { ValidatorComentario } from '../../../../validators/validator-garrafas';
 	styleUrls: ['./editar-garrafas-func.component.css']
 })
 export class EditarGarrafasFuncComponent implements OnInit {
+	// Modelo de garrafa selecionado
 	id: number;
 	private sub: any;
 	RegistoForm: FormGroup;
-
+	// Registo de garrafa selecionado
 	registo: RegistoGarrafa;
+	// Garrafa selecionado
 	garrafa: tableGarrafa;
-
 	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de vinhos a ler da BD
@@ -34,14 +35,14 @@ export class EditarGarrafasFuncComponent implements OnInit {
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { }
 
 	ngOnInit() {
-		this.iniListaRegistos();
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
+		this.iniListaRegistos();
+		this.iniListaGarrafas();
+		this.iniListaVinhos();
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 		// Procura na lista de garrafas (a ser lida da BD)
 		this.registo = this.registos.find(x => x.id == this.id);
 		// Seleção do modelo de garrafa escolhido
@@ -69,14 +70,14 @@ export class EditarGarrafasFuncComponent implements OnInit {
 		this.resetForm(this.registo);
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
 	// Coloca a form com os dados pre-selecionados
 	resetForm(registo: RegistoGarrafa){
 		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
 		this.RegistoForm.controls['comentario'].markAsUntouched();
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

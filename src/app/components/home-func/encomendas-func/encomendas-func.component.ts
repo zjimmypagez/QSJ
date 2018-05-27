@@ -14,10 +14,11 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 	styleUrls: ['./encomendas-func.component.css']
 })
 export class EncomendasFuncComponent implements OnInit {
-	// Dados Filtro
 	FiltroForm: FormGroup;
+	// Dados Filtro	
 	estadoTabela: boolean = true;  
-	
+	// Tabela auxiliar
+	tabelaFiltro: tableEncomenda[] = [];	
 	// Lista de utilizadores a ler da BD
 	users: User[];
 	// Lista de encomendas a ler da BD
@@ -27,7 +28,8 @@ export class EncomendasFuncComponent implements OnInit {
 
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'nFatura': ['', ]
+			'estado': [0, ],
+			'nFatura': ['', Validators.required]
 		});
 	}
 
@@ -40,18 +42,39 @@ export class EncomendasFuncComponent implements OnInit {
 	// Filtrar segundo pesquisa
 	filtrar(form){
 		var nFatura = form.nFatura;
-		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 		if (nFatura != ''){
-			this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
+			if (form.estado != 0){
+				if (this.tabelaFiltro.length != 0) this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaFiltro, nFatura);
+				else this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
+			}
+			else{
+				this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
+				this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
+			}
 			if (this.tabelaEncomendas.length == 0){
 				this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
 		}
+	}
+
+	// Filtros
+	onChange(){
+		var filtro: any = this.FiltroForm.value;
+		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
+		if (filtro.nFatura != "") this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, filtro.nFatura);
+		if (filtro.estado != 0){
+			this.tabelaFiltro = this.filtroService.filtroEstado(filtro, this.tabelaEncomendas);
+			this.tabelaEncomendas = this.tabelaFiltro;
+			if (this.tabelaEncomendas.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
+		}
 		else{
+			if (filtro.nFatura != "") this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, filtro.nFatura);
+			else this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
+			this.tabelaFiltro = [];
 			this.estadoTabela = true;
-			alert("Pesquisa Inválida!");
 		}
 	}
 

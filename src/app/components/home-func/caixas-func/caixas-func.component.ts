@@ -15,14 +15,16 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 	styleUrls: ['./caixas-func.component.css']
 })
 export class CaixasFuncComponent implements OnInit {
-	// Dados filtros
 	FiltroForm: FormGroup;
+	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
-
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableRegisto[] = [];
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de modelos de vinho a ler da BD
@@ -34,11 +36,9 @@ export class CaixasFuncComponent implements OnInit {
 	// Tabela interligada entre tabelaregisto caixas e vinhos
 	tabelaRegistos: tableRegisto[];
 
-	tabelaFiltro: tableRegisto[] = [];
-
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', ],
+			'marca': ['', Validators.required],
 			'material': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -62,13 +62,9 @@ export class CaixasFuncComponent implements OnInit {
 	
 	// Função responsável por eliminar o registo de caixa selecionado
 	eliminarRegisto(id: number){
-		var estadoRegisto = prompt("Insira as credenciais necessárias para eliminar o registo:");;
-
-		if (estadoRegisto == "password"){
-			if (confirm("Quer mesmo eliminar este registo?")){
-				alert("O registo de caixa foi eliminado com sucesso!");
-				this.router.navigate(['/func/caixas']);
-			}
+		if (confirm("Quer mesmo eliminar este registo?")){
+			alert("O registo de caixa foi eliminado com sucesso!");
+			this.router.navigate(['/func/caixas']);
 		}
 	}
 
@@ -89,11 +85,6 @@ export class CaixasFuncComponent implements OnInit {
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
-		}
-		else{
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.tabelaFiltro;
-			alert("Pesquisa inválida!");
 		}
 	}
 

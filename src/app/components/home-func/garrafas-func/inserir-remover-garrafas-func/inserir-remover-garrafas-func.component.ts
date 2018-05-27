@@ -6,6 +6,7 @@ import { Garrafa } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorGarrafa, ValidatorCRotulo, ValidatorSRotulo, ValidatorRotular } from '../../../../validators/validator-garrafas';
 
@@ -19,11 +20,20 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	InserirForm: FormGroup;
 	RemoverForm: FormGroup;
 	RotularForm: FormGroup;
-
+	FiltroForm: FormGroup;
+	// Dados filtros
+	anos: number[] = [];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
+	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
+	estadoTabela: boolean = true;
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableGarrafa[] = [];
+	// Selecionar opção de registo
 	inserirSelecionado: boolean = false;
 	removerSelecionado: boolean = false;
 	rotularSelecionado: boolean = false;
-
 	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de vinhos a ler da BD
@@ -31,7 +41,7 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaGarrafas: tableGarrafa[];
 	
-	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
 		this.RegistoForm = fb.group({
 			'idGarrafa': ['', Validators.required],
 			'comentario': ['', Validators.maxLength(200)],
@@ -42,6 +52,13 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 			'sRotulo': [null, Validators.min(1)]
 		}, { validator: ValidatorGarrafa }
 		);	
+		this.FiltroForm = fb.group({
+			'marca': ['', Validators.required],
+			'ano': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
+		});
 	}			
 
 	ngOnInit() {
@@ -50,6 +67,8 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
 		this.iniRemoverForm();
 		this.iniRotularForm();
+		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
+		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
 	}
 
 	// Inicializar a form RemoverForm
@@ -141,6 +160,62 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 			else
 				if (this.RegistoForm.valid && this.RotularForm.valid) return false;
 				else return true;
+	}
+
+	// Pesquisa a um determinada marca
+	pesquisaMarca(form){
+		var marca = form.marca;		
+		if (marca != ""){
+			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
+				if (this.tabelaFiltro.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+				else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+			}
+			else{
+				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+				this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+			}
+			if (this.tabelaGarrafas.length == 0){
+				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+				this.estadoTabela = false;
+			}
+			else this.estadoTabela = true;
+		}
+	}
+
+	// Filtros 
+	onChangeFiltro(){
+		var filtro: any = this.FiltroForm.value;
+		this.RegistoForm.controls['idGarrafa'].reset('');
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
+			this.tabelaFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
+			this.tabelaGarrafas = this.tabelaFiltro;
+			if (this.tabelaGarrafas.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
+		}
+		else{
+			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			this.tabelaFiltro = [];
+			this.estadoTabela = true;
+		}
+	}
+
+	// Limpar pesquisa
+	clearTabela(){
+		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.estadoTabela = true;
+		this.clearFiltroForm();
+	}
+
+	// Limpar FiltroForm
+	clearFiltroForm(){
+		this.FiltroForm.controls['marca'].reset('');
+		this.FiltroForm.controls['ano'].reset(0);
+		this.FiltroForm.controls['capacidade'].reset(0);
+		this.FiltroForm.controls['tipoVinho'].reset(0);
+		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
 	// Limpa os dados do Formulário

@@ -14,28 +14,28 @@ import { JoinTablesService } from '../../../../services/funcoes-service/join-tab
 	styleUrls: ['./caixas-stock-func.component.css']
 })
 export class CaixasStockFuncComponent implements OnInit {
-	// Dados filtros
 	FiltroForm: FormGroup;
+	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
-
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableCaixa[] = [];
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de modelos de vinho a ler da BD
 	vinhos: TipoVinho[];
 	// Tabela interligada entre caixas e vinhos
 	tabelaCaixas: tableCaixa[];	
-
+	// Cálcula da quantidade total da tabela de caixas
 	totalCaixas: number = 0;
-
-	tabelaFiltro: tableCaixa[] = [];
 
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', Validators.minLength(1)],
+			'marca': ['', Validators.required],
 			'material': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -74,14 +74,6 @@ export class CaixasStockFuncComponent implements OnInit {
 				this.calcQuantidade(this.tabelaCaixas);
 				this.estadoTabela = true;
 			} 
-		}
-		else{
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0){
-				this.tabelaCaixas = this.tabelaFiltro;			
-				this.calcQuantidade(this.tabelaCaixas);
-			} 
-			alert("Pesquisa inválida!");
 		}
 	}
 

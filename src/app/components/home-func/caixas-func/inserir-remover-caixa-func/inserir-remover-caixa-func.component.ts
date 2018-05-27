@@ -6,6 +6,7 @@ import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorRemover } from '../../../../validators/validator-caixas';
 
@@ -18,10 +19,19 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	RegistoForm: FormGroup;
 	InserirForm: FormGroup;
 	RemoverForm: FormGroup;
-
+	FiltroForm: FormGroup;
+	// Dados filtros
+	materiais: string[] = ["Cartão", "Madeira"];
+	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
+	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
+	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
+	estadoTabela: boolean = true;
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableCaixa[] = [];
+	// Selecionar a opção de registo
 	inserirSelecionado: boolean = false;
 	removerSelecionado: boolean = false;
-
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de vinhos a ler da BD
@@ -29,7 +39,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 	// Tabela interligada entre caixas e vinhos
 	tabelaCaixas: tableCaixa[];	
 
-	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { 
+	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
 		this.RegistoForm = fb.group({
 			'idCaixa': ['', Validators.required],
 			'opcao': ['', Validators.required],
@@ -38,6 +48,13 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		this.InserirForm = fb.group({
 			'quantidade': [null, [Validators.required, Validators.min(1)]]
 		})
+		this.FiltroForm = fb.group({
+			'marca': ['', Validators.required],
+			'material': [0, ],
+			'capacidade': [0, ],
+			'tipoVinho': [0, ],
+			'categoria': [0, ]
+		});
 	}
 
 	ngOnInit() {
@@ -45,6 +62,7 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		this.iniListaVinhos();
 		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
 		this.iniRemoverForm();
+		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
 	}
 
 	// Inicializar objeto form RemoverForm
@@ -95,6 +113,62 @@ export class InserirRemoverCaixaFuncComponent implements OnInit {
 		else
 			if (this.RegistoForm.valid && this.RemoverForm.valid) return false;
 		return true;
+	}
+
+	// Pesquisa a um determinada marca
+	pesquisaMarca(form){
+		var marca = form.marca;		
+		if (marca != ""){
+			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
+				if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
+				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			}
+			else{
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+			} 
+			if (this.tabelaCaixas.length == 0){
+				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.estadoTabela = false;
+			}
+			else this.estadoTabela = true;
+		}
+	}
+
+	// Filtros 
+	onChangeFiltro(){
+		var filtro: any = this.FiltroForm.value;
+		this.RegistoForm.controls['idCaixa'].reset('');
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);		
+		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
+			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
+			this.tabelaCaixas = this.tabelaFiltro;
+			if (this.tabelaCaixas.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
+		}
+		else{
+			if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
+			else this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			this.tabelaFiltro = [];
+			this.estadoTabela = true;
+		}
+	}
+	
+	// Limpar pesquisa
+	clearTabela(){
+		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.estadoTabela = true;
+		this.clearFiltroForm();
+	}
+
+	// Limpar FiltroForm
+	clearFiltroForm(){
+		this.FiltroForm.controls['marca'].reset('');
+		this.FiltroForm.controls['material'].reset(0);
+		this.FiltroForm.controls['capacidade'].reset(0);
+		this.FiltroForm.controls['tipoVinho'].reset(0);
+		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
 	// Limpa os dados do Formulário

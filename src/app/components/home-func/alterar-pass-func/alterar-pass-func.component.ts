@@ -43,9 +43,3 @@ export class AlterarPassFuncComponent implements OnInit {
 	}
 
 }
-
-// Dados recebidos do formulário
-interface formAlterar{
-	password: string,
-	cPassword: string
-}

@@ -14,29 +14,29 @@ import { JoinTablesService } from '../../../../services/funcoes-service/join-tab
 	styleUrls: ['./garrafas-stock-func.component.css']
 })
 export class GarrafasStockFuncComponent implements OnInit {
-	// Dados filtros
 	FiltroForm: FormGroup;
+	// Dados filtros
 	anos: number[] = [];
 	capacidades: number[] = [0.187, 0.375, 0.500, 0.750, 1.000, 1.500, 3.000, 6.000, 12.000];
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
-
+	// Tabela auxiliar no processo de filtragem
+	tabelaFiltro: tableGarrafa[] = [];
 	// Lista de modelos de garrafa a ler da BD
 	garrafas: Garrafa[];
 	// Lista de modelos de caixa a ler da BD
 	vinhos: TipoVinho[];
 	// Tabela interligada entre garrafas e vinhos
 	tabelaGarrafas: tableGarrafa[];
-
+	// Cálculo que determina o total atual da tabela, quer de garrafas com e sem rótulo
 	totalCRotulo: number = 0;
 	totalSRotulo: number = 0;
 
-	tabelaFiltro: tableGarrafa[] = [];
-
 	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
 		this.FiltroForm = fb.group({
-			'marca': ['', Validators.minLength(1)],
+			'marca': ['', Validators.required],
 			'ano': [0, ],
 			'capacidade': [0, ],
 			'tipoVinho': [0, ],
@@ -76,14 +76,6 @@ export class GarrafasStockFuncComponent implements OnInit {
 				this.calcCRotuloSRotulo(this.tabelaGarrafas);
 				this.estadoTabela = true;
 			} 
-		}
-		else{
-			this.estadoTabela = true;
-			if (this.tabelaFiltro.length != 0){
-				this.tabelaGarrafas = this.tabelaFiltro;
-				this.calcCRotuloSRotulo(this.tabelaGarrafas);
-			} 
-			alert("Pesquisa inválida!");
 		}
 	}
 

@@ -25,6 +25,7 @@
                 </select>
                 <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
                 <input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+                <button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroForm.valid">Pesquisar</button>                
             </div>
         </div>
     </form>
@@ -41,7 +42,7 @@
                 <th>REGISTO(QNT)</th>
                 <th>AÇÕES</th>
             </tr>
-            <tr *ngFor="let tabelaRegisto of tabelaRegistos">
+            <tr *ngFor="let tabelaRegisto of tabelaRegistos | paginate: { id: 'registosCaixas', itemsPerPage: 10, currentPage: p }">
                 <td>{{tabelaRegisto.marca}}</td>
                 <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td> 
                 <td>{{tabelaRegisto.material}}</td>
@@ -59,8 +60,9 @@
             </tr>
         </table>
     </div>
+    <pagination-controls *ngIf="estadoTabela" class="pagination" id="registosCaixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
     <br>
     <div *ngIf="!estadoTabela" style="text-align: center;">
-        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
+        <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de caixa com o filtro selecionado!</h2>
     </div>
 </div>

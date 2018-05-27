@@ -2,14 +2,13 @@
 	<h1 class="itemTitulo">Novo Registo - Encomendas</h1>
 	<h4>Modelos Caixa/Garrafa Existentes</h4>
 	<select (change)="onChange($event.target.value)" style="background: #eaeaae; color: #27270c;">
-	   <option value="" disabled>Ver Modelos Existentes</option>
+	   <option value="">Ver Modelos Existentes</option>
 	   <option value="Caixa">Caixas</option>
 	   <option value="Garrafas">Garrafas</option>
 	</select>
-	<div style="display: grid;" *ngIf="modeloCaixaSelecionado">
+	<div style="display: grid; grid-gap: 5px" *ngIf="modeloCaixaSelecionado">
 		<form [formGroup]="FiltroCaixaForm" (ngSubmit)="pesquisaMarcaCaixa(FiltroCaixaForm.value)">
 			<div class="itemNav">
-				<input type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">				
 				<select formControlName="material" (change)="onChangeCaixa()" style="background: #eaeaae; color: #27270c;">
 					<option [ngValue]="0">Material</option>
 					<option *ngFor="let material of materiais" [ngValue]="material">{{material}}</option>
@@ -27,10 +26,11 @@
 					<option value="Normal">S/Categoria</option>
 					<option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
 				</select>
+				<input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">				
+				<button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroCaixaForm.valid">Pesquisar</button>                
 				<a class="itemClear" (click)="clearTabelaCaixa()" style="font-size: 11px;">Limpar Pesquisa</a>
 			</div>
 		</form>		
-		<div style="margin: 0 0 5px 0;"></div>
 		<div class="main-table" *ngIf="estadoTabelaCaixa">
 		   <table>
 			  <tr>
@@ -42,7 +42,7 @@
 					<th>CAPACIDADE(/L)</th>
 					<th>QUANTIDADE</th>
 			  </tr>
-			  <tr *ngFor="let tabelaCaixa of tabelaCaixas">
+			  <tr *ngFor="let tabelaCaixa of tabelaCaixas | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
 					<td>{{tabelaCaixa.id}}</td>
 					<td>{{tabelaCaixa.marca}}</td>
 					<td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
@@ -53,15 +53,14 @@
 			  </tr>
 		   </table>
 		</div>
-		<br>
+		<pagination-controls *ngIf="estadoTabelaCaixa" class="pagination" id="caixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>       
 		<div *ngIf="!estadoTabelaCaixa" style="text-align: center;">
 			<h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
 		</div>
 	</div>
-	<div style="display: grid;" *ngIf="modeloGarrafaSelecionado">
+	<div style="display: grid; grid-gap: 5px;" *ngIf="modeloGarrafaSelecionado">
 		<form [formGroup]="FiltroGarrafaForm" (ngSubmit)="pesquisaMarcaGarrafa(FiltroGarrafaForm.value)">
 			<div class="itemNav">
-				<input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
 				<select class="itemAno" formControlName="ano" (change)="onChangeGarrafa()" style="background: #eaeaae; color: #27270c;">
 					<option [ngValue]="0">Ano</option>
 					<option *ngFor="let ano of anos" [ngValue]="ano">{{ano}}</option>
@@ -75,14 +74,15 @@
 					<option *ngFor="let tipoVinho of tipoVinhos" [ngValue]="tipoVinho">{{tipoVinho}}</option>
 				</select>
 				<select class="itemCategoria" formControlName="categoria" (change)="onChangeGarrafa()" style="background: #eaeaae; color: #27270c;">
-				   <option [ngValue]="0">Categoria</option>
-				   <option value="Normal">S/Categoria</option>
-				   <option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
+					<option [ngValue]="0">Categoria</option>
+					<option value="Normal">S/Categoria</option>
+					<option *ngFor="let categoria of categorias" [ngValue]="categoria">{{categoria}}</option>
 				</select>
+				<input class="itemInput" type="text" formControlName="marca" placeholder="Insira aqui o nome da marca de vinho a pesquisar...">
+				<button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroGarrafaForm.valid">Pesquisar</button>                
 				<a class="itemClear" (click)="clearTabelaGarrafa()" style="font-size: 11px;">Limpar Pesquisa</a>
 			</div>
 		</form>
-		<div style="margin: 0 0 5px 0;"></div>
 		<div class="main-table" *ngIf="estadoTabelaGarrafa">
 		   <table>
 			  <tr>
@@ -93,7 +93,7 @@
 				<th>C/RÓTULO</th>
 				<th>S/RÓTULO</th>
 			  </tr>
-			  <tr *ngFor="let tabelaGarrafa of tabelaGarrafas">
+			  <tr *ngFor="let tabelaGarrafa of tabelaGarrafas | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
 				<td>{{tabelaGarrafa.id}}</td>
 				<td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
 				<td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
@@ -103,7 +103,7 @@
 			  </tr>
 		   </table>
 		</div>
-		<br>
+		<pagination-controls *ngIf="estadoTabelaGarrafa" class="pagination" id="garrafas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>
 		<div *ngIf="!estadoTabelaGarrafa" style="text-align: center;">
 			<h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de garrafa com o filtro selecionado!</h2>
 		</div>
