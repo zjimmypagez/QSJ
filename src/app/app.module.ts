@@ -47,6 +47,7 @@ import { InserirEncomendaFuncComponent } from './components/home-func/encomendas
 import { StockFuncComponent } from './components/home-func/stock-func/stock-func.component';
 import { GarrafasStockFuncComponent } from './components/home-func/stock-func/garrafas-stock-func/garrafas-stock-func.component';
 import { CaixasStockFuncComponent } from './components/home-func/stock-func/caixas-stock-func/caixas-stock-func.component';
+import { VerEncomendaFuncComponent } from './components/home-func/encomendas-func/ver-encomenda-func/ver-encomenda-func.component';
 
 @NgModule({
     declarations: [
@@ -79,7 +80,8 @@ import { CaixasStockFuncComponent } from './components/home-func/stock-func/caix
         InserirEncomendaFuncComponent,
         StockFuncComponent,
         GarrafasStockFuncComponent,
-        CaixasStockFuncComponent
+        CaixasStockFuncComponent,
+        VerEncomendaFuncComponent
     ],
     imports: [
         BrowserModule,

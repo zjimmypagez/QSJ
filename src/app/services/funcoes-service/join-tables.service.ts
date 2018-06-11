@@ -215,6 +215,138 @@ export class JoinTablesService {
 		return table;
 	}
 
+	// Interligação entre duas listas: TipoCaixa e ECaixa
+	public iniListaTableTECaixa(tipoCaixa: any[], ECaixa: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < ECaixa.length; i++){
+			for (let j = 0; j < tipoCaixa.length; j++){
+				if (ECaixa[i].idTCaixa == tipoCaixa[j].id){
+					var tableObj: any = {
+						id: tipoCaixa[j].id,
+						idEncomenda: tipoCaixa[j].idEncomenda,
+						idCaixa: ECaixa[i].idCaixa,
+						idGarrafa: ECaixa[i].idGarrafa,
+						quantidade: ECaixa[i].quantidade,
+						quantidadeCaixa: tipoCaixa[j].quantidade
+					}
+					table.push(tableObj);
+				}
+			}
+		}	
+		return table;
+	}
+
+	// Interligação entre duas listas: TECaixas e Caixa
+	public iniListaTableTECaixaCaixas(teCaixas: any[], caixas: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < caixas.length; i++){
+			for (let j = 0; j < teCaixas.length; j++){
+				if (caixas[i].id == teCaixas[j].idCaixa){
+					var tableObj: any = {
+						id: teCaixas[j].id,
+						idEncomenda: teCaixas[j].idEncomenda,
+						capacidadeCaixa: caixas[i].capacidade,
+					   	garrafas: caixas[i].garrafas,
+					   	material: caixas[i].material,
+						tipoVinho: caixas[i].tipoVinho,
+						idGarrafa: teCaixas[j].idGarrafa,
+						quantidade: teCaixas[j].quantidade,
+						quantidadeCaixa: teCaixas[j].quantidadeCaixa
+					}
+					table.push(tableObj);
+				}
+			}
+		}	
+		return table;
+	}
+
+	// Interligação entre duas listas: TECaixasCaixas e Garrafa
+	public iniListaTableTECaixaCaixasGarrafas(teCaixasCaixas: any[], garrafas: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < garrafas.length; i++){
+			for (let j = 0; j < teCaixasCaixas.length; j++){
+				if (garrafas[i].id == teCaixasCaixas[j].idGarrafa){
+					var tableObj: any = {
+						id: teCaixasCaixas[j].id,
+						idEncomenda: teCaixasCaixas[j].idEncomenda,
+						capacidadeCaixa: teCaixasCaixas[j].capacidadeCaixa,
+						garrafas: teCaixasCaixas[j].garrafas,
+						material: teCaixasCaixas[j].material,
+						tipoVinhoCaixa: teCaixasCaixas[j].tipoVinho,
+						cuba: garrafas[i].cuba,
+						ano: garrafas[i].ano,
+						capacidadeGarrafa: garrafas[i].capacidade,
+						tipoVinhoGarrafa: garrafas[i].tipoVinho,
+						quantidade: teCaixasCaixas[j].quantidade,
+						quantidadeCaixa: teCaixasCaixas[j].quantidadeCaixa
+					}
+					table.push(tableObj);
+				}
+			}
+		}	
+		return table;
+	}
+
+	// Interligação entre duas listas: TECaixasCaixasGarrafas e Tipo de Vinho
+	public iniListaTableTECaixaCaixasGarrafasTVinho(teCaixasCaixasGarrafas: any[], vinhos: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < vinhos.length; i++){
+			for (let j = 0; j < teCaixasCaixasGarrafas.length; j++){
+				if (vinhos[i].id == teCaixasCaixasGarrafas[j].tipoVinhoCaixa){
+					var tableObj: any = {
+						id: teCaixasCaixasGarrafas[j].id,
+						idEncomenda: teCaixasCaixasGarrafas[j].idEncomenda,
+						capacidadeCaixa: teCaixasCaixasGarrafas[j].capacidadeCaixa,
+						garrafas: teCaixasCaixasGarrafas[j].garrafas,
+						material: teCaixasCaixasGarrafas[j].material,
+						marcaCaixa: vinhos[i].marca,
+						tipoCaixa: vinhos[i].tipo,
+						categoriaCaixa: vinhos[i].categoria,
+						cuba: teCaixasCaixasGarrafas[j].cuba,
+						ano: teCaixasCaixasGarrafas[j].ano,
+						capacidadeGarrafa: teCaixasCaixasGarrafas[j].capacidadeGarrafa,
+						tipoVinhoGarrafa: teCaixasCaixasGarrafas[j].tipoVinhoGarrafa,
+						quantidade: teCaixasCaixasGarrafas[j].quantidade,
+						quantidadeCaixa: teCaixasCaixasGarrafas[j].quantidadeCaixa
+					}
+					table.push(tableObj);
+				}
+			}
+		}	
+		return table;
+	}
+
+	// Interligação entre duas listas: TECaixasCaixasGarrafasTVinho e Tipo de Vinho
+	public iniListaTableTECaixaCaixasGarrafasTVinho2(teCaixasCaixasGarrafasTVinho: any[], vinhos: any[]): any[]{
+		var table: any[] = [];
+		for (let i = 0; i < vinhos.length; i++){
+			for (let j = 0; j < teCaixasCaixasGarrafasTVinho.length; j++){
+				if (vinhos[i].id == teCaixasCaixasGarrafasTVinho[j].tipoVinhoGarrafa){
+					var tableObj: any = {
+						id: teCaixasCaixasGarrafasTVinho[j].id,
+						idEncomenda: teCaixasCaixasGarrafasTVinho[j].idEncomenda,
+						capacidadeCaixa: teCaixasCaixasGarrafasTVinho[j].capacidadeCaixa,
+						garrafas: teCaixasCaixasGarrafasTVinho[j].garrafas,
+						material: teCaixasCaixasGarrafasTVinho[j].material,
+						marcaCaixa: teCaixasCaixasGarrafasTVinho[j].marcaCaixa,
+						tipoCaixa: teCaixasCaixasGarrafasTVinho[j].tipoCaixa,
+						categoriaCaixa: teCaixasCaixasGarrafasTVinho[j].categoriaCaixa,
+						cuba: teCaixasCaixasGarrafasTVinho[j].cuba,
+						ano: teCaixasCaixasGarrafasTVinho[j].ano,
+						capacidadeGarrafa: teCaixasCaixasGarrafasTVinho[j].capacidadeGarrafa,
+						marcaGarrafa: vinhos[i].marca,
+						tipoGarrafa: vinhos[i].tipo,
+						categoriaGarrafa: vinhos[i].categoria,
+						quantidade: teCaixasCaixasGarrafasTVinho[j].quantidade,
+						quantidadeCaixa: teCaixasCaixasGarrafasTVinho[j].quantidadeCaixa
+					}
+					table.push(tableObj);
+				}
+			}
+		}	
+		return table;
+	}
+
 	// Função que obtem iniciais da marca do vinho - Função iniListaTableGarrafas(garrafas: any[], vinhos: any[])
 	getIniciaisMarca(id: number, vinhos: any[]): string{
 		var iniciais: string = "";

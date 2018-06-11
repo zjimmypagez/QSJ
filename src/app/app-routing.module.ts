@@ -35,6 +35,7 @@ import { InserirEncomendaFuncComponent } from './components/home-func/encomendas
 import { StockFuncComponent } from './components/home-func/stock-func/stock-func.component';
 import { GarrafasStockFuncComponent } from './components/home-func/stock-func/garrafas-stock-func/garrafas-stock-func.component';
 import { CaixasStockFuncComponent } from './components/home-func/stock-func/caixas-stock-func/caixas-stock-func.component';
+import { VerEncomendaFuncComponent } from './components/home-func/encomendas-func/ver-encomenda-func/ver-encomenda-func.component';
 
 const appRoutes: Routes = [
    {
@@ -76,6 +77,7 @@ const appRoutes: Routes = [
 			{ path: 'alterarPass', component: AlterarPassFuncComponent },
 			{ path: 'encomendas', component: EncomendasFuncComponent },
 			{ path: 'encomendas/inserir', component: InserirEncomendaFuncComponent },
+			{ path: 'encomendas/ver/:id', component: VerEncomendaFuncComponent },
 			{ path: 'stock', component: StockFuncComponent },
 			{ path: 'stock/garrafas', component: GarrafasStockFuncComponent },
 			{ path: 'stock/caixas', component: CaixasStockFuncComponent }
