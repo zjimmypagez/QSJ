@@ -1,6 +1,6 @@
 <div class="container">
     <h1 class="itemTitulo">Editar Utilizador - Contas</h1>
-    <form class="itemForm" [formGroup]="UserForm" (ngSubmit)="editarConta(UserForm.value)">
+    <form class="itemForm" [formGroup]="UserForm" (ngSubmit)="editarConta(UserForm.value)" *ngIf="users.length > 0">
         <div class="main-registo">
             <h4>Email</h4>
             <input type="text" formControlName="email" placeholder="Insira aqui o email...">
@@ -22,10 +22,10 @@
         <div class="alerta" *ngIf="UserForm.controls['username'].hasError('required') && UserForm.controls['username'].touched">
             Username obrigatório
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && UserForm.controls['username'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && UserForm.controls['username'].hasError('minlength')">
             Mín. 5 caracteres
         </div>        
-        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('min') && UserForm.hasError('ValidUsername')">
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('minlength') && UserForm.hasError('ValidUsername')">
             Já existe conta com esse username
         </div>
         <br>
@@ -36,7 +36,7 @@
         <div class="alerta" *ngIf="UserForm.controls['password'].hasError('required') && UserForm.controls['password'].touched">
             Password obrigatória
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['password'].hasError('required') && UserForm.controls['password'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['password'].hasError('required') && UserForm.controls['password'].hasError('minlength')">
             Mín. 5 caracteres
         </div> 
         <br>
@@ -47,7 +47,7 @@
         <div class="alerta" *ngIf="UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].touched">
             Confirmação de password obrigatória
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].hasError('minlength')">
             Mín. 5 caracteres
         </div>  
         <br>

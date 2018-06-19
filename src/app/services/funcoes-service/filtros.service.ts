@@ -17,7 +17,7 @@ export class FiltrosService {
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa do username de utilizador
 	pesquisaUsername(tabela: any[], username: string): any[]{
-		var tabelaUsername: any[] = tabela.filter(x => x.username == username);
+		var tabelaUsername: any[] = tabela.filter(x => x.Username == username);
 		return tabelaUsername;
 	}
 

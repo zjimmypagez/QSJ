@@ -18,7 +18,7 @@ export function ValidatorUsername(users: User[]): ValidatorFn{
         const username = control.value;
         var existe: boolean = false;
         for (let i = 0; i < users.length; i++){
-            if (users[i].username.toUpperCase() == username.toUpperCase()) existe = true;
+            if (users[i].Username.toUpperCase() == username.toUpperCase()) existe = true;
         }
         if (existe) return { 'ValidUsername': true };        
         return null;
@@ -31,7 +31,7 @@ export function ValidatorEmail(users: User[]): ValidatorFn{
         const email = control.value;
         var existe: boolean = false;
         for (let i = 0; i < users.length; i++){
-            if (users[i].email == email) existe = true;
+            if (users[i].Email == email) existe = true;
         }
         if (existe) return { 'ValidEmail': true };        
         return null;
@@ -39,24 +39,25 @@ export function ValidatorEmail(users: User[]): ValidatorFn{
 }
 
 // Validator que verifica se já há alguma conta com o email e username inserido ou se o inserido esta inalterado face ao editar
-export function ValidatorEditar(users: User[], user: User): ValidatorFn{
+export function ValidatorEditar(users: User[], id: number): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const email = control.get('email').value;
         const username = control.get('username').value;
-        if (email == user.email && username == user.username) return { 'EditarInalterado': true }
+        var user: User = users.find(x => x.Id == id);
+        if (email == user.Email && username == user.Username) return { 'EditarInalterado': true }
         else{
-            if (email == user.email){
+            if (email == user.Email){
                 var existeUsername: boolean = false;
                 for (let i = 0; i < users.length; i++){
-                    if (users[i].username.toUpperCase() == username.toUpperCase() && users[i].username != user.username) existeUsername = true;
+                    if (users[i].Username.toUpperCase() == username.toUpperCase() && users[i].Username != user.Username) existeUsername = true;
                 }
                 if (existeUsername) return { 'ValidUsername': true }
             }
             else{
-                if (username == user.username){
+                if (username == user.Username){
                     var existeEmail: boolean = false;
                     for (let i = 0; i < users.length; i++){
-                        if (users[i].email == email && users[i].email != user.email) existeEmail = true;
+                        if (users[i].Email == email && users[i].Email != user.Email) existeEmail = true;
                     }
                     if (existeEmail) return { 'ValidEmail': true }   
                 }

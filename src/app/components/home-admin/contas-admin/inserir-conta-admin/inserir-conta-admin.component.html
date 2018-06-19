@@ -22,10 +22,10 @@
         <div class="alerta" *ngIf="UserForm.controls['username'].hasError('required') && UserForm.controls['username'].touched">
             Username obrigatório
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && UserForm.controls['username'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && UserForm.controls['username'].hasError('minlength')">
             Mín. 5 caracteres
         </div>        
-        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('min') && UserForm.controls['username'].hasError('ValidUsername')">
+        <div class="alerta" *ngIf="!UserForm.controls['username'].hasError('required') && !UserForm.controls['username'].hasError('minlength') && UserForm.controls['username'].hasError('ValidUsername')">
             Já existe conta com esse username
         </div>
         <br>
@@ -36,7 +36,7 @@
         <div class="alerta" *ngIf="UserForm.controls['password'].hasError('required') && UserForm.controls['password'].touched">
             Password obrigatória
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['password'].hasError('required') && UserForm.controls['password'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['password'].hasError('required') && UserForm.controls['password'].hasError('minlength')">
             Mín. 5 caracteres
         </div>        
         <br>
@@ -47,7 +47,7 @@
         <div class="alerta" *ngIf="UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].touched">
             Confirmação de password obrigatória
         </div>
-        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].hasError('min')">
+        <div class="alerta" *ngIf="!UserForm.controls['cPassword'].hasError('required') && UserForm.controls['cPassword'].hasError('minlength')">
             Mín. 5 caracteres
         </div>   
         <br>

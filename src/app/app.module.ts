@@ -1,7 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { NgxPaginationModule } from 'ngx-pagination'
+import { NgxPaginationModule } from 'ngx-pagination';
+import { HttpClientModule } from '@angular/common/http';
 
 // Módulo com todos os caminhos da aplicação
 import { AppRoutingModule } from "./app-routing.module";
@@ -10,6 +11,9 @@ import { AppRoutingModule } from "./app-routing.module";
 import { FiltrosService } from "./services/funcoes-service/filtros.service";
 import { JoinTablesService } from "./services/funcoes-service/join-tables.service";
 import { OrdenarTablesService } from "./services/funcoes-service/ordenar-tables.service";
+
+// Services - API
+import { UserServiceService } from "./services/user/user-service.service";
 
 import { AppComponent } from './app.component';
 
@@ -88,12 +92,14 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         FormsModule,
         ReactiveFormsModule,
         AppRoutingModule,
-        NgxPaginationModule
+        NgxPaginationModule,
+        HttpClientModule
     ],
     providers: [
         FiltrosService,
         JoinTablesService,
-        OrdenarTablesService
+        OrdenarTablesService,
+        UserServiceService
     ],
     bootstrap: [AppComponent]
 })

@@ -1,20 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
 import { User } from "../../../interfaces/user";
+
+import { UserServiceService } from "../../../services/user/user-service.service";
 
 @Component({
 	selector: 'app-login',
 	templateUrl: './login.component.html',
 	styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
 	LoginForm: FormGroup;
 	// Lista de utilizadores a ler da BD
-	Users: User[];
+	users: User[];
 
-	constructor( private router: Router, private fb: FormBuilder ) {
+	private subs: Subscription;
+
+	constructor( private router: Router, private fb: FormBuilder, private userService: UserServiceService ) {
 		this.LoginForm = fb.group({
 			'username': ['', [Validators.required, Validators.minLength(5)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]]
@@ -22,7 +28,20 @@ export class LoginComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniListaUsers();
+		this.getUsers();
+	}
+
+	ngOnDestroy(){
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
+	getUsers(){
+		this.subs = this.userService.getUsers().subscribe(
+			(data: User[]) => { this.users = data },
+			err => console.error(err),
+			() => console.log("fim de carregamento!")
+		);
 	}
 
 	// Recolha dos dados do formulário e verificação das credenciais: username e password
@@ -35,8 +54,8 @@ export class LoginComponent implements OnInit {
 			this.router.navigate(['/admin']);
 		}
 		else{
-			for (let i = 0; i < this.Users.length; i++){
-				if (username == this.Users[i].username && password == this.Users[i].password){
+			for (let i = 0; i < this.users.length; i++){
+				if (username == this.users[i].Username && password == this.users[i]._Password){
 					estadoLogin = true;
 					this.router.navigate(['/func']);
 				}
@@ -55,21 +74,5 @@ export class LoginComponent implements OnInit {
 		this.LoginForm.controls['password'].reset('');
 		this.LoginForm.controls['username'].markAsUntouched();
 		this.LoginForm.controls['password'].markAsUntouched();
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaUsers(){
-		this.Users = [{
-			id: 1,
-			email: 'user1@gmail.com',
-			username: 'user1',
-			password: '123456'
-		},
-		{
-			id: 2,
-			email: 'user2@gmail.com',
-			username: 'user2',
-			password: '123456'
-		}];
 	}
 }

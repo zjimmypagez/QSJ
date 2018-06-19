@@ -12,7 +12,7 @@
             </div>       
         </div>
     </form>
-    <div class="main-table" *ngIf="estadoTabela">
+    <div class="main-table" *ngIf="estadoTabela && users.length > 0">
        <table>
           <tr>
              <th>EMAIL</th>
@@ -20,20 +20,22 @@
              <th>AÇÕES</th>
           </tr>
           <tr *ngFor="let user of users | paginate: { id: 'users', itemsPerPage: 10, currentPage: p }">
-             <td>{{user.email}}</td>
-             <td>{{user.username}}</td>
+             <td>{{user.Email}}</td>
+             <td>{{user.Username}}</td>
              <td>
                 <div class="action-btn">
-                   <a class="btn" (click)="editarUser(user.id)">Editar</a>
-                   <a class="btn" (click)="eliminarUser(user.id)">Eliminar</a>
+                   <a class="btn" (click)="editarUser(user.Id)">Editar</a>
+                   <a class="btn" (click)="eliminarUser(user.Id)">Eliminar</a>
                 </div>
              </td>
           </tr>
        </table>
     </div>
     <pagination-controls *ngIf="estadoTabela" class="pagination" id="users" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
-    <br>
-    <div *ngIf="!estadoTabela" style="text-align: center;">
+    <div *ngIf="users.length == 0" style="text-align: center;">
+        <h2 style="color: #8B0000;">Não existem utilizadores no sistema!</h2>
+    </div>
+    <div *ngIf="!estadoTabela && users.length > 0" style="text-align: center;">
         <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de utilizadores com as opções indicadas!</h2>
     </div>
 </div>

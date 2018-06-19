@@ -1,17 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
 
 import { User } from '../../../../interfaces/user';
 
 import { ValidatorPassword, ValidatorEditar } from '../../../../validators/validator-login';
+
+import { UserServiceService } from '../../../../services/user/user-service.service';
 
 @Component({
 	selector: 'app-editar-conta-admin',
 	templateUrl: './editar-conta-admin.component.html',
 	styleUrls: ['./editar-conta-admin.component.css']
 })
-export class EditarContaAdminComponent implements OnInit {
+export class EditarContaAdminComponent implements OnInit, OnDestroy {
 	// Utilizador selecionado
 	id: number;
 	private sub: any;
@@ -19,20 +23,52 @@ export class EditarContaAdminComponent implements OnInit {
 	// Utilizador selecionado
 	user: User;
   	// Lista de utilizadores a ler da BD
-	users: User[];
+	users: User[] = [];
 
-  	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder ) { }
+	private subs: Subscription;
+
+  	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private userService: UserServiceService ) { }
 
   	ngOnInit() {
 		// Subscrição dos parametros do utilizador escolhido para editar
 		this.sub = this.route.params.subscribe(
 		  params => { this.id = +params['id']; }
 		)
-    	this.iniListaUsers();
-		// Procura na lista de utilizadores (a ser lida da BD)
-		this.user = this.users.find(x => x.id == this.id);
-		this.iniUserForm();
-		this.resetForm(this.user);	  
+		this.getUsers();
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
+	getUsers(){
+		this.subs = this.userService.getUsers().subscribe(
+			data => this.users = data,
+			err => console.error(err),
+			() => {
+				this.iniUserForm();
+				this.getSelectedUser();
+			}
+		);
+	}
+
+	// Editar um utilizador selecionado
+	editUser(editUser){
+		this.subs = this.userService.editUser(editUser).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {				
+				this.router.navigate(['/admin/contas']);
+			}
+		);
+	}
+
+	// Informação do utilizador selecionado
+	getSelectedUser(){
+		this.user = this.users.find(x => x.Id == this.id);
+		this.resetForm(this.user);	
 	}
 
 	// Inicializa o objeto form UserForm
@@ -42,15 +78,21 @@ export class EditarContaAdminComponent implements OnInit {
 			'username': ['', [Validators.required, Validators.minLength(5)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]],
 			'cPassword': ['', [Validators.required, Validators.minLength(5)]]
-		}, { validator: [ValidatorPassword(), ValidatorEditar(this.users, this.user)] }
+			}, { validator: [ ValidatorPassword(), ValidatorEditar(this.users, this.id) ] }
 		);
 	}
 
 	// Editar o utilizador após verificações
 	editarConta(form){
-		var user: any = form;
-		alert("O Utilizador " + this.user.username + " foi editado com sucesso!");
-		this.router.navigate(['/admin/contas']);
+		var editUser: User = {
+			Id: this.user.Id,
+			Email: form.email,
+			Username: form.username,
+			_Password: form.password,
+			TipoUtilizador: this.user.TipoUtilizador
+		}
+		this.editUser(editUser);
+		alert("O Utilizador " + editUser.Username + " foi editado com sucesso!");
 	}
 
 	// Reset dos dados da form
@@ -58,31 +100,12 @@ export class EditarContaAdminComponent implements OnInit {
 		this.resetForm(this.user);
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
 	// Coloca a form com os dados pre-selecionados
 	resetForm(user: User){
-		this.UserForm.controls['email'].setValue(user.email);
-		this.UserForm.controls['username'].setValue(user.username);
-		this.UserForm.controls['password'].setValue(user.password);
-		this.UserForm.controls['cPassword'].setValue(user.password);
+		this.UserForm.controls['email'].setValue(user.Email);
+		this.UserForm.controls['username'].setValue(user.Username);
+		this.UserForm.controls['password'].setValue(user._Password);
+		this.UserForm.controls['cPassword'].setValue(user._Password);
 	}
 
-  	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaUsers(){
-		this.users = [{
-			id: 1,
-			email: 'user1@gmail.com',
-			username: 'user1',
-			password: '123456'
-		},
-		{
-			id: 2,
-			email: 'user2@gmail.com',
-			username: 'user2',
-			password: '123456'
-		}];
-	}
 }

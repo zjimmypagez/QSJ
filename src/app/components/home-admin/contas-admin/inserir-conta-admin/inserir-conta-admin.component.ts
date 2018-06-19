@@ -1,26 +1,58 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { User } from '../../../../interfaces/user';
+import { User, UserSId } from '../../../../interfaces/user';
 
 import { ValidatorPassword, ValidatorUsername, ValidatorEmail } from '../../../../validators/validator-login';
+
+import { UserServiceService } from '../../../../services/user/user-service.service';
 
 @Component({
 	selector: 'app-inserir-conta-admin',
 	templateUrl: './inserir-conta-admin.component.html',
 	styleUrls: ['./inserir-conta-admin.component.css']
 })
-export class InserirContaAdminComponent implements OnInit {
+export class InserirContaAdminComponent implements OnInit, OnDestroy {
 	UserForm: FormGroup;
 	// Lista de utilizadores a ler da BD
-	users: User[];
+	users: User[] = [];
 
-	constructor( private router: Router, private fb: FormBuilder ) { }
+	private subs: Subscription;
+
+	constructor( private router: Router, private fb: FormBuilder, private userService: UserServiceService ) { }
 
 	ngOnInit() {
-		this.iniListaUsers();
+		this.getUsers();
 		this.iniUserForm();
+	}
+
+	ngOnDestroy(){
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
+	getUsers(){
+		this.subs = this.userService.getUsers().subscribe(
+			data => { this.users = data },
+			err => console.error(err),
+			() => {
+				this.iniUserForm();
+			}
+		);
+	}
+
+	// Inserir novo utilizador
+	createUser(newUser: UserSId){
+		this.subs = this.userService.createUser(newUser).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				this.router.navigate(['/admin/contas']);
+			}
+		);
 	}
 
 	// Inicializa o objeto form UserForm
@@ -29,16 +61,21 @@ export class InserirContaAdminComponent implements OnInit {
 			'email': ['', [Validators.required, Validators.email, ValidatorEmail(this.users)]],
 			'username': ['', [Validators.required, Validators.minLength(5), ValidatorUsername(this.users)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]],
-			'cPassword': ['', [Validators.required, Validators.minLength(5)]]
-		}, { validator: ValidatorPassword() }
+			'cPassword': ['', [Validators.required, Validators.minLength(5)]] 
+			}, { validator: ValidatorPassword() }
 		);
 	}
 
 	// Novo utilizador após verificações
 	novaConta(form){
-		var user: any = form;
-		alert("O Utilizador " + user.username + " foi criado com sucesso!");
-		this.router.navigate(['/admin/contas']);
+		var newUser: UserSId = {
+			Email: form.email,
+			Username: form.username,
+			_Password: form.password,
+			TipoUtilizador: 1
+		}
+		this.createUser(newUser);
+		alert("O Utilizador " + newUser.Username + " foi criado com sucesso!");
 	}
 
 	// Limpa os dados do Formulário
@@ -53,21 +90,5 @@ export class InserirContaAdminComponent implements OnInit {
 		this.UserForm.controls['password'].reset('');
 		this.UserForm.controls['cPassword'].reset('');
 		this.UserForm.markAsUntouched();
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaUsers(){
-		this.users = [{
-			id: 1,
-			email: 'user1@gmail.com',
-			username: 'user1',
-			password: '123456'
-		},
-		{
-			id: 2,
-			email: 'user2@gmail.com',
-			username: 'user2',
-			password: '123456'
-		}];
 	}
 }
