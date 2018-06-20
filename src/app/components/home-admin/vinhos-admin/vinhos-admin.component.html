@@ -21,7 +21,7 @@
         </div>
       </div>
    </form>
-    <div class="main-table" *ngIf="estadoTabela">
+    <div class="main-table" *ngIf="estadoTabela && vinhos.length > 0">
        <table>
           <tr>
              <th>MARCA</th>
@@ -30,21 +30,23 @@
              <th>AÇÕES</th>
           </tr>
           <tr *ngFor="let vinho of vinhos | paginate: { id: 'vinhos', itemsPerPage: 10, currentPage: p }">
-             <td>{{vinho.marca}}</td>
-             <td>{{vinho.tipo}}</td>
-             <td>{{vinho.categoria}}</td>
+             <td>{{vinho.Marca}}</td>
+             <td>{{vinho.Tipo}}</td>
+             <td>{{vinho.Categoria}}</td>
              <td>
                 <div class="action-btn">
-                   <a class="btn" (click)="editarVinho(vinho.id)">Editar</a>
-                   <a class="btn" (click)="eliminarVinho(vinho.id)">Eliminar</a>
+                   <a class="btn" (click)="editarVinho(vinho.ID)">Editar</a>
+                   <a class="btn" (click)="eliminarVinho(vinho.ID)">Eliminar</a>
                 </div>
              </td>
           </tr>
        </table>
     </div>
     <pagination-controls *ngIf="estadoTabela" class="pagination" id="vinhos" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
-    <br>
-    <div *ngIf="!estadoTabela" style="text-align: center;">
+    <div *ngIf="vinhos.length == 0" style="text-align: center;">
+        <h2 style="color: #8B0000;">Não existem vinhos no sistema!</h2>
+    </div>
+    <div *ngIf="!estadoTabela && vinhos.length > 0" style="text-align: center;">
         <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de vinhos com as opções indicadas!</h2>
     </div>
 </div>

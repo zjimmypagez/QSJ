@@ -146,14 +146,14 @@ export class GarrafasStockFuncComponent implements OnInit {
 	iniQuantidadeCRotuloSRotulo(){
 		this.clearCRouloSRotulo();
 		for (let i = 0; i < this.garrafas.length; i++){
-			this.totalCRotulo += this.garrafas[i].cRotulo;
-			this.totalSRotulo += this.garrafas[i].sRotulo;
+			this.totalCRotulo += this.garrafas[i].CRotulo;
+			this.totalSRotulo += this.garrafas[i].SRotulo;
 		}
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaGarrafas(){
-		this.garrafas = [{
+		/*this.garrafas = [{
 			id: 1,
 			cuba: 5000,
 			ano: 2004,
@@ -170,12 +170,12 @@ export class GarrafasStockFuncComponent implements OnInit {
 			capacidade: 0.750,
 			cRotulo: 150,
 			sRotulo: 0
-		}];
+		}];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaVinhos(){
-		this.vinhos = [{
+		/*this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
 			tipo: 'Verde',
@@ -192,7 +192,7 @@ export class GarrafasStockFuncComponent implements OnInit {
 			marca: 'Quinta São José',
 			tipo: 'Tinto',
 			categoria: ''
-		}];
+		}];*/
 	}
 
 }

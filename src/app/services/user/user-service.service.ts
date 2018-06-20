@@ -3,7 +3,6 @@ import { HttpHeaders, HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs/Observable";
 import "rxjs/Rx";
 
-
 import { UserSId, User } from '../../interfaces/user';
 
 const httpOptions = {

@@ -30,8 +30,8 @@
             <h4>Tipo de Vinho</h4>
             <select formControlName="tipoVinho">
                 <option value="" disabled>Vinhos</option>
-                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.id">
-                   Marca: {{vinho.marca}} | Tipo: {{vinho.tipo}} {{vinho.categoria != "" ? ' | Categoria: ' + vinho.categoria : ''}}
+                <option *ngFor="let vinho of vinhos" [ngValue]="vinho.ID">
+                   Marca: {{vinho.Marca}} | Tipo: {{vinho.Tipo}} {{vinho.Categoria != "" ? ' | Categoria: ' + vinho.Categoria : ''}}
                 </option>
             </select>
         </div>

@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 import { Caixa } from '../../../interfaces/caixa';
@@ -10,12 +12,16 @@ import { FiltrosService } from '../../../services/funcoes-service/filtros.servic
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
+import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
+import { CaixaServiceService } from '../../../services/caixa/caixa-service.service';
+import { GarrafaServiceService } from '../../../services/garrafa/garrafa-service.service';
+
 @Component({
 	selector: 'app-vinhos-admin',
 	templateUrl: './vinhos-admin.component.html',
 	styleUrls: ['./vinhos-admin.component.css']
 })
-export class VinhosAdminComponent implements OnInit {
+export class VinhosAdminComponent implements OnInit, OnDestroy {
 	FiltroForm: FormGroup;
 	// Dados filtros
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
@@ -25,13 +31,17 @@ export class VinhosAdminComponent implements OnInit {
 	// Tabela auxiliar no processo de filtragem
 	tabelaFiltro: TipoVinho[] = [];
 	// Lista de tipos de vinho a ler da BD
-	vinhos: TipoVinho[];
+	vinhos: TipoVinho[] = [];
+	// Lista auxiliar total de vinhos a ler da BD
+	vinhosAux: TipoVinho[];
 	// Lista de modelos caixa a ler da BD
 	caixas: Caixa[];
 	// Lista de modelos garrafa a ler da BD
 	garrafas: Garrafa[];
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private ordenarService: OrdenarTablesService ) { 
+	private subs: Subscription;
+
+	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private ordenarService: OrdenarTablesService, private vinhoService: VinhoServiceService, private caixaService: CaixaServiceService, private garrafaService: GarrafaServiceService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'tipoVinho': [0, ],
@@ -40,10 +50,56 @@ export class VinhosAdminComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniListaVinhos();
-		this.iniListaCaixas();
-		this.iniListaGarrafas();
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+		this.getVinhos();
+		this.getCaixas();
+		this.getGarrafas();
+	}
+
+	ngOnDestroy(){
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subs = this.vinhoService.getVinhos().subscribe(
+			(data: TipoVinho[]) => { this.vinhos = data, this.vinhosAux = data },
+			err => console.error(err),
+			() => {
+				// Ordenar o array após a leitura dos dados a partir da BD
+				this.ordenarService.ordenarTabelaMV(this.vinhos);
+				this.ordenarService.ordenarTabelaMV(this.vinhosAux);
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
+	getCaixas(){
+		this.subs = this.caixaService.getCaixas().subscribe(
+			(data: Caixa[]) => { this.caixas = data },
+			err => console.error(err)
+		);
+	}
+
+	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
+	getGarrafas(){
+		this.subs = this.garrafaService.getGarrafas().subscribe(
+			(data: Garrafa[]) => { this.garrafas = data },
+			err => console.error(err)
+		);
+	}
+
+	// Eliminar vinho por Id e recarregamento dos dados de todos os vinhos provenientes da BD
+	deleteVinhoById(id: number){
+		this.subs = this.vinhoService.deleteVinhoById(id).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				this.getVinhos();
+				this.getCaixas();
+				this.getGarrafas();
+			}
+		);		
 	}
 
 	// Função responsável por selecionar o tipo de vinho a ser editado
@@ -54,11 +110,12 @@ export class VinhosAdminComponent implements OnInit {
 	// Função responsável por eliminar o tipo de vinho selecionado
 	eliminarVinho(id: number){
 		// Array com caixas com o tipo de vinho selecionado
-		var caixasComIdVinho: Caixa[] = this.caixas.filter(x => x.tipoVinho == id);
+		var caixasComIdVinho: Caixa[] = this.caixas.filter(x => x.TipoDeVinho_ID == id);
 		// Array com garrafas com o tipo de vinho selecionado
-		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.tipoVinho == id);
+		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.TipoDeVinho_ID == id);
 		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0){
 			if (confirm("Quer mesmo eliminar este tipo de vinho?")){
+				this.deleteVinhoById(id);
 				alert("O tipo de vinho foi eliminado com sucesso!");
 				this.router.navigate(['/admin/vinhos']);
 			}
@@ -79,7 +136,7 @@ export class VinhosAdminComponent implements OnInit {
 			if (this.tabelaFiltro.length != 0) this.vinhos = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
 			else this.vinhos = this.filtroService.pesquisaMarca(this.vinhos, marca);
 			if (this.vinhos.length == 0) {
-				this.iniListaVinhos();
+				this.reloadVinhos();
 				this.estadoTabela = false;
 			}				
 			else this.estadoTabela = true;
@@ -89,7 +146,7 @@ export class VinhosAdminComponent implements OnInit {
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
-		this.iniListaVinhos();
+		this.reloadVinhos();
 		if (filtro.marca != "") this.vinhos = this.filtroService.pesquisaMarca(this.vinhos, filtro.marca);
 		if (filtro.tipoVinho != 0 || filtro.categoria != 0){
 			this.tabelaFiltro = this.filtroService.filtroTipoVinhoCategoria(filtro, this.vinhos);
@@ -99,7 +156,7 @@ export class VinhosAdminComponent implements OnInit {
 		}
 		else{
 			if (filtro.marca != "") this.vinhos = this.filtroService.pesquisaMarca(this.vinhos, filtro.marca);
-			else this.iniListaVinhos();
+			else this.reloadVinhos();
 			this.tabelaFiltro = [];
 			this.estadoTabela = true;
 		}
@@ -107,7 +164,7 @@ export class VinhosAdminComponent implements OnInit {
 
 	// Limpar pesquisa
 	clearTabela(){
-		this.iniListaVinhos();
+		this.reloadVinhos();
 		this.estadoTabela = true;
 		this.clearForm();
 	}
@@ -119,70 +176,10 @@ export class VinhosAdminComponent implements OnInit {
 		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];
-		// Ordenar o array após a leitura dos dados a partir da BD
-		this.ordenarService.ordenarTabelaMV(this.vinhos);
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaCaixas(){
-		this.caixas = [{
-      	id: 1,
-         capacidade: 1.000,
-         garrafas: 3,
-         material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-         id: 2,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];   
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaGarrafas(){
-		this.garrafas = [{
-			id: 1,
-			cuba: 5000,
-			ano: 2004,
-			tipoVinho: 1,
-			capacidade: 1.000,
-			cRotulo: 250,
-			sRotulo: 100
-		},
-		{
-			id: 2,
-			cuba: 10000,
-			ano: 2015,
-			tipoVinho: 3,
-			capacidade: 0.750,
-			cRotulo: 150,
-			sRotulo: 0
-		}];
+	// Recarregamento de todos os vinhos
+	reloadVinhos(){
+		this.vinhos = [];
+		this.vinhos = this.vinhosAux;
 	}
 
 }

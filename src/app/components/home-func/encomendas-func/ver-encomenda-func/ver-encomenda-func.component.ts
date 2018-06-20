@@ -189,7 +189,7 @@ export class VerEncomendaFuncComponent implements OnInit {
 
 	// Dados criados (A ser subsituido pela ligação à BD)
    iniListaCaixas(){
-   	this.caixas = [{
+   	/*this.caixas = [{
       	id: 1,
          capacidade: 1.000,
          garrafas: 3,
@@ -204,12 +204,12 @@ export class VerEncomendaFuncComponent implements OnInit {
          material: 'Cartão',
 			tipoVinho: 2,
 			quantidade: 50
-      }];
+      }];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaGarrafas(){
-		this.garrafas = [{
+		/*this.garrafas = [{
 			id: 1,
 			cuba: 5000,
 			ano: 2004,
@@ -235,12 +235,12 @@ export class VerEncomendaFuncComponent implements OnInit {
 			capacidade: 1.000,
 			cRotulo: 1500,
 			sRotulo: 0
-		}];
+		}];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaVinhos(){
-		this.vinhos = [{
+		/*this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
 			tipo: 'Verde',
@@ -257,7 +257,7 @@ export class VerEncomendaFuncComponent implements OnInit {
 			marca: 'Quinta São José',
 			tipo: 'Tinto',
 			categoria: ''
-		}];
+		}];*/
 	}
 
 }

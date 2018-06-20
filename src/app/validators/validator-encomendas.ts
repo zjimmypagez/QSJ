@@ -39,7 +39,7 @@ export function ValidatorEncomendaQuantidadeCaixas(caixas: Caixa[]): ValidatorFn
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idCaixa = control.get('caixa').value;
         const quantidade = control.get('quantidade').value;
-        var caixa: Caixa = caixas.find(x => x.id == idCaixa);     
+        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);     
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaCaixas = <FormArray>control.parent;
@@ -51,7 +51,7 @@ export function ValidatorEncomendaQuantidadeCaixas(caixas: Caixa[]): ValidatorFn
         for (let i = 0; i < linhaCaixas.length; i++){
             if (linhaCaixas.at(i).get('caixa').value == idCaixa) quantidadeCaixas += linhaCaixas.at(i).get('quantidade').value;
         }
-        if (caixa.quantidade < quantidadeCaixas) return { 'ValidQuantidadeCaixas': true }
+        if (caixa.Stock < quantidadeCaixas) return { 'ValidQuantidadeCaixas': true }
         return null;
     };
 }
@@ -61,7 +61,7 @@ export function ValidatorEncomendaQuantidadeCaixasEspeciais(caixas: Caixa[]): Va
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idCaixa = control.get('caixa').value;
         const quantidade = control.get('quantidadeCaixa').value;
-        var caixa: Caixa = caixas.find(x => x.id == idCaixa);
+        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaModelo = <FormArray>control.parent;
@@ -73,7 +73,7 @@ export function ValidatorEncomendaQuantidadeCaixasEspeciais(caixas: Caixa[]): Va
         for (let i = 0; i < linhaModelo.length; i++){
             if (linhaModelo.at(i).get('caixa').value == idCaixa) quantidadeCaixas += linhaModelo.at(i).get('quantidadeCaixa').value;
         }
-        if (caixa.quantidade < quantidadeCaixas) return { 'ValidQuantidadeCaixas': true }
+        if (caixa.Stock < quantidadeCaixas) return { 'ValidQuantidadeCaixas': true }
         return null;
     };
 }
@@ -84,9 +84,9 @@ export function ValidatorEncomendaQuantidadeGarrafas(caixas: Caixa[], garrafas: 
         const idCaixa = control.get('caixa').value;
         const idGarrafa = control.get('garrafa').value;
         const quantidade = control.get('quantidade').value;
-        var caixa: Caixa = caixas.find(x => x.id == idCaixa);
+        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
-        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModeloGarrafa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaCaixa = <FormArray>control.parent;
@@ -100,9 +100,9 @@ export function ValidatorEncomendaQuantidadeGarrafas(caixas: Caixa[], garrafas: 
             }
         }
         for (let i = 0; i < linhaCaixa.length; i++){
-            if (linhaCaixa.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafas += caixa.garrafas * linhaCaixa.at(i).get('quantidade').value;
+            if (linhaCaixa.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafas += caixa.NGarrafas * linhaCaixa.at(i).get('quantidade').value;
         }
-        if (garrafa.cRotulo < quantidadeGarrafas) return { 'ValidQuantidadeGarrafas': true }
+        if (garrafa.CRotulo < quantidadeGarrafas) return { 'ValidQuantidadeGarrafas': true }
         return null;
     };
 }
@@ -112,7 +112,7 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], g
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = control.get('garrafa').value;
         const quantidade = control.get('quantidadeGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModeloGarrafa': true }  
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaModelo = <FormArray>control.parent.parent.parent;
@@ -120,9 +120,9 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], g
         var quantidadeGarrafas: number = 0;
         for (let i = 0; i < linhaCaixa.length; i++){
             const idCaixa = linhaCaixa.at(i).get('caixa').value;
-            var caixa: Caixa = caixas.find(x => x.id == idCaixa);
+            var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
             if (caixa != undefined){
-                if (linhaCaixa.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafas += caixa.garrafas * linhaCaixa.at(i).get('quantidade').value;
+                if (linhaCaixa.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafas += caixa.NGarrafas * linhaCaixa.at(i).get('quantidade').value;
             }
         }
         for (let i = 0; i < linhaModelo.length; i++){
@@ -131,7 +131,7 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], g
                 if (linhaAtualGarrafa.at(j).get('garrafa').value == idGarrafa) quantidadeGarrafas += linhaModelo.at(i).get('quantidadeCaixa').value * linhaAtualGarrafa.at(j).get('quantidadeGarrafa').value;
             }
         }
-        if (garrafa.cRotulo < quantidadeGarrafas) return { 'ValidQuantidadeGarrafas': true }
+        if (garrafa.CRotulo < quantidadeGarrafas) return { 'ValidQuantidadeGarrafas': true }
         return null;
     };
 }
@@ -143,12 +143,12 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida(caixas: 
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaAtualModelo = control.parent.parent;
         const idCaixa = linhaAtualModelo.get('caixa').value;
-        var caixa: Caixa = caixas.find(x => x.id == idCaixa);
+        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloGarrafa': true }  
         var quantidadeGarrafas: number = 0;
         const linhaGarrafa = <FormArray>control.parent;
         for (let i = 0; i < linhaGarrafa.length; i++) quantidadeGarrafas += linhaGarrafa.at(i).get('quantidadeGarrafa').value;
-        if (caixa.garrafas < quantidadeGarrafas) return { 'ValidQuantidadeGarrafasPreenchidas': true }
+        if (caixa.NGarrafas < quantidadeGarrafas) return { 'ValidQuantidadeGarrafasPreenchidas': true }
         return null;
     };
 }

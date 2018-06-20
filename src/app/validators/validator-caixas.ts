@@ -9,11 +9,11 @@ export function ValidatorRemover(caixas: Caixa[], op: AbstractControl): Validato
         const idCaixa = op.get('idCaixa').value;
         var caixa: Caixa;
         for (let i = 0; i < caixas.length; i++){
-            if (idCaixa == caixas[i].id) caixa = caixas[i];
+            if (idCaixa == caixas[i].ID) caixa = caixas[i];
         }
         if (idCaixa == "") return { 'WaitingModelo': true }
         if (control.value == null) return { 'WaitingCRotulo': true }
-        if (caixa.quantidade < control.value) return { 'ValidRemoverCaixa': true };        
+        if (caixa.Stock < control.value) return { 'ValidRemoverCaixa': true };        
         return null;
     };
 }
@@ -35,7 +35,7 @@ export function ValidatorModelo(caixas: Caixa[]): ValidatorFn{
         const tipoVinho = control.get('tipoVinho').value;
         var existe: boolean = false;
         for (let i = 0; i < caixas.length; i++){
-            if (capacidade == caixas[i].capacidade && material == caixas[i].material && garrafas == caixas[i].garrafas && tipoVinho == caixas[i].tipoVinho) existe = true ;
+            if (capacidade == caixas[i].CapacidadeGarrafa && material == caixas[i].Material && garrafas == caixas[i].NGarrafas && tipoVinho == caixas[i].TipoDeVinho_ID) existe = true ;
         }        
         if (existe) return { 'ValidatorModelo': true }
         return null;

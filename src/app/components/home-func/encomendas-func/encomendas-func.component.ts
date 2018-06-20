@@ -34,7 +34,7 @@ export class EncomendasFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniListaUsers();
+		//this.iniListaUsers();
 		this.iniListaEncomendas();
 		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
 	}
@@ -106,7 +106,7 @@ export class EncomendasFuncComponent implements OnInit {
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaUsers(){
+	/*iniListaUsers(){
 		this.users = [{
 			id: 1,
 			email: 'user1@gmail.com',
@@ -119,7 +119,7 @@ export class EncomendasFuncComponent implements OnInit {
 			username: 'user2',
 			password: '123456'
 		}];
-	}
+	}*/
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaEncomendas(){

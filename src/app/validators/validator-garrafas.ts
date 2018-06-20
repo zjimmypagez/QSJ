@@ -16,10 +16,10 @@ export function ValidatorGarrafa (control: AbstractControl) {
 export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
-        if (garrafa.cRotulo < control.value) return { 'ValidRemoverCRotulo': true };     
+        if (garrafa.CRotulo < control.value) return { 'ValidRemoverCRotulo': true };     
         return null;
     };
 }
@@ -28,10 +28,10 @@ export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
-        if (garrafa.sRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
+        if (garrafa.SRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
         return null;
     };
 }
@@ -40,11 +40,11 @@ export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 export function ValidatorRotular(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.id == idGarrafa);
+        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (control.value == null) return { 'WaitingCRotulo': true }
-        if (garrafa.sRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
+        if (garrafa.SRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
         return null;
     };
 }
@@ -66,7 +66,7 @@ export function ValidatorModelo(garrafas: Garrafa[]): ValidatorFn{
         const capacidade = control.get('capacidade').value;
         var existe: boolean = false;
         for (let i = 0; i < garrafas.length; i++){
-            if (cuba == garrafas[i].cuba && ano == garrafas[i].ano && tipoVinho == garrafas[i].tipoVinho && capacidade == garrafas[i].capacidade) existe = true ;
+            if (cuba == garrafas[i].Pipa && ano == garrafas[i].Ano && tipoVinho == garrafas[i].TipoDeVinho_ID && capacidade == garrafas[i].Capacidade) existe = true ;
         }        
         if (existe) return { 'ValidatorModelo': true }
         return null;

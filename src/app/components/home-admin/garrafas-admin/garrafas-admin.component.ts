@@ -1,19 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Garrafa } from '../../../interfaces/garrafa';
+import { Garrafa, GarrafaEVinho } from '../../../interfaces/garrafa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
+
+import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
+import { GarrafaServiceService } from '../../../services/garrafa/garrafa-service.service';
 
 @Component({
 	selector: 'app-garrafas-admin',
 	templateUrl: './garrafas-admin.component.html',
 	styleUrls: ['./garrafas-admin.component.css']
 })
-export class GarrafasAdminComponent implements OnInit {
+export class GarrafasAdminComponent implements OnInit, OnDestroy {
 	FiltroForm: FormGroup;
 	// Dados filtros
 	anos: number[] = [];
@@ -23,15 +28,17 @@ export class GarrafasAdminComponent implements OnInit {
 	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
 	// Tabela auxiliar no processo de filtragem
-	tabelaFiltro: tableGarrafa[] = [];
+	garrafasEVinhosFiltro: GarrafaEVinho[] = [];
   	// Lista de modelos de garrafa a ler da BD
-	garrafas: Garrafa[];
+	garrafasEVinhos: GarrafaEVinho[] = [];	
+	// Lista auxiliar total de garrafas a ler da BD
+	garrafasEVinhosAux: GarrafaEVinho[];
 	// Lista de modelos de caixa a ler da BD
 	vinhos: TipoVinho[];
-	// Tabela interligada entre garrafas e vinhos
-	tabelaGarrafas: tableGarrafa[];
 
-  	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
+	private subs: Subscription;	
+
+  	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService, private vinhoService: VinhoServiceService, private garrafaService: GarrafaServiceService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'ano': [0, ],
@@ -42,11 +49,46 @@ export class GarrafasAdminComponent implements OnInit {
 	  }
 
 	ngOnInit() {
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+		this.getVinhos();
+		this.getGarrafasEVinhos();		
+	}
+
+	ngOnDestroy(){
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subs = this.vinhoService.getVinhos().subscribe(
+			(data: TipoVinho[]) => { this.vinhos = data },
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service GarrafaService e obtenção dos dados de todos as garrafas com a operação JOIN com os vinhos provenientes da BD
+	getGarrafasEVinhos(){
+		this.subs = this.garrafaService.getGarrafasEVinhos().subscribe(
+			(data: GarrafaEVinho[]) => { this.garrafasEVinhos = data, this.garrafasEVinhosAux = data },
+			err => console.error(err),
+			() => {
+				this.anos = this.filtroService.iniFiltroAno(this.garrafasEVinhos);
+			}
+		);
+	}
+
+	// Eliminar garrafa por Id e recarregamento dos dados de todos as caixas provenientes da BD
+	deleteGarrafaById(id: number){
+		this.subs = this.garrafaService.deleteGarrafaById(id).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				this.getGarrafasEVinhos();
+				this.getVinhos();
+			}
+		);		
 	}
 
 	// Função responsável por selecionar o modelo de garrafa a ser editado
@@ -57,10 +99,11 @@ export class GarrafasAdminComponent implements OnInit {
 	// Função responsável por eliminar o modelo de garrafa selecionado
 	eliminarGarrafa(id: number){
 		// Garrafa selecionada
-		var garrafa: Garrafa = this.garrafas.find(x => x.id == id);
-		var quantidade: number = garrafa.cRotulo + garrafa.sRotulo;
+		var garrafa: GarrafaEVinho = this.garrafasEVinhosAux.find(x => x.Id == id);
+		var quantidade: number = garrafa.CRotulo + garrafa.SRotulo;
 		if (quantidade == 0){
 			if (confirm("Quer mesmo eliminar este modelo?")){
+				this.deleteGarrafaById(id);
 				alert("O modelo de garrafa foi eliminado com sucesso!");
 				this.router.navigate(['/admin/garrafas']);
 			}
@@ -73,15 +116,15 @@ export class GarrafasAdminComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
-				if (this.tabelaFiltro.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-				else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				if (this.garrafasEVinhosFiltro.length != 0) this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhosFiltro, marca);
+				else this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
 			else{
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-				this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				this.reloadGarrafasEVinhos();
+				this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
-			if (this.tabelaGarrafas.length == 0){
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			if (this.garrafasEVinhos.length == 0){
+				this.reloadGarrafasEVinhos();
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
@@ -91,25 +134,25 @@ export class GarrafasAdminComponent implements OnInit {
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+		this.reloadGarrafasEVinhos();
+		if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
 		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
-			this.tabelaGarrafas = this.tabelaFiltro;
-			if (this.tabelaGarrafas.length == 0) this.estadoTabela = false;
+			this.garrafasEVinhosFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.garrafasEVinhos);
+			this.garrafasEVinhos = this.garrafasEVinhosFiltro;
+			if (this.garrafasEVinhos.length == 0) this.estadoTabela = false;
 			else this.estadoTabela = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
-			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-			this.tabelaFiltro = [];
+			if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
+			else this.reloadGarrafasEVinhos();
+			this.garrafasEVinhosFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
 
 	// Limpar pesquisa
 	clearTabela(){
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.reloadGarrafasEVinhos();
 		this.estadoTabela = true;
 		this.clearForm();
 	}
@@ -123,59 +166,10 @@ export class GarrafasAdminComponent implements OnInit {
 		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
-  	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaGarrafas(){
-		this.garrafas = [{
-			id: 1,
-			cuba: 5000,
-			ano: 2004,
-			tipoVinho: 1,
-			capacidade: 1.000,
-			cRotulo: 250,
-			sRotulo: 100
-		},{
-			id: 2,
-			cuba: 10000,
-			ano: 2015,
-			tipoVinho: 3,
-			capacidade: 0.750,
-			cRotulo: 150,
-			sRotulo: 0
-		}];
+	// Recarregamento de todos as garrafas
+	reloadGarrafasEVinhos(){
+		this.garrafasEVinhos = [];
+		this.garrafasEVinhos = this.garrafasEVinhosAux;
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];
-	}
-
-}
-
-// Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
-interface tableGarrafa{
-	id: number,
-	lote: string, // Atributo que junta, para mostrar, marca, ano e cuba
-   cuba: number,
-	ano: number,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-   capacidade: number,
-	cRotulo: number,
-	sRotulo: number
 }

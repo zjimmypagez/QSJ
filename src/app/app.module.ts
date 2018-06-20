@@ -14,6 +14,9 @@ import { OrdenarTablesService } from "./services/funcoes-service/ordenar-tables.
 
 // Services - API
 import { UserServiceService } from "./services/user/user-service.service";
+import { VinhoServiceService } from "./services/vinho/vinho-service.service";
+import { CaixaServiceService } from "./services/caixa/caixa-service.service";
+import { GarrafaServiceService } from "./services/garrafa/garrafa-service.service";
 
 import { AppComponent } from './app.component';
 
@@ -99,7 +102,10 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         FiltrosService,
         JoinTablesService,
         OrdenarTablesService,
-        UserServiceService
+        UserServiceService,
+        VinhoServiceService,
+        CaixaServiceService,
+        GarrafaServiceService
     ],
     bootstrap: [AppComponent]
 })

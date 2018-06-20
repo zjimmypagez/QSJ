@@ -142,13 +142,13 @@ export class CaixasStockFuncComponent implements OnInit {
 	iniQuantidade(){
 		this.clearQuantidade();
 		for (let i = 0; i < this.caixas.length; i++){
-			this.totalCaixas += this.caixas[i].quantidade;
+			this.totalCaixas += this.caixas[i].Stock;
 		}
 	}
 
    // Dados criados (A ser subsituido pela ligação à BD)
    iniListaCaixas(){
-   	this.caixas = [{
+   	/*this.caixas = [{
       	id: 1,
          capacidade: 1.000,
          garrafas: 3,
@@ -195,12 +195,12 @@ export class CaixasStockFuncComponent implements OnInit {
          material: 'Cartão',
 			tipoVinho: 1,
 			quantidade: 50
-      }];
+      }];*/
 	}
 	
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaVinhos(){
-		this.vinhos = [{
+		/*this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
 			tipo: 'Verde',
@@ -217,7 +217,7 @@ export class CaixasStockFuncComponent implements OnInit {
 			marca: 'Quinta São José',
 			tipo: 'Tinto',
 			categoria: ''
-		}];
+		}];*/
 	}
 
 }

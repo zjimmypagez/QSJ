@@ -125,7 +125,7 @@ export class CaixasFuncComponent implements OnInit {
 
 	// Dados criados (A ser subsituido pela ligação à BD)
    iniListaCaixas(){
-   	this.caixas = [{
+   	/*this.caixas = [{
       	id: 1,
          capacidade: 1.000,
          garrafas: 3,
@@ -140,7 +140,7 @@ export class CaixasFuncComponent implements OnInit {
          material: 'Cartão',
 			tipoVinho: 2,
 			quantidade: 50
-      }];
+      }];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
@@ -173,7 +173,7 @@ export class CaixasFuncComponent implements OnInit {
 	
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaVinhos(){
-		this.vinhos = [{
+		/*this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
 			tipo: 'Verde',
@@ -190,7 +190,7 @@ export class CaixasFuncComponent implements OnInit {
 			marca: 'Quinta São José',
 			tipo: 'Tinto',
 			categoria: ''
-		}];
+		}];*/
 	}
 
 }

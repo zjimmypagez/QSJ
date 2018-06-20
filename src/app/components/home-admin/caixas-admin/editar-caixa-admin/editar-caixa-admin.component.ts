@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
 
 import { Caixa } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
@@ -9,12 +11,15 @@ import { OrdenarTablesService } from '../../../../services/funcoes-service/orden
 
 import { ValidatorModelo } from '../../../../validators/validator-caixas';
 
+import { CaixaServiceService } from '../../../../services/caixa/caixa-service.service';
+import { VinhoServiceService } from '../../../../services/vinho/vinho-service.service';
+
 @Component({
 	selector: 'app-editar-caixa-admin',
 	templateUrl: './editar-caixa-admin.component.html',
 	styleUrls: ['./editar-caixa-admin.component.css']
 })
-export class EditarCaixaAdminComponent implements OnInit {
+export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 	// Selecionar o ID da caixa selecionada
 	id: number;
   	private sub: any;
@@ -27,24 +32,67 @@ export class EditarCaixaAdminComponent implements OnInit {
 	// Caixa selecionada
 	caixa: Caixa;	
 	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
+	caixas: Caixa[] = [];
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService ) { }
+	private subs: Subscription;
+
+	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService, private caixaService: CaixaServiceService, private vinhoService: VinhoServiceService ) { }
 
 	ngOnInit() {
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-		this.iniListaCaixas();
-		this.iniListaVinhos();
-		this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
-		// Procura na lista de caixas (a ser lida da BD)
-		this.caixa = this.caixas.find(x => x.id == this.id);
+		this.getVinhos();
+		this.getCaixas();
 		this.iniCaixaForm();
-		this.onChange(this.caixa.material);
+	}
+
+	ngOnDestroy(){
+		this.sub.unsubscribe();
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subs = this.vinhoService.getVinhos().subscribe(
+			(data: TipoVinho[]) => { this.vinhos = data },
+			err => console.error(err),
+			() => {
+				this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
+	getCaixas(){
+		this.subs = this.caixaService.getCaixas().subscribe(
+			(data: Caixa[]) => { this.caixas = data },
+			err => console.error(err),
+			() => {
+				this.iniCaixaForm();
+				this.getSelectedCaixa();
+			}
+		);
+	}
+
+	// Editar uma caixa selecionada
+	editCaixa(editCaixa){
+		this.subs = this.caixaService.editCaixa(editCaixa).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {				
+				this.router.navigate(['/admin/caixas'])
+			}
+		);
+	}
+
+	// Informação do utilizador selecionado
+	getSelectedCaixa(){
+		this.caixa = this.caixas.find(x => x.ID == this.id);
+		this.onChange(this.caixa.Material);
 		this.resetForm(this.caixa);
 	}
 
@@ -55,16 +103,23 @@ export class EditarCaixaAdminComponent implements OnInit {
 			'material': ['', Validators.required],
 			'garrafas': ['', Validators.required],
 			'tipoVinho': ['', Validators.required]
-		}, { validator: ValidatorModelo(this.caixas) }
+			}, { validator: ValidatorModelo(this.caixas) }
 		);
 	}
 
 	// Editar o modelo de caixa após verificações
 	editarCaixa(form){
-		var caixa: any = form;
-		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + this.caixa.quantidade)){
+		var editCaixa: Caixa = {			
+			ID: this.caixa.ID,
+			TipoDeVinho_ID: form.tipoVinho,
+			Material: form.material,
+			NGarrafas: form.garrafas,
+			Stock: this.caixa.Stock,
+			CapacidadeGarrafa: form.capacidade
+		}
+		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + editCaixa.Stock)){
+			this.editCaixa(editCaixa);
 			alert("O modelo de caixa foi editado com sucesso!");
-			this.router.navigate(['/admin/caixas']);
 		}		
 	}
 
@@ -86,55 +141,10 @@ export class EditarCaixaAdminComponent implements OnInit {
 
 	// Coloca a form com os dados pre-selecionados
 	resetForm(caixa: Caixa){
-		this.CaixaForm.controls['capacidade'].setValue(caixa.capacidade);
-		this.CaixaForm.controls['material'].setValue(caixa.material);
-		this.CaixaForm.controls['garrafas'].setValue(caixa.garrafas);
-		this.CaixaForm.controls['tipoVinho'].setValue(caixa.tipoVinho);
+		this.CaixaForm.controls['capacidade'].setValue(caixa.CapacidadeGarrafa);
+		this.CaixaForm.controls['material'].setValue(caixa.Material);
+		this.CaixaForm.controls['garrafas'].setValue(caixa.NGarrafas);
+		this.CaixaForm.controls['tipoVinho'].setValue(caixa.TipoDeVinho_ID);
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaCaixas(){
-		this.caixas = [{
-			id: 1,
-			capacidade: 1.000,
-			garrafas: 3,
-			material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-			id: 2,
-			capacidade: 0.750,
-			garrafas: 12,
-			material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];
-	}
 }

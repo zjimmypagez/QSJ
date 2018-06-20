@@ -203,8 +203,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	caixaPreenchida(linhaAtual): number{
 		var soma: number = 0;
 		var idCaixa: number = linhaAtual.get('caixa').value;
-		var caixa: Caixa = this.caixas.find(x => x.id == idCaixa);
-		var garrafas: number = caixa.garrafas;
+		var caixa: Caixa = this.caixas.find(x => x.ID == idCaixa);
+		var garrafas: number = caixa.NGarrafas;
 		const linhaGarrafa = <FormArray>linhaAtual.get('linhaGarrafa');
 		for (let i = 0; i < linhaGarrafa.length; i++) soma += linhaGarrafa.at(i).get('quantidadeGarrafa').value;
 		if (garrafas == soma) return 0;
@@ -237,8 +237,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	onChangeModeloCaixa(index: number){	
 		const linhaCaixa = <FormArray>this.DadosCaixaForm.get('linhaCaixas');
 		var id = linhaCaixa.at(index).get('caixa').value;
-		var modeloCaixa: Caixa = this.caixas.find(x => x.id == id);
-		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.capacidade === modeloCaixa.capacidade);
+		var modeloCaixa: Caixa = this.caixas.find(x => x.ID == id);
+		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.Capacidade === modeloCaixa.CapacidadeGarrafa);
 		this.modeloCapacidadeGarrafa[index] = listaGarrafas;
 		const control = <FormArray>this.DadosCaixaForm.controls['linhaCaixas'];
 		control.at(index).get('garrafa').reset('');
@@ -252,8 +252,8 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		const linhaGarrafa = <FormArray>control.at(index).get('linhaGarrafa');
 		linhaGarrafa.at(0).get('garrafa').setValue('');
 		linhaGarrafa.at(0).get('quantidadeGarrafa').setValue('');
-		var modeloCaixa: Caixa = this.caixas.find(x => x.id == id);
-		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.capacidade == modeloCaixa.capacidade);
+		var modeloCaixa: Caixa = this.caixas.find(x => x.ID == id);
+		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.Capacidade == modeloCaixa.CapacidadeGarrafa);
 		this.modeloCapacidadeGarrafaEspecial[index] = listaGarrafas;
 		for (let i = linhaGarrafa.length; i > 0; i--) linhaGarrafa.removeAt(i);
 	}
@@ -411,7 +411,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 
 	// Dados criados (A ser subsituido pela ligação à BD)
    iniListaCaixas(){
-   	this.caixas = [{
+   	/*this.caixas = [{
       	id: 1,
          capacidade: 1.000,
          garrafas: 3,
@@ -426,12 +426,12 @@ export class InserirEncomendaFuncComponent implements OnInit {
          material: 'Cartão',
 			tipoVinho: 2,
 			quantidade: 50
-      }];
+      }];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaGarrafas(){
-		this.garrafas = [{
+		/*this.garrafas = [{
 			id: 1,
 			cuba: 5000,
 			ano: 2004,
@@ -457,12 +457,12 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			capacidade: 1.000,
 			cRotulo: 1500,
 			sRotulo: 0
-		}];
+		}];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)
 	iniListaVinhos(){
-		this.vinhos = [{
+		/*this.vinhos = [{
 			id: 1,
 			marca: 'Flor São José',
 			tipo: 'Verde',
@@ -479,7 +479,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			marca: 'Quinta São José',
 			tipo: 'Tinto',
 			categoria: ''
-		}];
+		}];*/
 	}
 
 	// Dados criados (A ser subsituido pela ligação à BD)

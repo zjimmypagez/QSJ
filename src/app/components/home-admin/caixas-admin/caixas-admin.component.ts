@@ -1,19 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Caixa } from '../../../interfaces/caixa';
+import { Caixa, CaixaEVinho } from '../../../interfaces/caixa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
+
+import { CaixaServiceService } from '../../../services/caixa/caixa-service.service';
+import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
 
 @Component({
    selector: 'app-caixas-admin',
    templateUrl: './caixas-admin.component.html',
    styleUrls: ['./caixas-admin.component.css']
 })
-export class CaixasAdminComponent implements OnInit {	
+export class CaixasAdminComponent implements OnInit, OnDestroy {	
 	FiltroForm: FormGroup;	
 	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
@@ -23,15 +28,17 @@ export class CaixasAdminComponent implements OnInit {
 	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;	
 	// Tabela auxiliar no processo de filtragem
-	tabelaFiltro: tableCaixa[] = [];
+	caixasEVinhosFiltro: CaixaEVinho[] = [];
 	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
-	// Lista de modelos de vinho a ler da BD
+	caixasEVinhos: CaixaEVinho[] = [];
+	// Lista auxiliar total de caixas a ler da BD
+	caixasEVinhosAux: CaixaEVinho[];
+	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[];
-	// Tabela interligada entre caixas e vinhos
-	tabelaCaixas: tableCaixa[];	
 
-   constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
+	private subs: Subscription;	
+
+   constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService, private caixaService: CaixaServiceService, private vinhoService: VinhoServiceService ) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'material': [0, ],
@@ -42,11 +49,44 @@ export class CaixasAdminComponent implements OnInit {
 	}
 
 	ngOnInit(){
-	  this.iniListaCaixas();
-	  this.iniListaVinhos();
-	  this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-	  this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
-   }
+		this.getVinhos();
+		this.getCaixasEVinhos();
+	}
+	
+	ngOnDestroy(){
+		this.subs.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subs = this.vinhoService.getVinhos().subscribe(
+			(data: TipoVinho[]) => { this.vinhos = data },
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes da BD
+	getCaixasEVinhos(){
+		this.subs = this.caixaService.getCaixasEVinhos().subscribe(
+			(data: CaixaEVinho[]) => { this.caixasEVinhos = data, this.caixasEVinhosAux = data },
+			err => console.error(err)
+		);
+	}
+
+	// Eliminar caixa por Id e recarregamento dos dados de todos as caixas provenientes da BD
+	deleteCaixaById(id: number){
+		this.subs = this.caixaService.deleteCaixaById(id).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				this.getCaixasEVinhos();
+				this.getVinhos();
+			}
+		);		
+	}
 
 	// Função responsável por selecionar o modelo de caixa a ser editado
    editarCaixa(id: number){
@@ -56,14 +96,15 @@ export class CaixasAdminComponent implements OnInit {
 	// Função responsável por eliminar o modelo de caixa selecionado
 	eliminarCaixa(id: number){
 		// Caixa selecionada
-		var caixa: Caixa = this.caixas.find(x => x.id == id)
-		if (caixa.quantidade == 0){
+		var caixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == id);
+		if (caixa.Stock == 0){
 			if (confirm("Quer mesmo eliminar este modelo?")){
+				this.deleteCaixaById(id);
 				alert("O modelo de caixa foi eliminado com sucesso!");
 				this.router.navigate(['/admin/caixas']);
 			}
 		}
-		else alert("O modelo de caixa que pretende eliminar existe, em stock, no armazém. [STOCK] = " + caixa.quantidade);
+		else alert("O modelo de caixa que pretende eliminar existe, em stock, no armazém. [STOCK] = " + caixa.Stock);
 	}
 
 	// Pesquisa a um determinada marca
@@ -71,15 +112,15 @@ export class CaixasAdminComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
-				if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+				if (this.caixasEVinhosFiltro.length != 0) this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhosFiltro, marca);
+				else this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
 			}
 			else{
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+				this.reloadCaixasEVinhos();
+				this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
 			} 													
-			if (this.tabelaCaixas.length == 0){
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			if (this.caixasEVinhos.length == 0){
+				this.reloadCaixasEVinhos();
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
@@ -89,25 +130,25 @@ export class CaixasAdminComponent implements OnInit {
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
+		this.reloadCaixasEVinhos();
+		if (filtro.marca != "") this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
-			this.tabelaCaixas = this.tabelaFiltro;
-			if (this.tabelaCaixas.length == 0) this.estadoTabela = false;
+			this.caixasEVinhosFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.caixasEVinhos);
+			this.caixasEVinhos = this.caixasEVinhosFiltro;
+			if (this.caixasEVinhos.length == 0) this.estadoTabela = false;
 			else this.estadoTabela = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
-			else this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-			this.tabelaFiltro = [];
+			if (filtro.marca != "") this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);
+			else this.reloadCaixasEVinhos();
+			this.caixasEVinhosFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
 
 	// Limpar pesquisa
 	clearTabela(){
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.reloadCaixasEVinhos();
 		this.estadoTabela = true;
 		this.clearForm();
 	}
@@ -121,58 +162,10 @@ export class CaixasAdminComponent implements OnInit {
 		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
-   // Dados criados (A ser subsituido pela ligação à BD)
-   iniListaCaixas(){
-   	this.caixas = [{
-      	id: 1,
-         capacidade: 1.000,
-         garrafas: 3,
-         material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-         id: 2,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];
-	}
-	
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];
+	// Recarregamento de todos as caixas
+	reloadCaixasEVinhos(){
+		this.caixasEVinhos = [];
+		this.caixasEVinhos = this.caixasEVinhosAux;
 	}
 
-}
-
-// Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 
-interface tableCaixa{
-	id: number,
-   capacidade: number,
-   garrafas: number,
-   material: string,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-	quantidade: number
 }

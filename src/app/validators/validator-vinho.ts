@@ -10,7 +10,7 @@ export function ValidatorVinho(vinhos: TipoVinho[]): ValidatorFn{
         const categoria = control.get('categoria').value;
         var existe: boolean = false;
         for (let i = 0; i < vinhos.length; i++){
-            if (vinhos[i].marca.toUpperCase() == marca.toUpperCase() && vinhos[i].tipo == tipo && vinhos[i].categoria.toUpperCase() == categoria.toUpperCase()) existe = true;  
+            if (vinhos[i].Marca.toUpperCase() == marca.toUpperCase() && vinhos[i].Tipo == tipo && vinhos[i].Categoria.toUpperCase() == categoria.toUpperCase()) existe = true;  
         }
         if (existe) return { 'ValidatorExisteVinho': true };        
         return null;

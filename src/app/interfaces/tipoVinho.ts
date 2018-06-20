@@ -1,6 +1,13 @@
 export interface TipoVinho {
-    id: number,
-    marca: string,
-    tipo: string,
-    categoria: string
+   ID: number,
+   Marca: string,
+   Tipo: string,
+   Categoria: string
+}
+
+// Interface TipoVinho para ser diretamente inserida na BD - Id automatico e responsável á BD
+export interface TipoVinhoSId {
+   Marca: string,
+   Tipo: string,
+   Categoria: string
 }
