@@ -31,11 +31,19 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 	// Lista de modelos de caixa a ler da BD
 	garrafas: Garrafa[] = [];
 	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
+	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;
+	private subGarrafas: Subscription;
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService, private vinhoService: VinhoServiceService, private garrafaService: GarrafaServiceService ) { }
+	constructor( 
+		private route: ActivatedRoute, 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private ordenarTableService: OrdenarTablesService, 
+		private vinhoService: VinhoServiceService, 
+		private garrafaService: GarrafaServiceService 
+	) { }
 
 	ngOnInit() {
 		// Subscrição dos parametros do modelo da garrafa escolhido para editar		
@@ -48,14 +56,16 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.sub.unsubscribe();
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subGarrafas.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
@@ -65,8 +75,10 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
 	getGarrafas(){
-		this.subs = this.garrafaService.getGarrafas().subscribe(
-			(data: Garrafa[]) => { this.garrafas = data },
+		this.subGarrafas = this.garrafaService.getGarrafas().subscribe(
+			data => { 
+				this.garrafas = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniGarrafaForm();
@@ -77,11 +89,14 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 
 	// Editar uma garrafa selecionada
 	editGarrafa(editGarrafa){
-		this.subs = this.garrafaService.editGarrafa(editGarrafa).subscribe(
+		const editGarrafas = this.garrafaService.editGarrafa(editGarrafa).subscribe(
 			data => data,
 			err => console.error(err),
-			() => {				
-				this.router.navigate(['/admin/garrafas']);
+			() => {
+				setTimeout(() => {
+					alert("O modelo de garrafa foi editado com sucesso!");				
+					this.router.navigate(['/admin/garrafas']);					
+				}, 1000);
 			}
 		);
 	}
@@ -99,7 +114,9 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
-			}, { validator: ValidatorModelo(this.garrafas) }
+			}, { 
+				validator: ValidatorModelo(this.garrafas) 
+			}
 		);
 	}
 
@@ -115,10 +132,7 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 			SRotulo: this.garrafa.SRotulo
 		}
 		var qnt: number = editGarrafa.CRotulo + editGarrafa.SRotulo;
-		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " +  qnt)){
-			this.editGarrafa(editGarrafa);
-			alert("O modelo de garrafa foi editado com sucesso!");
-		}	
+		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " +  qnt)) this.editGarrafa(editGarrafa);	
 	}
 
 	// Reset dos dados da form

@@ -18,8 +18,8 @@ export class UserServiceService {
 	constructor( private http: HttpClient ){}
 	
 	// Carregar todos os utilizadores
-	getUsers(): Observable<any>{
-		return this.http.get(this.apiName);
+	getUsers(): Observable<User[]>{
+		return this.http.get<User[]>(this.apiName);
 	}
 		
 	// Inserir um novo utilizador

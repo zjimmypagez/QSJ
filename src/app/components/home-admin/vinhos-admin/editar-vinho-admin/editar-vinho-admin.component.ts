@@ -31,13 +31,22 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
   	// Lista de tipos de vinho a ler da BD
 	vinhos: TipoVinho[] = [];
 	// Lista de modelos caixa a ler da BD
-	caixas: Caixa[];
+	caixas: Caixa[] = [];
 	// Lista de modelos garrafa a ler da BD
-	garrafas: Garrafa[];
+	garrafas: Garrafa[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;
+	private subCaixas: Subscription;
+	private subGarrafas: Subscription;
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private vinhoService: VinhoServiceService, private caixaService: CaixaServiceService, private garrafaService: GarrafaServiceService ) { }
+	constructor( 
+		private route: ActivatedRoute, 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private vinhoService: VinhoServiceService, 
+		private caixaService: CaixaServiceService, 
+		private garrafaService: GarrafaServiceService 
+	) { }
 
 	ngOnInit() {
 		// Subscrição dos parametros do vinho escolhido para editar
@@ -51,14 +60,29 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.sub.unsubscribe();
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subCaixas.unsubscribe();
+		this.subGarrafas.unsubscribe();
+	}
+
+	// Inicializar o objeto form VinhoForm
+	iniVinhoForm(){
+		this.VinhoForm = this.fb.group({
+			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
+			'tipo': ['', Validators.required],
+			'categoria': ['', Validators.minLength(5)]
+			}, { 
+				validator: ValidatorVinho(this.vinhos) 
+			}
+		);
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			data => this.vinhos = data,
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => {
+				this.vinhos = data
+			},
 			err => console.error(err),
 			() => {
 				this.iniVinhoForm();
@@ -69,27 +93,34 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
 	getCaixas(){
-		this.subs = this.caixaService.getCaixas().subscribe(
-			(data: Caixa[]) => { this.caixas = data },
+		this.subCaixas = this.caixaService.getCaixas().subscribe(
+			data => { 
+				this.caixas = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
 	getGarrafas(){
-		this.subs = this.garrafaService.getGarrafas().subscribe(
-			(data: Garrafa[]) => { this.garrafas = data },
+		this.subGarrafas = this.garrafaService.getGarrafas().subscribe(
+			data => { 
+				this.garrafas = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Editar um utilizador selecionado
 	editVinho(editVinho){
-		this.subs = this.vinhoService.editVinho(editVinho).subscribe(
+		const editVinhos = this.vinhoService.editVinho(editVinho).subscribe(
 			data => data,
 			err => console.error(err),
-			() => {				
-				this.router.navigate(['/admin/vinhos']);
+			() => {
+				setTimeout(() => {
+					alert("O tipo de vinho foi editado com sucesso!");			
+					this.router.navigate(['/admin/vinhos']);					
+				}, 1000);	
 			}
 		);
 	}
@@ -98,16 +129,6 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
 	getSelectedVinho(){
 		this.vinho = this.vinhos.find(x => x.ID == this.id);
 		this.resetForm(this.vinho);
-	}
-
-	// Inicializar o objeto form VinhoForm
-	iniVinhoForm(){
-		this.VinhoForm = this.fb.group({
-			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
-			'tipo': ['', Validators.required],
-			'categoria': ['', Validators.minLength(5)]
-			}, { validator: ValidatorVinho(this.vinhos) }
-		);
 	}
 
 	// Editar o vinho após verificações
@@ -122,31 +143,22 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
 		var caixasComIdVinho: Caixa[] = this.caixas.filter(x => x.TipoDeVinho_ID == this.vinho.ID);
 		// Array com garrafas com o tipo de vinho selecionado
 		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.TipoDeVinho_ID == this.vinho.ID);
-		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0) {
-			this.editVinho(editVinho);
-			alert("O tipo de vinho foi editado com sucesso!");
-		}
+		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0) this.editVinho(editVinho);
 		else{
 			if (caixasComIdVinho.length != 0 && garrafasComIdVinho.length != 0){
-				if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas e caixas. Pretende editá-lo mesmo assim?")){
+				if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas e caixas. Pretende editá-lo mesmo assim?"))
 					this.editVinho(editVinho);
-					alert("O tipo de vinho foi editado com sucesso!");
-				}
 				else this.clearDados();
 			}
 			else{
 				if (caixasComIdVinho.length != 0){
-					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em caixas. Pretende editá-lo mesmo assim?")){
+					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em caixas. Pretende editá-lo mesmo assim?"))
 						this.editVinho(editVinho);
-						alert("O tipo de vinho foi editado com sucesso!");
-					}
 					else this.clearDados();
 				} 
 				else{
-					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas. Pretende editá-lo mesmo assim?")){
+					if (confirm("Este vinho, que quer editar, está a ser utilizado como stock em garrafas. Pretende editá-lo mesmo assim?"))
 						this.editVinho(editVinho);
-						alert("O tipo de vinho foi editado com sucesso!");
-					}
 					else this.clearDados();
 				}
 			}

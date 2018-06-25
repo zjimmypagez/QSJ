@@ -25,7 +25,7 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
   	// Lista de utilizadores a ler da BD
 	users: User[] = [];
 
-	private subs: Subscription;
+	private subUser: Subscription;
 
   	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private userService: UserServiceService ) { }
 
@@ -38,14 +38,15 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.sub.unsubscribe();
-		this.subs.unsubscribe();
+		this.subUser.unsubscribe();
 	}
 
 	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
 	getUsers(){
-		this.subs = this.userService.getUsers().subscribe(
-			data => this.users = data,
+		this.subUser = this.userService.getUsers().subscribe(
+			data => {
+				this.users = data
+			},
 			err => console.error(err),
 			() => {
 				this.iniUserForm();
@@ -56,11 +57,14 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 
 	// Editar um utilizador selecionado
 	editUser(editUser){
-		this.subs = this.userService.editUser(editUser).subscribe(
+		const editUsers = this.userService.editUser(editUser).subscribe(
 			data => data,
 			err => console.error(err),
-			() => {				
-				this.router.navigate(['/admin/contas']);
+			() => {
+				setTimeout(() => {
+					alert("O Utilizador foi editado com sucesso!");
+					this.router.navigate(['/admin/contas']);					
+				}, 1000);				
 			}
 		);
 	}
@@ -78,7 +82,11 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 			'username': ['', [Validators.required, Validators.minLength(5)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]],
 			'cPassword': ['', [Validators.required, Validators.minLength(5)]]
-			}, { validator: [ ValidatorPassword(), ValidatorEditar(this.users, this.id) ] }
+			}, { 
+				validator: [ 
+					ValidatorPassword(), 
+					ValidatorEditar(this.users, this.id) 
+				]}
 		);
 	}
 
@@ -92,7 +100,6 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 			TipoUtilizador: this.user.TipoUtilizador
 		}
 		this.editUser(editUser);
-		alert("O Utilizador " + editUser.Username + " foi editado com sucesso!");
 	}
 
 	// Reset dos dados da form

@@ -27,7 +27,7 @@
 			<h4>Categoria</h4>
 			<input type="text" formControlName="categoria" placeholder="Insira aqui a categoria do vinho...">
 		</div>
-		<div class="alerta" *ngIf="VinhoForm.controls['categoria'].hasError('minlength') && VinhoForm.controls['categoria'].touched">
+		<div class="alerta" *ngIf="VinhoForm.controls['categoria'].hasError('minlength')">
 			Mín. 5 caracteres
 		</div>
 		<br>		

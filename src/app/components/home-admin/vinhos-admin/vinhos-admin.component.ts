@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Observable } from "rxjs/observable";
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from "rxjs/Subscription";
 
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 import { Caixa } from '../../../interfaces/caixa';
@@ -33,15 +33,25 @@ export class VinhosAdminComponent implements OnInit, OnDestroy {
 	// Lista de tipos de vinho a ler da BD
 	vinhos: TipoVinho[] = [];
 	// Lista auxiliar total de vinhos a ler da BD
-	vinhosAux: TipoVinho[];
+	vinhosAux: TipoVinho[] = [];
 	// Lista de modelos caixa a ler da BD
-	caixas: Caixa[];
+	caixas: Caixa[] = [];
 	// Lista de modelos garrafa a ler da BD
-	garrafas: Garrafa[];
+	garrafas: Garrafa[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;
+	private subCaixas: Subscription;
+	private subGarrafas: Subscription;
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private ordenarService: OrdenarTablesService, private vinhoService: VinhoServiceService, private caixaService: CaixaServiceService, private garrafaService: GarrafaServiceService ) { 
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService, 
+		private ordenarService: OrdenarTablesService, 
+		private vinhoService: VinhoServiceService, 
+		private caixaService: CaixaServiceService, 
+		private garrafaService: GarrafaServiceService 
+	) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'tipoVinho': [0, ],
@@ -56,13 +66,18 @@ export class VinhosAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subCaixas.unsubscribe();
+		this.subGarrafas.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data, this.vinhosAux = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data;
+				this.vinhosAux = data 
+			},
 			err => console.error(err),
 			() => {
 				// Ordenar o array após a leitura dos dados a partir da BD
@@ -75,29 +90,36 @@ export class VinhosAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
 	getCaixas(){
-		this.subs = this.caixaService.getCaixas().subscribe(
-			(data: Caixa[]) => { this.caixas = data },
+		this.subCaixas = this.caixaService.getCaixas().subscribe(
+			data => { 
+				this.caixas = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
 	getGarrafas(){
-		this.subs = this.garrafaService.getGarrafas().subscribe(
-			(data: Garrafa[]) => { this.garrafas = data },
+		this.subGarrafas = this.garrafaService.getGarrafas().subscribe(
+			data => { 
+				this.garrafas = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Eliminar vinho por Id e recarregamento dos dados de todos os vinhos provenientes da BD
 	deleteVinhoById(id: number){
-		this.subs = this.vinhoService.deleteVinhoById(id).subscribe(
+		const deleteVinho = this.vinhoService.deleteVinhoById(id).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.getVinhos();
-				this.getCaixas();
-				this.getGarrafas();
+				setTimeout(() => {
+					alert("O tipo de vinho foi eliminado com sucesso!");
+					this.getVinhos();
+					this.getCaixas();
+					this.getGarrafas();					
+				}, 1000);
 			}
 		);		
 	}
@@ -114,11 +136,7 @@ export class VinhosAdminComponent implements OnInit, OnDestroy {
 		// Array com garrafas com o tipo de vinho selecionado
 		var garrafasComIdVinho: Garrafa[] = this.garrafas.filter(x => x.TipoDeVinho_ID == id);
 		if (caixasComIdVinho.length == 0 && garrafasComIdVinho.length == 0){
-			if (confirm("Quer mesmo eliminar este tipo de vinho?")){
-				this.deleteVinhoById(id);
-				alert("O tipo de vinho foi eliminado com sucesso!");
-				this.router.navigate(['/admin/vinhos']);
-			}
+			if (confirm("Quer mesmo eliminar este tipo de vinho?")) this.deleteVinhoById(id);
 		}
 		else{
 			if (caixasComIdVinho.length != 0 && garrafasComIdVinho.length != 0) alert("O tipo de vinho que pretende eliminar está em uso, quer em modelos de garrafa quer em modelos de caixa.");

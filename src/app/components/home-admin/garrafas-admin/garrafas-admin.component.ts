@@ -34,11 +34,19 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 	// Lista auxiliar total de garrafas a ler da BD
 	garrafasEVinhosAux: GarrafaEVinho[];
 	// Lista de modelos de caixa a ler da BD
-	vinhos: TipoVinho[];
+	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;	
+	private subVinhos: Subscription;
+	private subGarrafasEVinhos: Subscription;
 
-  	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService, private vinhoService: VinhoServiceService, private garrafaService: GarrafaServiceService ) { 
+  	constructor( 
+		  private router: Router, 
+		  private fb: FormBuilder, 
+		  private filtroService: FiltrosService, 
+		  private joinTableService: JoinTablesService, 
+		  private vinhoService: VinhoServiceService, 
+		  private garrafaService: GarrafaServiceService 
+		) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'ano': [0, ],
@@ -53,14 +61,17 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 		this.getGarrafasEVinhos();		
 	}
 
-	ngOnDestroy(){
-		this.subs.unsubscribe();
+	ngOnDestroy(){		
+		this.subVinhos.unsubscribe();
+		this.subGarrafasEVinhos.unsubscribe();		
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
@@ -70,8 +81,11 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service GarrafaService e obtenção dos dados de todos as garrafas com a operação JOIN com os vinhos provenientes da BD
 	getGarrafasEVinhos(){
-		this.subs = this.garrafaService.getGarrafasEVinhos().subscribe(
-			(data: GarrafaEVinho[]) => { this.garrafasEVinhos = data, this.garrafasEVinhosAux = data },
+		this.subGarrafasEVinhos = this.garrafaService.getGarrafasEVinhos().subscribe(
+			data => { 
+				this.garrafasEVinhos = data;
+				this.garrafasEVinhosAux = data 
+			},
 			err => console.error(err),
 			() => {
 				this.anos = this.filtroService.iniFiltroAno(this.garrafasEVinhos);
@@ -81,12 +95,15 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 
 	// Eliminar garrafa por Id e recarregamento dos dados de todos as caixas provenientes da BD
 	deleteGarrafaById(id: number){
-		this.subs = this.garrafaService.deleteGarrafaById(id).subscribe(
+		const deleteGarrafa = this.garrafaService.deleteGarrafaById(id).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.getGarrafasEVinhos();
-				this.getVinhos();
+				setTimeout(() => {
+					alert("O modelo de garrafa foi eliminado com sucesso!");
+					this.getGarrafasEVinhos();
+					this.getVinhos();					
+				}, 1000);
 			}
 		);		
 	}
@@ -102,11 +119,7 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 		var garrafa: GarrafaEVinho = this.garrafasEVinhosAux.find(x => x.Id == id);
 		var quantidade: number = garrafa.CRotulo + garrafa.SRotulo;
 		if (quantidade == 0){
-			if (confirm("Quer mesmo eliminar este modelo?")){
-				this.deleteGarrafaById(id);
-				alert("O modelo de garrafa foi eliminado com sucesso!");
-				this.router.navigate(['/admin/garrafas']);
-			}
+			if (confirm("Quer mesmo eliminar este modelo?")) this.deleteGarrafaById(id);
 		}
 		else alert("O modelo de garrafa que pretende eliminar existe, em stock, no armazém. [STOCK TOTAL] = " + quantidade);
 	}

@@ -20,7 +20,7 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 	// Lista de utilizadores a ler da BD
 	users: User[] = [];
 
-	private subs: Subscription;
+	private subUser: Subscription;
 
 	constructor( private router: Router, private fb: FormBuilder, private userService: UserServiceService ) { }
 
@@ -30,13 +30,15 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subUser.unsubscribe();
 	}
 
 	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
 	getUsers(){
-		this.subs = this.userService.getUsers().subscribe(
-			data => { this.users = data },
+		this.subUser = this.userService.getUsers().subscribe(
+			data => { 
+				this.users = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniUserForm();
@@ -46,11 +48,14 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 
 	// Inserir novo utilizador
 	createUser(newUser: UserSId){
-		this.subs = this.userService.createUser(newUser).subscribe(
+		const createUsers = this.userService.createUser(newUser).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.router.navigate(['/admin/contas']);
+				setTimeout(() => {
+					alert("O Utilizador foi criado com sucesso!");
+					this.router.navigate(['/admin/contas']);					
+				}, 1000);
 			}
 		);
 	}
@@ -62,7 +67,9 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 			'username': ['', [Validators.required, Validators.minLength(5), ValidatorUsername(this.users)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]],
 			'cPassword': ['', [Validators.required, Validators.minLength(5)]] 
-			}, { validator: ValidatorPassword() }
+			}, { 
+				validator: ValidatorPassword() 
+			}
 		);
 	}
 
@@ -75,7 +82,6 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 			TipoUtilizador: 1
 		}
 		this.createUser(newUser);
-		alert("O Utilizador " + newUser.Username + " foi criado com sucesso!");
 	}
 
 	// Limpa os dados do Formulário

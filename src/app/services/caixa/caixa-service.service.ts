@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs/Observable";
 import "rxjs/Rx";
 
-import { CaixaSIdStock, Caixa } from '../../interfaces/caixa';
+import { CaixaSIdStock, Caixa, CaixaEVinho } from '../../interfaces/caixa';
 
 const httpOptions = {
 	headers: new HttpHeaders({
@@ -18,13 +18,13 @@ export class CaixaServiceService {
 	constructor( private http: HttpClient ){}
 
 	// Carregar caixas 
-	getCaixas(){
-		return this.http.get(this.apiName);
+	getCaixas(): Observable<Caixa[]>{
+		return this.http.get<Caixa[]>(this.apiName);
 	}
 
 	// Carregar caixas + vinhos - JOIN
-	getCaixasEVinhos(){
-		return this.http.get(this.apiName + 'Vinho');
+	getCaixasEVinhos(): Observable<CaixaEVinho[]>{
+		return this.http.get<CaixaEVinho[]>(this.apiName + 'Vinho');
 	}
 		
 	// Inserir uma nova caixa

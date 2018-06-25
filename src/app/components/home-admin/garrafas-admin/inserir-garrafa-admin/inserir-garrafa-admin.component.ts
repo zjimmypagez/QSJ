@@ -28,9 +28,16 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;
+	private subGarrafas: Subscription;
 
-	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService, private vinhoService: VinhoServiceService, private garrafaService: GarrafaServiceService ) { }
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private ordenarTableService: OrdenarTablesService, 
+		private vinhoService: VinhoServiceService, 
+		private garrafaService: GarrafaServiceService 
+	) { }
 
 	ngOnInit() {
 		this.getVinhos();
@@ -39,13 +46,16 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subGarrafas.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
@@ -55,8 +65,10 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
 	getGarrafas(){
-		this.subs = this.garrafaService.getGarrafas().subscribe(
-			(data: Garrafa[]) => { this.garrafas = data },
+		this.subGarrafas = this.garrafaService.getGarrafas().subscribe(
+			data => { 
+				this.garrafas = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniGarrafaForm();
@@ -66,11 +78,14 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 
 	// Inserir nova garrafa
 	createGarrafa(newGarrafa: GarrafaSIdCSRotulo){
-		this.subs = this.garrafaService.createGarrafa(newGarrafa).subscribe(
+		const createGarrafas = this.garrafaService.createGarrafa(newGarrafa).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.router.navigate(['/admin/garrafas']);
+				setTimeout(() => {
+					alert("O modelo de garrafa foi criado com sucesso!");
+					this.router.navigate(['/admin/garrafas']);					
+				}, 1000);
 			}
 		);
 	}
@@ -82,7 +97,9 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
-		}, { validator: ValidatorModelo(this.garrafas) }
+			}, { 
+				validator: ValidatorModelo(this.garrafas) 
+			}
 		);
 	}
 
@@ -95,7 +112,6 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 			Capacidade: form.capacidade
 		}
 		this.createGarrafa(newGarrafa);
-		alert("O modelo de garrafa foi criado com sucesso!");
 	}
 
 	// Limpa os dados do Formulário

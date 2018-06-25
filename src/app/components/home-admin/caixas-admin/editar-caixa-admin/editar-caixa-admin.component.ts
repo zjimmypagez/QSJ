@@ -34,9 +34,10 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 	// Lista de modelos de caixa a ler da BD
 	caixas: Caixa[] = [];
 	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
+	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;	
+	private subCaixas: Subscription;	
 
 	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService, private caixaService: CaixaServiceService, private vinhoService: VinhoServiceService ) { }
 
@@ -51,14 +52,16 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.sub.unsubscribe();
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subCaixas.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
@@ -68,8 +71,10 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
 	getCaixas(){
-		this.subs = this.caixaService.getCaixas().subscribe(
-			(data: Caixa[]) => { this.caixas = data },
+		this.subCaixas = this.caixaService.getCaixas().subscribe(
+			data => { 
+				this.caixas = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniCaixaForm();
@@ -80,11 +85,14 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 
 	// Editar uma caixa selecionada
 	editCaixa(editCaixa){
-		this.subs = this.caixaService.editCaixa(editCaixa).subscribe(
+		const editCaixas = this.caixaService.editCaixa(editCaixa).subscribe(
 			data => data,
 			err => console.error(err),
-			() => {				
-				this.router.navigate(['/admin/caixas'])
+			() => {		
+				setTimeout(() => {
+					alert("O modelo de caixa foi editado com sucesso!");	
+					this.router.navigate(['/admin/caixas']);					
+				}, 1000);	
 			}
 		);
 	}
@@ -103,7 +111,9 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 			'material': ['', Validators.required],
 			'garrafas': ['', Validators.required],
 			'tipoVinho': ['', Validators.required]
-			}, { validator: ValidatorModelo(this.caixas) }
+			}, { 
+				validator: ValidatorModelo(this.caixas) 
+			}
 		);
 	}
 
@@ -117,10 +127,7 @@ export class EditarCaixaAdminComponent implements OnInit, OnDestroy {
 			Stock: this.caixa.Stock,
 			CapacidadeGarrafa: form.capacidade
 		}
-		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + editCaixa.Stock)){
-			this.editCaixa(editCaixa);
-			alert("O modelo de caixa foi editado com sucesso!");
-		}		
+		if (confirm("Tem a certeza que pretende editar as características deste modelo? [Quantidade em stock] = " + editCaixa.Stock)) this.editCaixa(editCaixa);	
 	}
 
 	// Reset dos dados da form

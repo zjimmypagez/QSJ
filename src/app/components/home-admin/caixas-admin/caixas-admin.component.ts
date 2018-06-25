@@ -34,11 +34,19 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 	// Lista auxiliar total de caixas a ler da BD
 	caixasEVinhosAux: CaixaEVinho[];
 	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
+	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;	
+	private subVinhos: Subscription;	
+	private subCaixasEVinhos: Subscription;	
 
-   constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService, private caixaService: CaixaServiceService, private vinhoService: VinhoServiceService ) { 
+   constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService, 
+		private joinTableService: JoinTablesService, 
+		private caixaService: CaixaServiceService,
+		private vinhoService: VinhoServiceService 
+	) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'material': [0, ],
@@ -54,13 +62,16 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 	}
 	
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subCaixasEVinhos.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
@@ -70,20 +81,26 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes da BD
 	getCaixasEVinhos(){
-		this.subs = this.caixaService.getCaixasEVinhos().subscribe(
-			(data: CaixaEVinho[]) => { this.caixasEVinhos = data, this.caixasEVinhosAux = data },
+		this.subCaixasEVinhos = this.caixaService.getCaixasEVinhos().subscribe(
+			data => { 
+				this.caixasEVinhos = data; 
+				this.caixasEVinhosAux = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Eliminar caixa por Id e recarregamento dos dados de todos as caixas provenientes da BD
 	deleteCaixaById(id: number){
-		this.subs = this.caixaService.deleteCaixaById(id).subscribe(
+		const deleteCaixa = this.caixaService.deleteCaixaById(id).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.getCaixasEVinhos();
-				this.getVinhos();
+				setTimeout(() => {
+					alert("O modelo de caixa foi eliminado com sucesso!");
+					this.getCaixasEVinhos();
+					this.getVinhos();					
+				}, 1000);
 			}
 		);		
 	}
@@ -98,11 +115,7 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 		// Caixa selecionada
 		var caixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == id);
 		if (caixa.Stock == 0){
-			if (confirm("Quer mesmo eliminar este modelo?")){
-				this.deleteCaixaById(id);
-				alert("O modelo de caixa foi eliminado com sucesso!");
-				this.router.navigate(['/admin/caixas']);
-			}
+			if (confirm("Quer mesmo eliminar este modelo?")) this.deleteCaixaById(id);
 		}
 		else alert("O modelo de caixa que pretende eliminar existe, em stock, no armazém. [STOCK] = " + caixa.Stock);
 	}

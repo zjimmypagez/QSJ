@@ -18,8 +18,8 @@ export class VinhoServiceService {
   	constructor( private http: HttpClient ){}
 
 	// Carregar todos os vinhos
-	getVinhos(): Observable<any>{
-		return this.http.get(this.apiName);
+	getVinhos(): Observable<TipoVinho[]>{
+		return this.http.get<TipoVinho[]>(this.apiName);
 	}
 		
 	// Inserir um novo vinho

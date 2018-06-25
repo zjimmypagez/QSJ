@@ -22,9 +22,13 @@ export class InserirVinhoAdminComponent implements OnInit, OnDestroy {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;
 
-	constructor( private router: Router, private fb: FormBuilder, private vinhoService: VinhoServiceService ) { }
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private vinhoService: VinhoServiceService 
+	) { }
 
 	ngOnInit() {
 		this.getVinhos();
@@ -32,13 +36,27 @@ export class InserirVinhoAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+	}
+
+	// Inicializar o objeto form VinhoForm
+	iniVinhoForm(){
+		this.VinhoForm = this.fb.group({
+			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
+			'tipo': ['', Validators.required],
+			'categoria': ['', Validators.minLength(5)]
+			}, { 
+				validator: ValidatorVinho(this.vinhos) 
+			}
+		);
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniVinhoForm();
@@ -48,22 +66,15 @@ export class InserirVinhoAdminComponent implements OnInit, OnDestroy {
 
 	// Inserir novo utilizador
 	createVinho(newVinho: TipoVinhoSId){
-		this.subs = this.vinhoService.createVinho(newVinho).subscribe(
+		const createVinho = this.vinhoService.createVinho(newVinho).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.router.navigate(['/admin/vinhos']);
+				setTimeout(() => {
+					alert("O tipo de vinho foi criado com sucesso!");
+					this.router.navigate(['/admin/vinhos']);					
+				}, 1000);
 			}
-		);
-	}
-
-	// Inicializar o objeto form VinhoForm
-	iniVinhoForm(){
-		this.VinhoForm = this.fb.group({
-			'marca': ['', Validators.compose([Validators.required, Validators.minLength(5)])],
-			'tipo': ['', Validators.required],
-			'categoria': ['', Validators.minLength(5)]
-			}, { validator: ValidatorVinho(this.vinhos) }
 		);
 	}
 
@@ -75,7 +86,6 @@ export class InserirVinhoAdminComponent implements OnInit, OnDestroy {
 			Categoria: form.categoria
 		}
 		this.createVinho(newVinho);
-		alert("O tipo de vinho foi criado com sucesso!");
 	}
 
 	// Limpa os dados do Formulário

@@ -31,7 +31,8 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 	// Lista de vinhos a ler da BD
 	vinhos: TipoVinho[] = [];
 
-	private subs: Subscription;
+	private subVinhos: Subscription;	
+	private subCaixas: Subscription;	
 
 	constructor( private router: Router, private fb: FormBuilder, private ordenarTableService: OrdenarTablesService, private caixaService: CaixaServiceService, private vinhoService: VinhoServiceService ) { }
 
@@ -42,13 +43,16 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subVinhos.unsubscribe();
+		this.subCaixas.unsubscribe();
 	}
 
 	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
 	getVinhos(){
-		this.subs = this.vinhoService.getVinhos().subscribe(
-			(data: TipoVinho[]) => { this.vinhos = data },
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
 			err => console.error(err),
 			() => {
 				this.vinhos = this.ordenarTableService.ordenarTabelaMV(this.vinhos);
@@ -58,8 +62,10 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 
 	// Subcrição do service CaixaService e obtenção dos dados de todas as caixas provenientes da BD
 	getCaixas(){
-		this.subs = this.caixaService.getCaixas().subscribe(
-			(data: Caixa[]) => { this.caixas = data },
+		this.subCaixas = this.caixaService.getCaixas().subscribe(
+			data => { 
+				this.caixas = data 
+			},
 			err => console.error(err),
 			() => {
 				this.iniCaixaForm();
@@ -69,11 +75,14 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 
 	// Inserir nova caixa
 	createCaixa(newCaixa: CaixaSIdStock){
-		this.subs = this.caixaService.createCaixa(newCaixa).subscribe(
+		const createCaixas = this.caixaService.createCaixa(newCaixa).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.router.navigate(['/admin/caixas']);
+				setTimeout(() => {
+					alert("O modelo de caixa foi criado com sucesso!");
+					this.router.navigate(['/admin/caixas']);					
+				}, 1000);
 			}
 		);
 	}
@@ -85,7 +94,9 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 			'material': ['', Validators.required],
 			'garrafas': ['', Validators.required],
 			'tipoVinho': ['', Validators.required]
-			}, { validator: ValidatorModelo(this.caixas) }
+			}, { 
+				validator: ValidatorModelo(this.caixas) 
+			}
 		);
 	}
 
@@ -98,7 +109,6 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 			CapacidadeGarrafa: form.capacidade
 		}
 		this.createCaixa(newCaixa);
-		alert("O modelo de caixa foi criado com sucesso!");
 	}
 
 	// Limpa os dados do Formulário

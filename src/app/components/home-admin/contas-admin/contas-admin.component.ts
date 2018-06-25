@@ -22,7 +22,7 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 	// Lista auxiliar total de utilizadores a ler da BD
 	usersAux: User[];
 
-	private subs: Subscription;
+	private subUser: Subscription;
 
   	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private userService: UserServiceService ) { 
 		this.FiltroForm = fb.group({
@@ -35,24 +35,30 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 	}
 	  
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subUser.unsubscribe();
 	}
 
 	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
 	getUsers(){
-		this.subs = this.userService.getUsers().subscribe(
-			(data: User[]) => { this.users = data, this.usersAux = data },
+		this.subUser = this.userService.getUsers().subscribe(
+			data => { 
+				this.users = data; 
+				this.usersAux = data 
+			},
 			err => console.error(err)
 		);
 	}
 
 	// Eliminar utilizador por Id e recarregamento dos dados de todos os utilizadores provenientes da BD
 	deleteUserById(id: number){
-		this.subs = this.userService.deleteUserById(id).subscribe(
+		const deleteUser = this.userService.deleteUserById(id).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
-				this.getUsers();
+				setTimeout(() => {
+					alert("O utilizador foi eliminado com sucesso!");
+					this.getUsers();					
+				}, 1000);
 			}
 		);		
 	}
@@ -68,11 +74,7 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 		var estadoUser: boolean = true;
 		// Verificar junto dos registo se existem registos feitos por o utilizador a eliminar
 		if (estadoUser){
-			if (confirm("Quer mesmo eliminar este utilizador?")){
-				this.deleteUserById(id);
-				alert("O utilizador foi eliminado com sucesso!");
-				this.router.navigate(['/admin/contas']);
-			}
+			if (confirm("Quer mesmo eliminar este utilizador?")) this.deleteUserById(id);
 		}
 	}
 
