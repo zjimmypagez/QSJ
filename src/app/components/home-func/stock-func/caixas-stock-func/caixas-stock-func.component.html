@@ -24,7 +24,7 @@
             <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
         </div>
   </form>
-  <div class="main-table" *ngIf="estadoTabela">
+  <div class="main-table" *ngIf="estadoTabela && caixasEVinhos.length > 0">
      <table>
         <tr>
            <th>MARCA</th>
@@ -34,13 +34,13 @@
            <th>CAPACIDADE(/L)</th>
            <th>QUANTIDADE</th>
         </tr>
-        <tr *ngFor="let tabelaCaixa of tabelaCaixas | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
-           <td>{{tabelaCaixa.marca}}</td>
-           <td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
-           <td>{{tabelaCaixa.material}}</td>
-           <td>{{tabelaCaixa.garrafas}}</td>
-           <td>{{tabelaCaixa.capacidade}} l</td>
-           <td>{{tabelaCaixa.quantidade}}</td>
+        <tr *ngFor="let caixas of caixasEVinhos | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
+            <td>{{caixas.Marca}}</td>
+            <td>{{caixas.Tipo}} {{caixas.Categoria != "" ? ' - ' + caixas.Categoria : ''}}</td>
+            <td>{{caixas.Material}}</td>
+            <td>{{caixas.NGarrafas}}</td>
+            <td>{{caixas.CapacidadeGarrafa}} l</td>
+            <td>{{caixas.Stock}}</td>
         </tr>      
      </table>
   </div>
@@ -48,7 +48,10 @@
       <pagination-controls class="pagination" id="caixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>
       <h4>Quantidade: {{totalCaixas}}</h4>
   </div>
-  <div *ngIf="!estadoTabela" style="text-align: center;">
+  <div *ngIf="caixasEVinhos.length == 0" style="text-align: center;">
+    <h2 style="color: #8B0000;">Não existem modelos de caixa no sistema!</h2>
+</div>
+  <div *ngIf="!estadoTabela  && caixasEVinhos.length > 0" style="text-align: center;">
       <h2 style="color: #8B0000;">Não foram encontrados nenhuns modelos de caixa com o filtro selecionado!</h2>
   </div>
 </div>   

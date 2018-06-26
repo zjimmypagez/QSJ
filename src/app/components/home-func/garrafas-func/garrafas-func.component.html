@@ -29,7 +29,7 @@
       </div>
     </div>
   </form>
-  <div class="main-table" *ngIf="estadoTabela">
+  <div class="main-table" *ngIf="estadoTabela && garrafaVinhoRegistoEUser.length > 0">
      <table>
         <tr>
           <th>LOTE</th>
@@ -41,26 +41,28 @@
           <th>S/ROTULO</th>
           <th>AÇÕES</th>
         </tr>
-        <tr *ngFor="let tabelaRegisto of tabelaRegistos | paginate: { id: 'registoGarrafas', itemsPerPage: 10, currentPage: p }">
-          <td>{{tabelaRegisto.lote}}{{tabelaRegisto.cuba != null ? '-' + tabelaRegisto.cuba : ''}}</td>
-          <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td>
-          <td>{{tabelaRegisto.capacidade}} l</td>
-          <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
-          <td>{{tabelaRegisto.comentario}}</td>
-          <td>{{tabelaRegisto.opcao == "Inserir" ? tabelaRegisto.cRotulo : tabelaRegisto.opcao == "Remover" ? '-' + tabelaRegisto.cRotulo : tabelaRegisto.cRotulo}}</td>
-          <td>{{tabelaRegisto.opcao == "Inserir" ? tabelaRegisto.sRotulo : tabelaRegisto.opcao == "Remover" ? '-' + tabelaRegisto.sRotulo : tabelaRegisto.sRotulo + ' R'}}</td>
+        <tr *ngFor="let garrafas of garrafaVinhoRegistoEUser | paginate: { id: 'registoGarrafas', itemsPerPage: 10, currentPage: p }">
+          <td>{{garrafas.Marca}}-{{garrafas.Ano}}{{garrafas.Pipa != null ? '-' + garrafas.Pipa : ''}}</td>
+          <td>{{garrafas.Tipo}} {{garrafas.Categoria != "" ? ' - ' + garrafas.Categoria : ''}}</td>
+          <td>{{garrafas.Capacidade}} l</td>
+          <td>{{garrafas.Data}}</td>
+          <td>{{garrafas.Comentario}}</td>
+          <td>{{garrafas.QTCRotulo}}</td>
+          <td>{{garrafas.QTSRotulo}}</td>
           <td>
             <div class="action-btn">
-                <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
-                <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
+                <a class="btn" (click)="editarRegisto(garrafas.Id)">Editar</a>
+                <a class="btn" (click)="eliminarRegisto(garrafas.Id)">Eliminar</a>
             </div>
           </td>
         </tr>
      </table>
   </div>
   <pagination-controls *ngIf="estadoTabela" class="pagination" id="registoGarrafas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>
-  <br>
-  <div *ngIf="!estadoTabela" style="text-align: center;">
+  <div *ngIf="garrafaVinhoRegistoEUser.length == 0" style="text-align: center;">
+    <h2 style="color: #8B0000;">Não existem modelos de garrafa no sistema!</h2>
+  </div>
+  <div *ngIf="!estadoTabela && garrafaVinhoRegistoEUser.length > 0" style="text-align: center;">
       <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de garrafa com as opções indicadas!</h2>
   </div>
 </div>

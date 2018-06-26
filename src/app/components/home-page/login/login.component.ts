@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs/Subscription';
 import { User } from "../../../interfaces/user";
 
 import { UserServiceService } from "../../../services/user/user-service.service";
+import { AuthService } from '../../../services/auth/auth.service';
 
 @Component({
 	selector: 'app-login',
@@ -16,11 +17,16 @@ import { UserServiceService } from "../../../services/user/user-service.service"
 export class LoginComponent implements OnInit, OnDestroy {
 	LoginForm: FormGroup;
 	// Lista de utilizadores a ler da BD
-	users: User[];
+	users: User[] = [];
 
-	private subs: Subscription;
+	private subUsers: Subscription;
 
-	constructor( private router: Router, private fb: FormBuilder, private userService: UserServiceService ) {
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private userService: UserServiceService,
+		private authService: AuthService 
+	) {
 		this.LoginForm = fb.group({
 			'username': ['', [Validators.required, Validators.minLength(5)]],
 			'password': ['', [Validators.required, Validators.minLength(5)]]
@@ -32,15 +38,44 @@ export class LoginComponent implements OnInit, OnDestroy {
 	}
 
 	ngOnDestroy(){
-		this.subs.unsubscribe();
+		this.subUsers.unsubscribe();
 	}
 
 	// Subcrição do service UserService e obtenção dos dados de todos os utilizadores provenientes da BD
 	getUsers(){
-		this.subs = this.userService.getUsers().subscribe(
-			(data: User[]) => { this.users = data },
+		this.subUsers = this.userService.getUsers().subscribe(
+			data => { 
+				this.users = data 
+			},
+			err => console.error(err)
+		);
+	}
+
+	// Subscrição do service AuthService para autenticação de uma determinada conta admin
+	authLoginAdmin(admin: User){
+		const login = this.authService.login(admin).subscribe(
+			data => data,
 			err => console.error(err),
-			() => console.log("fim de carregamento!")
+			() => {
+				setTimeout(() => {
+					alert("Bem-vindo " + admin.Username + "!");
+					this.router.navigate(['/admin']);
+				}, 500);
+			}
+		);
+	}
+
+	// Subscrição do service AuthService para autenticação de uma determinada conta func
+	authLoginFunc(func: User){
+		const login = this.authService.login(func).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("Bem-vindo " + func.Username + "!");
+					this.router.navigate(['/func']);						
+				}, 500);
+			}
 		);
 	}
 
@@ -50,21 +85,34 @@ export class LoginComponent implements OnInit, OnDestroy {
 		var password: any = form.password;
 		var estadoLogin: boolean = false;		
 		if (username == "admin" && password == "admin"){
+			var userAdmin: User = {
+				Id: 0,
+				Email: '',
+				Username: 'admin',
+				_Password: 'admin',
+				TipoUtilizador: 0
+			}
 			estadoLogin = true;
-			this.router.navigate(['/admin']);
+			this.authLoginAdmin(userAdmin);	
 		}
 		else{
 			for (let i = 0; i < this.users.length; i++){
 				if (username == this.users[i].Username && password == this.users[i]._Password){
+					var userFunc: User = {
+						Id: this.users[i].Id,
+						Email: this.users[i].Email,
+						Username: this.users[i].Username,
+						_Password: this.users[i]._Password,
+						TipoUtilizador: this.users[i].TipoUtilizador
+					}						
 					estadoLogin = true;
-					this.router.navigate(['/func']);
+					this.authLoginFunc(userFunc);				
+				}
+				if (!estadoLogin){
+					this.clearDados();
+					alert("Credenciais incorretas!");
 				}
 			}
-		}		
-		if (estadoLogin) alert("Bem-vindo " + username + "!");
-		else{			
-			this.clearDados();
-			alert("Credenciais incorretas!");
 		}
 	}
 

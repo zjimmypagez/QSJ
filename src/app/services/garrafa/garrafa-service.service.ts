@@ -3,7 +3,7 @@ import { HttpHeaders, HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs/Observable";
 import "rxjs/Rx";
 
-import { GarrafaSIdCSRotulo, Garrafa, GarrafaEVinho } from '../../interfaces/garrafa';
+import { GarrafaSIdCSRotulo, Garrafa, GarrafaEVinho, GarrafaVinhoRegistoEUser } from '../../interfaces/garrafa';
 
 const httpOptions = {
 	headers: new HttpHeaders({
@@ -25,6 +25,11 @@ export class GarrafaServiceService {
 	// Carregar garrafas + vinhos - JOIN
 	getGarrafasEVinhos(): Observable<GarrafaEVinho[]>{
 		return this.http.get<GarrafaEVinho[]>(this.apiName + 'Vinho');
+	}
+
+	// Carregar garrafas + vinhos + registos + utilizador - JOIN
+	getGarrafaVinhoRegistoEUser(): Observable<GarrafaVinhoRegistoEUser[]>{
+		return this.http.get<GarrafaVinhoRegistoEUser[]>(this.apiName + 'VinhoRegisto');
 	}
 		
 	// Inserir uma nova garrafa

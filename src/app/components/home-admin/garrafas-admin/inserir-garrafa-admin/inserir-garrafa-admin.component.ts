@@ -85,7 +85,7 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O modelo de garrafa foi criado com sucesso!");
 					this.router.navigate(['/admin/garrafas']);					
-				}, 1000);
+				}, 500);
 			}
 		);
 	}

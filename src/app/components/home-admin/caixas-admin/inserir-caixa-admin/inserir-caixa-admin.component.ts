@@ -82,7 +82,7 @@ export class InserirCaixaAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O modelo de caixa foi criado com sucesso!");
 					this.router.navigate(['/admin/caixas']);					
-				}, 1000);
+				}, 500);
 			}
 		);
 	}

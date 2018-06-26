@@ -55,7 +55,7 @@ export class InserirContaAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O Utilizador foi criado com sucesso!");
 					this.router.navigate(['/admin/contas']);					
-				}, 1000);
+				}, 500);
 			}
 		);
 	}

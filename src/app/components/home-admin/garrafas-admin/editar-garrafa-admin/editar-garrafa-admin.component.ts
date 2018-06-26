@@ -96,7 +96,7 @@ export class EditarGarrafaAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O modelo de garrafa foi editado com sucesso!");				
 					this.router.navigate(['/admin/garrafas']);					
-				}, 1000);
+				}, 500);
 			}
 		);
 	}

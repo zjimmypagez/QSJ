@@ -37,6 +37,11 @@ import { GarrafasStockFuncComponent } from './components/home-func/stock-func/ga
 import { CaixasStockFuncComponent } from './components/home-func/stock-func/caixas-stock-func/caixas-stock-func.component';
 import { VerEncomendaFuncComponent } from './components/home-func/encomendas-func/ver-encomenda-func/ver-encomenda-func.component';
 
+// Service Guards
+import { AuthGuardsAdminService } from './guards/auth-guards-admin.service';
+import { AuthGuardsFuncService } from './guards/auth-guards-func.service';
+import { AuthGuardsHomeService } from './guards/auth-guards-home.service';
+
 const appRoutes: Routes = [
    {
 		path: '',
@@ -44,7 +49,8 @@ const appRoutes: Routes = [
 		children: [
 			{ path: 'login', component: LoginComponent },
 			{ path: 'recuperar', component: RecuperarComponent }
-		]
+		],
+		canActivate: [ AuthGuardsHomeService ]
 	},
 	{
 		path: 'admin',
@@ -62,7 +68,8 @@ const appRoutes: Routes = [
 			{ path: 'vinhos', component: VinhosAdminComponent },
 			{ path: 'vinhos/inserir', component: InserirVinhoAdminComponent },
 			{ path: 'vinhos/editar/:id', component: EditarVinhoAdminComponent }
-		]
+		],
+		canActivate: [ AuthGuardsAdminService ]
 	},
 	{
 		path: 'func',
@@ -81,7 +88,8 @@ const appRoutes: Routes = [
 			{ path: 'stock', component: StockFuncComponent },
 			{ path: 'stock/garrafas', component: GarrafasStockFuncComponent },
 			{ path: 'stock/caixas', component: CaixasStockFuncComponent }
-		]
+		],
+		canActivate: [ AuthGuardsFuncService ]
 	}
 ];
 

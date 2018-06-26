@@ -120,7 +120,7 @@ export class EditarVinhoAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O tipo de vinho foi editado com sucesso!");			
 					this.router.navigate(['/admin/vinhos']);					
-				}, 1000);	
+				}, 500);	
 			}
 		);
 	}

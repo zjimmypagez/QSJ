@@ -2,6 +2,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { NgxPaginationModule } from 'ngx-pagination';
+import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
 
 // Módulo com todos os caminhos da aplicação
@@ -17,6 +18,13 @@ import { UserServiceService } from "./services/user/user-service.service";
 import { VinhoServiceService } from "./services/vinho/vinho-service.service";
 import { CaixaServiceService } from "./services/caixa/caixa-service.service";
 import { GarrafaServiceService } from "./services/garrafa/garrafa-service.service";
+import { AuthService } from "./services/auth/auth.service";
+import { RecuperarService } from "./services/mail/recuperar.service";
+
+// Guards - Routing
+import { AuthGuardsAdminService } from "./guards/auth-guards-admin.service";
+import { AuthGuardsFuncService } from "./guards/auth-guards-func.service";
+import { AuthGuardsHomeService } from "./guards/auth-guards-home.service";
 
 import { AppComponent } from './app.component';
 
@@ -96,7 +104,8 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         ReactiveFormsModule,
         AppRoutingModule,
         NgxPaginationModule,
-        HttpClientModule
+        HttpClientModule,
+        HttpModule
     ],
     providers: [
         FiltrosService,
@@ -105,7 +114,12 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         UserServiceService,
         VinhoServiceService,
         CaixaServiceService,
-        GarrafaServiceService
+        GarrafaServiceService,
+        AuthService,
+        AuthGuardsAdminService,
+        AuthGuardsFuncService,
+        AuthGuardsHomeService,
+        RecuperarService
     ],
     bootstrap: [AppComponent]
 })

@@ -100,7 +100,7 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 					alert("O modelo de caixa foi eliminado com sucesso!");
 					this.getCaixasEVinhos();
 					this.getVinhos();					
-				}, 1000);
+				}, 500);
 			}
 		);		
 	}

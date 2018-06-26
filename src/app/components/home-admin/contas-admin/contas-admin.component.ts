@@ -58,7 +58,7 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O utilizador foi eliminado com sucesso!");
 					this.getUsers();					
-				}, 1000);
+				}, 500);
 			}
 		);		
 	}

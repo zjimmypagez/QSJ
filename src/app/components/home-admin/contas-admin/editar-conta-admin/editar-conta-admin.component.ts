@@ -64,7 +64,7 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 				setTimeout(() => {
 					alert("O Utilizador foi editado com sucesso!");
 					this.router.navigate(['/admin/contas']);					
-				}, 1000);				
+				}, 500);				
 			}
 		);
 	}

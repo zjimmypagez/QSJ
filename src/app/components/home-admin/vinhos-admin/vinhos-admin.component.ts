@@ -119,7 +119,7 @@ export class VinhosAdminComponent implements OnInit, OnDestroy {
 					this.getVinhos();
 					this.getCaixas();
 					this.getGarrafas();					
-				}, 1000);
+				}, 500);
 			}
 		);		
 	}

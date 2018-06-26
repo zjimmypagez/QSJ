@@ -1,19 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Caixa } from '../../../../interfaces/caixa';
+import { Caixa, CaixaEVinho } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+
+import { VinhoServiceService } from '../../../../services/vinho/vinho-service.service';
+import { CaixaServiceService } from '../../../../services/caixa/caixa-service.service';
 
 @Component({
 	selector: 'app-caixas-stock-func',
 	templateUrl: './caixas-stock-func.component.html',
 	styleUrls: ['./caixas-stock-func.component.css']
 })
-export class CaixasStockFuncComponent implements OnInit {
+export class CaixasStockFuncComponent implements OnInit, OnDestroy {
 	FiltroForm: FormGroup;
 	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
@@ -21,19 +26,29 @@ export class CaixasStockFuncComponent implements OnInit {
 	tipoVinhos: string[] = ["Verde", "Rosé", "Tinto", "Branco", "Espumante", "Quinta"];
 	categorias: string[] = [];
 	// Estado que determina se resulta alguma tabela do processo de filtragem
-	estadoTabela: boolean = true;
+	estadoTabela: boolean = true;	
 	// Tabela auxiliar no processo de filtragem
-	tabelaFiltro: tableCaixa[] = [];
+	caixasEVinhosFiltro: CaixaEVinho[] = [];
 	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
+	caixasEVinhos: CaixaEVinho[] = [];
+	// Lista auxiliar total de caixas a ler da BD
+	caixasEVinhosAux: CaixaEVinho[];
 	// Lista de modelos de vinho a ler da BD
-	vinhos: TipoVinho[];
-	// Tabela interligada entre caixas e vinhos
-	tabelaCaixas: tableCaixa[];	
+	vinhos: TipoVinho[] = [];
 	// Cálcula da quantidade total da tabela de caixas
 	totalCaixas: number = 0;
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
+	private subVinhos: Subscription;	
+	private subCaixasEVinhos: Subscription;
+
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService, 
+		private joinTableService: JoinTablesService,
+		private vinhoService: VinhoServiceService,
+		private caixaService: CaixaServiceService
+	) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'material': [0, ],
@@ -44,11 +59,40 @@ export class CaixasStockFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniListaCaixas();
-		this.iniListaVinhos();
-		this.iniQuantidade();
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+		this.getVinhos();
+		this.getCaixasEVinhos();		
+	}
+
+	ngOnDestroy(){
+		this.subVinhos.unsubscribe();
+		this.subCaixasEVinhos.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes da BD
+	getCaixasEVinhos(){
+		this.subCaixasEVinhos = this.caixaService.getCaixasEVinhos().subscribe(
+			data => { 
+				this.caixasEVinhos = data; 
+				this.caixasEVinhosAux = data 
+			},
+			err => console.error(err),
+			() => {
+				this.iniQuantidade();
+			}
+		);
 	}
 
 	// Pesquisa a um determinada marca
@@ -56,22 +100,22 @@ export class CaixasStockFuncComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
-				if (this.tabelaFiltro.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
-				this.calcQuantidade(this.tabelaCaixas);
+				if (this.caixasEVinhosFiltro.length != 0) this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhosFiltro, marca);
+				else this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
+				this.calcQuantidade(this.caixasEVinhos);
 			}
 			else{
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
-				this.calcQuantidade(this.tabelaCaixas);
+				this.reloadCaixasEVinhos();
+				this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
+				this.calcQuantidade(this.caixasEVinhos);
 			} 													
-			if (this.tabelaCaixas.length == 0){
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			if (this.caixasEVinhos.length == 0){
+				this.reloadCaixasEVinhos();
 				this.clearQuantidade();
 				this.estadoTabela = false;
 			}
 			else{
-				this.calcQuantidade(this.tabelaCaixas);
+				this.calcQuantidade(this.caixasEVinhos);
 				this.estadoTabela = true;
 			} 
 		}
@@ -80,37 +124,37 @@ export class CaixasStockFuncComponent implements OnInit {
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
+		this.reloadCaixasEVinhos();
+		if (filtro.marca != "") this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
-			this.tabelaCaixas = this.tabelaFiltro;
-			if (this.tabelaCaixas.length == 0){
+			this.caixasEVinhosFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.caixasEVinhos);
+			this.caixasEVinhos = this.caixasEVinhosFiltro;
+			if (this.caixasEVinhos.length == 0){
 				this.clearQuantidade();
 				this.estadoTabela = false;
 			}
 			else {
-				this.calcQuantidade(this.tabelaCaixas);
+				this.calcQuantidade(this.caixasEVinhos);
 				this.estadoTabela = true;
 			}
 		}
 		else{
 			if (filtro.marca != ""){
-				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
-				this.calcQuantidade(this.tabelaCaixas);
+				this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);
+				this.calcQuantidade(this.caixasEVinhos);
 			}
 			else{
 				this.iniQuantidade();
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+				this.reloadCaixasEVinhos();
 			} 
-			this.tabelaFiltro = [];
+			this.caixasEVinhosFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
 
 	// Limpar pesquisa
 	clearTabela(){
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.reloadCaixasEVinhos();
 		this.iniQuantidade();
 		this.estadoTabela = true;
 		this.clearForm();
@@ -131,105 +175,25 @@ export class CaixasStockFuncComponent implements OnInit {
 	}
 
 	// Calacular valores atuais de garrafas com e sem rotulo
-	calcQuantidade(caixas){
+	calcQuantidade(caixas: CaixaEVinho[]){
 		this.clearQuantidade();
 		for (let i = 0; i < caixas.length; i++){
-			this.totalCaixas += caixas[i].quantidade;
+			this.totalCaixas += caixas[i].Stock;
 		}
 	}
 
 	// Valores iniciais da contagem das garrafas com e sem rotulo
 	iniQuantidade(){
 		this.clearQuantidade();
-		for (let i = 0; i < this.caixas.length; i++){
-			this.totalCaixas += this.caixas[i].Stock;
+		for (let i = 0; i < this.caixasEVinhos.length; i++){
+			this.totalCaixas += this.caixasEVinhos[i].Stock;
 		}
 	}
 
-   // Dados criados (A ser subsituido pela ligação à BD)
-   iniListaCaixas(){
-   	/*this.caixas = [{
-      	id: 1,
-         capacidade: 1.000,
-         garrafas: 3,
-         material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-         id: 2,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      },
-      {
-         id: 3,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 3,
-			quantidade: 50
-      },
-      {
-         id: 4,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      },
-      {
-         id: 5,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 1,
-			quantidade: 50
-      },
-      {
-         id: 6,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 1,
-			quantidade: 50
-      }];*/
-	}
-	
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		/*this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];*/
+	// Recarregamento de todos as caixas
+	reloadCaixasEVinhos(){
+		this.caixasEVinhos = [];
+		this.caixasEVinhos = this.caixasEVinhosAux;
 	}
 
-}
-
-// Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 
-interface tableCaixa{
-	id: number,
-   capacidade: number,
-   garrafas: number,
-   material: string,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-	quantidade: number
 }

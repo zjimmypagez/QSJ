@@ -103,7 +103,7 @@ export class GarrafasAdminComponent implements OnInit, OnDestroy {
 					alert("O modelo de garrafa foi eliminado com sucesso!");
 					this.getGarrafasEVinhos();
 					this.getVinhos();					
-				}, 1000);
+				}, 500);
 			}
 		);		
 	}

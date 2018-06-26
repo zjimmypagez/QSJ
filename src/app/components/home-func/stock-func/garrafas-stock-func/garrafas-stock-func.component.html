@@ -24,7 +24,7 @@
         <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
      </div>
   </form>
-  <div class="main-table" *ngIf="estadoTabela">
+  <div class="main-table" *ngIf="estadoTabela && garrafasEVinhos.length > 0">
      <table>
         <tr>
            <th>LOTE</th>
@@ -33,12 +33,12 @@
            <th>C/RÓTULO</th>
            <th>S/RÓTULO</th>
         </tr>
-        <tr *ngFor="let tabelaGarrafa of tabelaGarrafas | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
-           <td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
-           <td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
-           <td>{{tabelaGarrafa.capacidade}} l</td>
-           <td>{{tabelaGarrafa.cRotulo}}</td>
-           <td>{{tabelaGarrafa.sRotulo}}</td>
+        <tr *ngFor="let garrafas of garrafasEVinhos | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
+            <td>{{garrafas.Marca}}-{{garrafas.Ano}}{{garrafas.Pipa != null ? '-' + garrafas.Pipa : ''}}</td>
+            <td>{{garrafas.Tipo}} {{garrafas.Categoria != "" ? ' - ' + garrafas.Categoria : ''}}</td>
+            <td>{{garrafas.Capacidade}} l</td>
+            <td>{{garrafas.CRotulo}}</td>
+            <td>{{garrafas.SRotulo}}</td>
         </tr>
      </table>
   </div>
@@ -47,7 +47,10 @@
       <h4>C/Rótulo: {{totalCRotulo}}</h4>
       <h4>S/Rótulo: {{totalSRotulo}}</h4>
   </div>
-  <div *ngIf="!estadoTabela" style="text-align: center;">
+  <div *ngIf="garrafasEVinhos.length == 0" style="text-align: center;">
+    <h2 style="color: #8B0000;">Não existem modelos de garrafa no sistema!</h2>
+    </div>
+  <div *ngIf="!estadoTabela && garrafasEVinhos.length > 0" style="text-align: center;">
      <h2 style="color: #8B0000;">Não foram encontrados nenhuns modelos de caixa com filtro selecionado!</h2>
   </div>
 </div>
