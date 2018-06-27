@@ -95,7 +95,6 @@
 
 .action-btn{
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
     grid-gap: 0.2rem;
     padding: 0.2rem;
 }
@@ -178,10 +177,6 @@ button:disabled{
 
 /* media queries */
 @media(max-width: 1075px){
-    .action-btn{
-        grid-template-columns: 1fr;
-    }
-
     .container{
         grid-template-rows: 75px .5fr auto;
     }
@@ -251,10 +246,6 @@ button:disabled{
         grid-gap: 10px;
         grid-template-columns: 1fr;        
     }
-
-    .action-btn{
-        grid-template-columns: 1fr;
-    }
 }
 
 @media(max-width: 475px){
@@ -282,9 +273,6 @@ button:disabled{
         grid-template-columns: repeat(2, 1fr);
         grid-template-rows: repeat(3, 1fr);
     }  
-    .action-btn{
-        grid-template-columns: 1fr;
-    }
 }
 
 @media(max-width: 425px){
@@ -303,7 +291,4 @@ button:disabled{
         grid-template-columns: 1fr;
     }  
 
-    .action-btn{
-        grid-template-columns: 1fr;
-    }
 }

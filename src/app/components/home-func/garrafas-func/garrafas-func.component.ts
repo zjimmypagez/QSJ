@@ -8,8 +8,8 @@ import { Garrafa, GarrafaVinhoRegistoEUser } from '../../../interfaces/garrafa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 import { RegistoGarrafa } from '../../../interfaces/registoGarrafa';
 
-import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
 import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
 import { GarrafaServiceService } from '../../../services/garrafa/garrafa-service.service';
@@ -44,7 +44,7 @@ export class GarrafasFuncComponent implements OnInit, OnDestroy {
 		private router: Router, 
 		private fb: FormBuilder, 
 		private filtroService: FiltrosService,
-		private joinTableService: JoinTablesService,
+		private ordenarService: OrdenarTablesService, 
 		private vinhoService: VinhoServiceService,
 		private garrafaService: GarrafaServiceService
 	) { 
@@ -90,6 +90,8 @@ export class GarrafasFuncComponent implements OnInit, OnDestroy {
 			err => console.error(err),
 			() => {
 				this.anos = this.filtroService.iniFiltroAno(this.garrafaVinhoRegistoEUser);
+				this.ordenarService.ordenarTabelaData(this.garrafaVinhoRegistoEUser);
+				this.ordenarService.ordenarTabelaData(this.garrafaVinhoRegistoEUserAux);
 			}
 		);
 	}
@@ -97,14 +99,6 @@ export class GarrafasFuncComponent implements OnInit, OnDestroy {
 	// Função responsável por selecionar o registo de garrafa a ser editado
    editarRegisto(id: number){
 		this.router.navigate(['/func/garrafas/editar', id]);
-	}
-	
-	// Função responsável por eliminar o registo de garrafa selecionado
-	eliminarRegisto(id: number){
-		if (confirm("Quer mesmo eliminar este registo?")){
-			alert("O registo de garrafa foi eliminado com sucesso!");
-			this.router.navigate(['/func/garrafas']);		
-		}
 	}
 
 	// Pesquisa a um determinada marca

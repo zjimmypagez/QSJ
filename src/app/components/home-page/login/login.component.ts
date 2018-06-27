@@ -108,11 +108,12 @@ export class LoginComponent implements OnInit, OnDestroy {
 					estadoLogin = true;
 					this.authLoginFunc(userFunc);				
 				}
-				if (!estadoLogin){
-					this.clearDados();
-					alert("Credenciais incorretas!");
-				}
 			}
+		}
+		
+		if (!estadoLogin){
+			this.clearDados();
+			alert("Credenciais incorretas!");
 		}
 	}
 

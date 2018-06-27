@@ -8,7 +8,7 @@ import { Caixa, CaixaEVinho } from '../../../interfaces/caixa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
-import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
 import { CaixaServiceService } from '../../../services/caixa/caixa-service.service';
 import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
@@ -43,7 +43,7 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 		private router: Router, 
 		private fb: FormBuilder, 
 		private filtroService: FiltrosService, 
-		private joinTableService: JoinTablesService, 
+		private ordenarService: OrdenarTablesService, 
 		private caixaService: CaixaServiceService,
 		private vinhoService: VinhoServiceService 
 	) { 
@@ -86,7 +86,11 @@ export class CaixasAdminComponent implements OnInit, OnDestroy {
 				this.caixasEVinhos = data; 
 				this.caixasEVinhosAux = data 
 			},
-			err => console.error(err)
+			err => console.error(err),
+			() => {
+				this.ordenarService.ordenarTabelaMV(this.caixasEVinhos);
+				this.ordenarService.ordenarTabelaMV(this.caixasEVinhosAux);
+			}
 		);
 	}
 

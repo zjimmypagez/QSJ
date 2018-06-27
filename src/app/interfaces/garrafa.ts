@@ -31,7 +31,7 @@ export interface GarrafaEVinho {
 
 // Interface adaptada ao JOIN entre a tabela garrafa, a tabela tipo_de_vinho, a tabela altera_stock_garrafa e a tabela utilizador
 export interface GarrafaVinhoRegistoEUser {
-    Id: number,
+    ID: number, // ID do registo
     Marca: string,
     Tipo: string,
     Categoria: string,
@@ -43,6 +43,6 @@ export interface GarrafaVinhoRegistoEUser {
     Comentario: string,
     QTSRotulo: number,
     QTCRotulo: number,
-    Data: Date,
+    Data: string,
     Username: string
 }

@@ -1,21 +1,28 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Garrafa } from '../../../../interfaces/garrafa';
+import { Garrafa, GarrafaEVinho } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
+import { RegistoGarrafaSId } from '../../../../interfaces/registoGarrafa';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorGarrafa, ValidatorCRotulo, ValidatorSRotulo, ValidatorRotular } from '../../../../validators/validator-garrafas';
 
+import { VinhoServiceService } from '../../../../services/vinho/vinho-service.service';
+import { GarrafaServiceService } from '../../../../services/garrafa/garrafa-service.service';
+import { RegistoGarrafaService } from '../../../../services/registo-garrafa/registo-garrafa.service';
+
 @Component({
 	selector: 'app-inserir-remover-garrafas-func',
 	templateUrl: './inserir-remover-garrafas-func.component.html',
 	styleUrls: ['./inserir-remover-garrafas-func.component.css']
 })
-export class InserirRemoverGarrafasFuncComponent implements OnInit {
+export class InserirRemoverGarrafasFuncComponent implements OnInit, OnDestroy {
 	RegistoForm: FormGroup;	
 	InserirForm: FormGroup;
 	RemoverForm: FormGroup;
@@ -29,19 +36,33 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
 	// Tabela auxiliar no processo de filtragem
-	tabelaFiltro: tableGarrafa[] = [];
+	garrafasEVinhosFiltro: GarrafaEVinho[] = [];
+  	// Lista de modelos de garrafa a ler da BD
+	garrafasEVinhos: GarrafaEVinho[] = [];	
+	// Lista auxiliar total de garrafas a ler da BD
+	garrafasEVinhosAux: GarrafaEVinho[];
+	// Lista de vinhos a ler da BD
+	vinhos: TipoVinho[] = [];
 	// Selecionar opção de registo
 	inserirSelecionado: boolean = false;
 	removerSelecionado: boolean = false;
 	rotularSelecionado: boolean = false;
-	// Lista de modelos de garrafa a ler da BD
-	garrafas: Garrafa[];
-	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
-	// Tabela interligada entre caixas e vinhos
-	tabelaGarrafas: tableGarrafa[];
+	// Lista de modelos de caixa a ler da BD
+	garrafas: Garrafa[] = [];
+
+	private subVinhos: Subscription;
+	private subGarrafas: Subscription;
+	private subGarrafasEVinhos: Subscription;
 	
-	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private joinTableService: JoinTablesService, 
+		private filtroService: FiltrosService,
+		private vinhoService: VinhoServiceService,
+		private garrafaService: GarrafaServiceService,
+		private registoGarrafaService: RegistoGarrafaService
+	) { 
 		this.RegistoForm = fb.group({
 			'idGarrafa': ['', Validators.required],
 			'comentario': ['', Validators.maxLength(200)],
@@ -50,7 +71,9 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		this.InserirForm = fb.group({
 			'cRotulo': [null, Validators.min(1)],
 			'sRotulo': [null, Validators.min(1)]
-		}, { validator: ValidatorGarrafa }
+		}, { 
+			validator: ValidatorGarrafa 
+		}
 		);	
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
@@ -62,59 +85,141 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	}			
 
 	ngOnInit() {
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.getVinhos();
+		this.getGarrafas();
+		this.getGarrafasEVinhos();		
 		this.iniRemoverForm();
 		this.iniRotularForm();
-		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+	}
+
+	ngOnDestroy(){
+		this.subVinhos.unsubscribe();
+		this.subGarrafas.unsubscribe();
+		this.subGarrafasEVinhos.unsubscribe();	
+	}
+	
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service GarrafaService e obtenção dos dados de todas as garrafas provenientes da BD
+	getGarrafas(){
+		this.subGarrafas = this.garrafaService.getGarrafas().subscribe(
+			data => { 
+				this.garrafas = data 
+			},
+			err => console.error(err)
+		);
+	}
+
+	// Subcrição do service GarrafaService e obtenção dos dados de todos as garrafas com a operação JOIN com os vinhos provenientes da BD
+	getGarrafasEVinhos(){
+		this.subGarrafasEVinhos = this.garrafaService.getGarrafasEVinhos().subscribe(
+			data => { 
+				this.garrafasEVinhos = data;
+				this.garrafasEVinhosAux = data 
+			},
+			err => console.error(err),
+			() => {
+				this.anos = this.filtroService.iniFiltroAno(this.garrafasEVinhos);
+				this.iniRemoverForm();
+				this.iniRotularForm();
+			}
+		);
+	}
+	
+	// Inserir novo registo garrafa
+	createRegistoGarrafa(newRegistoGarrafa: RegistoGarrafaSId){
+		const createRegistoGarrafas = this.registoGarrafaService.createRegistoGarrafa(newRegistoGarrafa).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("Operação realizada com sucesso!");				
+				}, 500);
+			}
+		);
+	}
+	
+	// Editar uma garrafa selecionada
+	editGarrafa(editGarrafa){
+		const editGarrafas = this.garrafaService.editGarrafaV1(editGarrafa).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					this.router.navigate(['/func/garrafas']);					
+				}, 500);
+			}
+		);
 	}
 
 	// Inicializar a form RemoverForm
 	iniRemoverForm(){
 		this.RemoverForm = this.fb.group({
-			'cRotulo': [null, [Validators.min(1), ValidatorCRotulo(this.garrafas, this.RegistoForm)]],
-			'sRotulo': [null, [Validators.min(1), ValidatorSRotulo(this.garrafas, this.RegistoForm)]]
-		}, { validator: ValidatorGarrafa }
+			'cRotulo': [null, [Validators.min(1), ValidatorCRotulo(this.garrafasEVinhos, this.RegistoForm)]],
+			'sRotulo': [null, [Validators.min(1), ValidatorSRotulo(this.garrafasEVinhos, this.RegistoForm)]]
+			}, { 
+				validator: ValidatorGarrafa 
+			}
 		);
 	}
 
 	// Inicializar a form RotularForm
 	iniRotularForm(){			
 		this.RotularForm = this.fb.group({
-			'sRotulo': [null, [Validators.min(1), ValidatorRotular(this.garrafas, this.RegistoForm)]]
+			'sRotulo': [null, [Validators.min(1), ValidatorRotular(this.garrafasEVinhos, this.RegistoForm)]]
 		});
 	}
 
 	// Criação de um novo registo de garrafa após verificações 
-	novoRegisto(f){
-		var form: any = f;
+	novoRegisto(form){
+		var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		var id: number = currentUser.userID;
+		var novoRegisto: RegistoGarrafaSId = {
+			Garrafa_ID: this.RegistoForm.get('idGarrafa').value,
+			Utilizador_ID: id,
+			Comentario: this.RegistoForm.get('comentario').value,
+			QTSRotulo: 0,
+			QTCRotulo: 0,
+			Data: new Date().toISOString().slice(0, 19).replace('T', ' ')
+		}
+		var garrafaEscolhida: Garrafa = this.garrafas.find(x => x.Id == novoRegisto.Garrafa_ID);
 		switch (this.RegistoForm.get('opcao').value){
 			case "Inserir":{
-				if (form.cRotulo == null) var cR: number = 0;
-				else cR = form.cRotulo;
-				if (form.sRotulo == null) var sR: number = 0;
-				else sR = form.sRotulo;
-				// Inserção na BD
-				alert("Foi criado um novo registo de Inserção: [" + cR + " C/Rótulo e " + sR + " S/Rótulo]");
-				this.router.navigate(['/func/garrafas']);
+				if (form.cRotulo != null) novoRegisto.QTCRotulo = form.cRotulo;
+				if (form.sRotulo != null) novoRegisto.QTSRotulo = form.sRotulo;
+				this.createRegistoGarrafa(novoRegisto);
+				garrafaEscolhida.CRotulo += novoRegisto.QTCRotulo;
+				garrafaEscolhida.SRotulo += novoRegisto.QTSRotulo;
+				this.editGarrafa(garrafaEscolhida);
 				break;
 			}
 			case "Remover":{
-				if (form.cRotulo == null) var cR: number = 0;
-				else cR = form.cRotulo;
-				if (form.sRotulo == null) var sR: number = 0;
-				else sR = form.sRotulo;
-				// Remoção na BD
-				alert("Foi criado um novo registo de Remoção: [" + cR + " C/Rótulo e " + sR + " S/Rótulo]");
-				this.router.navigate(['/func/garrafas']);
+				if (form.cRotulo != null) novoRegisto.QTCRotulo = form.cRotulo * -1;
+				if (form.sRotulo != null) novoRegisto.QTSRotulo = form.sRotulo * -1;
+				this.createRegistoGarrafa(novoRegisto);
+				garrafaEscolhida.CRotulo += novoRegisto.QTCRotulo;
+				garrafaEscolhida.SRotulo += novoRegisto.QTSRotulo;
+				this.editGarrafa(garrafaEscolhida);
 				break;
 			}
 			case "Rotular":{
-				// Retirar quantidade de garrafas s/rotulo e adicionar a quantidade respetiva em garrafas c/rotulo
-				alert("Foi criado um novo registo de Rotulagem: [" + form.sRotulo + " C/Rótulo]");
-				this.router.navigate(['/func/garrafas']);
+				novoRegisto.QTCRotulo = form.sRotulo;
+				novoRegisto.QTSRotulo = form.sRotulo * -1;
+				this.createRegistoGarrafa(novoRegisto);
+				garrafaEscolhida.CRotulo += novoRegisto.QTCRotulo;
+				garrafaEscolhida.SRotulo += novoRegisto.QTSRotulo;
+				this.editGarrafa(garrafaEscolhida);
 				break;
 			}
 		}
@@ -167,15 +272,15 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
-				if (this.tabelaFiltro.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-				else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				if (this.garrafasEVinhosFiltro.length != 0) this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhosFiltro, marca);
+				else this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
 			else{
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-				this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				this.reloadGarrafasEVinhos();
+				this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
-			if (this.tabelaGarrafas.length == 0){
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			if (this.garrafasEVinhos.length == 0){
+				this.reloadGarrafasEVinhos();
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
@@ -186,25 +291,25 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 	onChangeFiltro(){
 		var filtro: any = this.FiltroForm.value;
 		this.RegistoForm.controls['idGarrafa'].reset('');
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+		this.reloadGarrafasEVinhos();
+		if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
 		if (filtro.ano != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
-			this.tabelaGarrafas = this.tabelaFiltro;
-			if (this.tabelaGarrafas.length == 0) this.estadoTabela = false;
+			this.garrafasEVinhosFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.garrafasEVinhos);
+			this.garrafasEVinhos = this.garrafasEVinhosFiltro;
+			if (this.garrafasEVinhos.length == 0) this.estadoTabela = false;
 			else this.estadoTabela = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
-			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-			this.tabelaFiltro = [];
+			if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
+			else this.reloadGarrafasEVinhos();
+			this.garrafasEVinhosFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
 
 	// Limpar pesquisa
 	clearTabela(){
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.reloadGarrafasEVinhos();
 		this.estadoTabela = true;
 		this.clearFiltroForm();
 	}
@@ -257,62 +362,10 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit {
 		this.RotularForm.markAsUntouched();	
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaGarrafas(){
-		/*this.garrafas = [{
-			id: 1,
-			cuba: 5000,
-			ano: 2004,
-			tipoVinho: 1,
-			capacidade: 1.000,
-			cRotulo: 250,
-			sRotulo: 100
-		},
-		{
-			id: 2,
-			cuba: 10000,
-			ano: 2015,
-			tipoVinho: 3,
-			capacidade: 0.750,
-			cRotulo: 150,
-			sRotulo: 0
-		}];*/
+	// Recarregamento de todos as garrafas
+	reloadGarrafasEVinhos(){
+		this.garrafasEVinhos = [];
+		this.garrafasEVinhos = this.garrafasEVinhosAux;
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		/*this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];*/
-	}
-
-}
-
-// Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
-interface tableGarrafa{
-	id: number,
-	lote: string, // Atributo que junta, para mostrar, marca, ano e cuba
-   cuba: number,
-	ano: number,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-   capacidade: number,
-	cRotulo: number,
-	sRotulo: number
 }

@@ -1,7 +1,7 @@
 <div class="container">
     <h1 class="itemTitulo">Editar Registo - Garrafas</h1>
     <h4>Dados do Registo</h4>
-    <div class="main-table">
+    <div class="main-table" *ngIf="registo && garrafa">
       <table>
          <tr>
             <th>LOTE</th>
@@ -13,13 +13,13 @@
             <th>S/RÓTULO</th>
          </tr>
          <tr>
-            <td>{{garrafa.lote}}{{garrafa.cuba != null ? '-' + garrafa.cuba : ''}}</td>
-            <td>{{garrafa.tipo}} {{garrafa.categoria != "" ? ' - ' + garrafa.categoria : ''}}</td>
-            <td>{{garrafa.capacidade}}l</td>
-            <td>{{registo.data.toLocaleDateString()}}</td>
-            <td>{{registo.opcao}}</td>
-            <td>{{registo.cRotulo}}</td>
-            <td>{{registo.sRotulo}}</td>
+            <td>{{garrafa.Marca}}-{{garrafa.Ano}}{{garrafa.Pipa != null ? '-' + garrafa.Pipa : ''}}</td>
+            <td>{{garrafa.Tipo}} {{garrafa.Categoria != "" ? ' - ' + garrafa.Categoria : ''}}</td>
+            <td>{{garrafa.Capacidade}}l</td>
+            <td>{{registo.Data.slice(0, 19).replace('T', ' ')}}</td>
+            <td>{{opcao}}</td>
+            <td>{{registo.QTCRotulo}}</td>
+            <td>{{registo.QTSRotulo}}</td>
          </tr>
       </table>
    </div>

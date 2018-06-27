@@ -93,7 +93,7 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 	// Inicializar objeto form GarrafaForm
 	iniGarrafaForm(){
 		this.GarrafaForm = this.fb.group({
-			'cuba': ['', Validators.compose([Validators.required, Validators.min(1)])],
+			'cuba': ['', Validators.min(1)],
 			'ano': ['', Validators.compose([Validators.required, Validators.min(1900), Validators.max(2100)])],
 			'tipoVinho': ['', Validators.required],
 			'capacidade': ['', Validators.required]
@@ -105,9 +105,11 @@ export class InserirGarrafaAdminComponent implements OnInit, OnDestroy {
 
 	// Criação do novo modelo de garrafa após verificações 
 	novaGarrafa(form){
+		var pipa: number = 0;
+		if (form.cuba != "") pipa = form.cuba;
 		var newGarrafa: GarrafaSIdCSRotulo = {
 			TipoDeVinho_ID: form.tipoVinho,
-			Pipa: form.cuba,
+			Pipa: pipa,
 			Ano: form.ano,
 			Capacidade: form.capacidade
 		}

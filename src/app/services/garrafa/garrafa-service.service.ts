@@ -44,6 +44,12 @@ export class GarrafaServiceService {
 		return this.http.put(this.apiName + '/' + editGarrafa.Id, body, httpOptions)
 	}
 
+	// Editar uma garrafa
+	editGarrafaV1(editGarrafa: Garrafa){
+		let body = JSON.stringify(editGarrafa);
+		return this.http.put(this.apiName + 'Registo' + '/' + editGarrafa.Id, body, httpOptions)
+	}
+
 	// Eliminar garrafa - por ID
 	deleteGarrafaById(id: number){
 		return this.http.delete(this.apiName + '/' + id);

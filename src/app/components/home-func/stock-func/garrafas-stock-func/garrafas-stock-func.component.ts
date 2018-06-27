@@ -8,7 +8,7 @@ import { Garrafa, GarrafaEVinho } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
+import { OrdenarTablesService } from '../../../../services/funcoes-service/ordenar-tables.service';
 
 import { VinhoServiceService } from '../../../../services/vinho/vinho-service.service';
 import { GarrafaServiceService } from '../../../../services/garrafa/garrafa-service.service';
@@ -46,7 +46,7 @@ export class GarrafasStockFuncComponent implements OnInit, OnDestroy {
 		private router: Router, 
 		private fb: FormBuilder, 
 		private filtroService: FiltrosService, 
-		private joinTableService: JoinTablesService,
+		private ordenarService: OrdenarTablesService, 
 		private vinhoService: VinhoServiceService,
 		private garrafaService: GarrafaServiceService
 	) { 
@@ -92,6 +92,8 @@ export class GarrafasStockFuncComponent implements OnInit, OnDestroy {
 			err => console.error(err),
 			() => {
 				this.anos = this.filtroService.iniFiltroAno(this.garrafasEVinhos);
+				this.ordenarService.ordenarTabelaMV(this.garrafasEVinhos);
+				this.ordenarService.ordenarTabelaMV(this.garrafasEVinhosAux);
 				this.iniQuantidadeCRotuloSRotulo();
 			}
 		);

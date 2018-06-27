@@ -1,6 +1,6 @@
 import { ValidatorFn, AbstractControl } from '@angular/forms';
 
-import { Garrafa } from '../interfaces/garrafa';
+import { Garrafa, GarrafaEVinho } from '../interfaces/garrafa';
 import { RegistoGarrafa } from '../interfaces/registoGarrafa';
 
 // Validator que garante que foi inserido pelo menos um dos campos, c/rotulo e s/rotulo
@@ -13,10 +13,10 @@ export function ValidatorGarrafa (control: AbstractControl) {
 }
 
 // Validator que verifica se a quantidade c/rotulo a remover, tem correspondencia em stock
-export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
+export function ValidatorCRotulo(garrafas: GarrafaEVinho[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
+        var garrafa: GarrafaEVinho = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (garrafa.CRotulo < control.value) return { 'ValidRemoverCRotulo': true };     
@@ -25,10 +25,10 @@ export function ValidatorCRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 }
 
 // Validator que verifica se a quantidade s/rotulo a remover, tem correspondencia em stock
-export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
+export function ValidatorSRotulo(garrafas: GarrafaEVinho[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
+        var garrafa: GarrafaEVinho = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (garrafa.SRotulo < control.value) return { 'ValidRemoverSRotulo': true };        
@@ -37,10 +37,10 @@ export function ValidatorSRotulo(garrafas: Garrafa[], op: AbstractControl): Vali
 }
 
 // Validator que verifica se existe quantidade de garrafas s/rotulo para rotular
-export function ValidatorRotular(garrafas: Garrafa[], op: AbstractControl): ValidatorFn{
+export function ValidatorRotular(garrafas: GarrafaEVinho[], op: AbstractControl): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = op.get('idGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
+        var garrafa: GarrafaEVinho = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModelo': true }
         if (idGarrafa == "") return { 'WaitingModelo': true }
         if (control.value == null) return { 'WaitingCRotulo': true }
@@ -52,7 +52,8 @@ export function ValidatorRotular(garrafas: Garrafa[], op: AbstractControl): Vali
 // Validator que verifica se o comentário não foi alterado
 export function ValidatorComentario(registo: RegistoGarrafa): ValidatorFn{
     return (control: AbstractControl) : { [key: string]: boolean } | null => {
-        if (control.value == registo.comentario) return { 'ComentarioInalterado': true }
+        if (registo == undefined) return { 'WaitingModelo': true }
+        if (control.value == registo.Comentario) return { 'ComentarioInalterado': true }
         return null;
     };
 }

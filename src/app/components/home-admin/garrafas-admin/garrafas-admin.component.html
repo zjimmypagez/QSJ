@@ -40,7 +40,7 @@
             <th>AÇÕES</th>
          </tr>
          <tr *ngFor="let garrafas of garrafasEVinhos | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
-            <td>{{garrafas.Marca}}-{{garrafas.Ano}}{{garrafas.Pipa != null ? '-' + garrafas.Pipa : ''}}</td>
+            <td>{{garrafas.Marca}}-{{garrafas.Ano}}{{garrafas.Pipa != 0 ? '-' + garrafas.Pipa : ''}}</td>
             <td>{{garrafas.Tipo}} {{garrafas.Categoria != "" ? ' - ' + garrafas.Categoria : ''}}</td>
             <td>{{garrafas.Capacidade}} l</td>
             <td>{{garrafas.CRotulo}}</td>

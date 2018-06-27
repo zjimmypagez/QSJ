@@ -12,4 +12,4 @@ export interface UserSId {
     Username: string,
     _Password: string,
     TipoUtilizador: number
- }
+}
