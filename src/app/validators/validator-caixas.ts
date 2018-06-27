@@ -21,7 +21,8 @@ export function ValidatorRemover(caixas: Caixa[], op: AbstractControl): Validato
 // Validator que verifica se o comentário não foi alterado
 export function ValidatorComentario(registo: RegistoCaixa): ValidatorFn{
     return (control: AbstractControl) : { [key: string]: boolean } | null => {
-        if (control.value == registo.comentario) return { 'ComentarioInalterado': true }
+        if (registo == undefined) return { 'WaitingModelo': true }
+        if (control.value == registo.Comentario) return { 'ComentarioInalterado': true }
         return null;
     };
 }

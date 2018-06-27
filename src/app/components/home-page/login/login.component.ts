@@ -51,31 +51,23 @@ export class LoginComponent implements OnInit, OnDestroy {
 		);
 	}
 
-	// Subscrição do service AuthService para autenticação de uma determinada conta admin
-	authLoginAdmin(admin: User){
-		const login = this.authService.login(admin).subscribe(
-			data => data,
-			err => console.error(err),
-			() => {
-				setTimeout(() => {
-					alert("Bem-vindo " + admin.Username + "!");
-					this.router.navigate(['/admin']);
-				}, 500);
-			}
-		);
-	}
-
 	// Subscrição do service AuthService para autenticação de uma determinada conta func
-	authLoginFunc(func: User){
-		const login = this.authService.login(func).subscribe(
-			data => data,
-			err => console.error(err),
-			() => {
-				setTimeout(() => {
-					alert("Bem-vindo " + func.Username + "!");
-					this.router.navigate(['/func']);						
-				}, 500);
-			}
+	authLoginFunc(username: string, password: string){
+		const login = this.authService.login(username, password).subscribe(
+			data => {
+				if (data === true){
+					setTimeout(() => {
+						alert("Bem-vindo " + username + "!");
+						if (username == "admin" && password == "admin") this.router.navigate(['/admin']);
+						else this.router.navigate(['/func']);						
+					}, 500);
+				}
+				else{					
+					this.clearDados();
+					alert("Credenciais incorretas!");
+				}
+			},
+			err => console.error(err)
 		);
 	}
 
@@ -83,38 +75,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 	login(form){
 		var username: any = form.username;
 		var password: any = form.password;
-		var estadoLogin: boolean = false;		
-		if (username == "admin" && password == "admin"){
-			var userAdmin: User = {
-				Id: 0,
-				Email: '',
-				Username: 'admin',
-				_Password: 'admin',
-				TipoUtilizador: 0
-			}
-			estadoLogin = true;
-			this.authLoginAdmin(userAdmin);	
-		}
-		else{
-			for (let i = 0; i < this.users.length; i++){
-				if (username == this.users[i].Username && password == this.users[i]._Password){
-					var userFunc: User = {
-						Id: this.users[i].Id,
-						Email: this.users[i].Email,
-						Username: this.users[i].Username,
-						_Password: this.users[i]._Password,
-						TipoUtilizador: this.users[i].TipoUtilizador
-					}						
-					estadoLogin = true;
-					this.authLoginFunc(userFunc);				
-				}
-			}
-		}
-		
-		if (!estadoLogin){
-			this.clearDados();
-			alert("Credenciais incorretas!");
-		}
+		this.authLoginFunc(username, password);
 	}
 
 	// Limpar Form

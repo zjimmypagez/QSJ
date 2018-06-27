@@ -123,9 +123,12 @@ export class EditarGarrafasFuncComponent implements OnInit, OnDestroy {
 	}
 
 	// Editar o registo de garrafa após verificações
-	editarRegisto(form){
+	editarRegisto(form){		
+		var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		var id: number = currentUser.userID;
 		var editRegisto: RegistoGarrafaComentario = {
 			ID: this.registo.ID,
+			Utilizador_ID: id,
 			Comentario: form.comentario,
 			Data: new Date().toISOString().slice(0, 19).replace('T', ' ')
 		}

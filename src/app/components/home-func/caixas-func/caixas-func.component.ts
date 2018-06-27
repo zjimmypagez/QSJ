@@ -1,20 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Caixa } from '../../../interfaces/caixa';
+import { Caixa, CaixaVinhoRegistoEUser } from '../../../interfaces/caixa';
 import { RegistoCaixa } from '../../../interfaces/registoCaixa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
+
+import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';
+import { CaixaServiceService } from '../../../services/caixa/caixa-service.service';
 
 @Component({
 	selector: 'app-caixas-func',
 	templateUrl: './caixas-func.component.html',
 	styleUrls: ['./caixas-func.component.css']
 })
-export class CaixasFuncComponent implements OnInit {
+export class CaixasFuncComponent implements OnInit, OnDestroy {
 	FiltroForm: FormGroup;
 	// Dados filtros
 	materiais: string[] = ["Cartão", "Madeira"];
@@ -24,19 +30,26 @@ export class CaixasFuncComponent implements OnInit {
 	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabela: boolean = true;
 	// Tabela auxiliar no processo de filtragem
-	tabelaFiltro: tableRegisto[] = [];
-	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
+	caixaVinhoRegistoEUserFiltro: CaixaVinhoRegistoEUser[] = [];
+  	// Lista de modelos de caixas a ler da BD
+	caixaVinhoRegistoEUser: CaixaVinhoRegistoEUser[] = [];	
+	// Lista auxiliar total de caixas a ler da BD
+	caixaVinhoRegistoEUserAux: CaixaVinhoRegistoEUser[];
 	// Lista de modelos de vinho a ler da BD
-	vinhos: TipoVinho[];
-	// Lista de registo de caixas a ler da BD
-	registos: RegistoCaixa[];
-	// Tabela interligada entre caixa e registo caixas
-	tabelaCaixaRegistos: tableCaixaRegisto[];
-	// Tabela interligada entre tabelaregisto caixas e vinhos
-	tabelaRegistos: tableRegisto[];
+	vinhos: TipoVinho[] = [];
+	
+	private subVinhos: Subscription;
+	private subCaixaVinhoRegistoEUser: Subscription;
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService, 
+		private joinTableService: JoinTablesService,
+		private vinhoService: VinhoServiceService,
+		private caixaService: CaixaServiceService,
+		private ordenarService: OrdenarTablesService
+	) { 
 		this.FiltroForm = fb.group({
 			'marca': ['', Validators.required],
 			'material': [0, ],
@@ -47,25 +60,46 @@ export class CaixasFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.iniListaCaixas();
-		this.iniListaRegistos();
-		this.tabelaCaixaRegistos = this.joinTableService.iniListaTableCaixaRegistos(this.caixas, this.registos);		
-		this.iniListaVinhos();
-		this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);	
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+		this.getVinhos();
+		this.getCaixaVinhoRegistoEUser();	
+	}
+
+	ngOnDestroy(){
+		this.subVinhos.unsubscribe();
+		this.subCaixaVinhoRegistoEUser.unsubscribe();	
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes e registos da BD
+	getCaixaVinhoRegistoEUser(){
+		this.subCaixaVinhoRegistoEUser = this.caixaService.getCaixaVinhoRegistoEUser().subscribe(
+			data => { 
+				this.caixaVinhoRegistoEUser = data;
+				this.caixaVinhoRegistoEUserAux = data 
+			},
+			err => console.error(err),
+			() => {
+				this.ordenarService.ordenarTabelaData(this.caixaVinhoRegistoEUser);
+				this.ordenarService.ordenarTabelaData(this.caixaVinhoRegistoEUserAux);
+			}
+		);
 	}
 
 	// Função responsável por selecionar o registo de caixa a ser editado
    editarRegisto(id: number){
 		this.router.navigate(['/func/caixas/editar', id]);
-	}
-	
-	// Função responsável por eliminar o registo de caixa selecionado
-	eliminarRegisto(id: number){
-		if (confirm("Quer mesmo eliminar este registo?")){
-			alert("O registo de caixa foi eliminado com sucesso!");
-			this.router.navigate(['/func/caixas']);
-		}
 	}
 
 	// Pesquisa a um determinada marca
@@ -73,15 +107,15 @@ export class CaixasFuncComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
-				if (this.tabelaFiltro.length != 0) this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaFiltro, marca);
-				else this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+				if (this.caixaVinhoRegistoEUserFiltro.length != 0) this.caixaVinhoRegistoEUser = this.filtroService.pesquisaMarca(this.caixaVinhoRegistoEUserFiltro, marca);
+				else this.caixaVinhoRegistoEUser = this.filtroService.pesquisaMarca(this.caixaVinhoRegistoEUser, marca);
 			}
 			else{
-				this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
-				this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, marca);
+				this.reloadCaixaVinhoRegistoEUser();
+				this.caixaVinhoRegistoEUser = this.filtroService.pesquisaMarca(this.caixaVinhoRegistoEUser, marca);
 			} 
-			if (this.tabelaRegistos.length == 0){
-				this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
+			if (this.caixaVinhoRegistoEUser.length == 0){
+				this.reloadCaixaVinhoRegistoEUser();
 				this.estadoTabela = false;
 			}
 			else this.estadoTabela = true;
@@ -91,25 +125,25 @@ export class CaixasFuncComponent implements OnInit {
 	// Filtros 
 	onChange(){
 		var filtro: any = this.FiltroForm.value;
-		this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
-		if (filtro.marca != "") this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, filtro.marca);		
+		this.reloadCaixaVinhoRegistoEUser();
+		if (filtro.marca != "") this.caixaVinhoRegistoEUser = this.filtroService.pesquisaMarca(this.caixaVinhoRegistoEUser, filtro.marca);		
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaRegistos);
-			this.tabelaRegistos = this.tabelaFiltro;
-			if (this.tabelaRegistos.length == 0) this.estadoTabela = false;
+			this.caixaVinhoRegistoEUserFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.caixaVinhoRegistoEUser);
+			this.caixaVinhoRegistoEUser = this.caixaVinhoRegistoEUserFiltro;
+			if (this.caixaVinhoRegistoEUser.length == 0) this.estadoTabela = false;
 			else this.estadoTabela = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaRegistos = this.filtroService.pesquisaMarca(this.tabelaRegistos, filtro.marca);
-			else this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
-			this.tabelaFiltro = [];
+			if (filtro.marca != "") this.caixaVinhoRegistoEUser = this.filtroService.pesquisaMarca(this.caixaVinhoRegistoEUser, filtro.marca);
+			else this.reloadCaixaVinhoRegistoEUser();
+			this.caixaVinhoRegistoEUserFiltro = [];
 			this.estadoTabela = true;
 		}
 	}
 	
 	// Limpar pesquisa
 	clearTabela(){
-		this.tabelaRegistos = this.joinTableService.iniListaTableRegistosCaixa(this.tabelaCaixaRegistos, this.vinhos);
+		this.reloadCaixaVinhoRegistoEUser();
 		this.estadoTabela = true;
 		this.clearForm();
 	}
@@ -123,102 +157,10 @@ export class CaixasFuncComponent implements OnInit {
 		this.FiltroForm.controls['categoria'].reset(0);
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-   iniListaCaixas(){
-   	/*this.caixas = [{
-      	id: 1,
-         capacidade: 1.000,
-         garrafas: 3,
-         material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-         id: 2,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];*/
+	// Recarregamento de todos as garrafas
+	reloadCaixaVinhoRegistoEUser(){
+		this.caixaVinhoRegistoEUser = [];
+		this.caixaVinhoRegistoEUser = this.caixaVinhoRegistoEUserAux;
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaRegistos(){
-		this.registos = [{
-			id: 1,
-			idCaixa: 2,
-			data: new Date(2005,12,17),
-			comentario: "2 c/ defeito",
-			opcao: "Remover",
-			quantidade: -2      
-		},
-		{
-			id: 2,
-			idCaixa: 1,
-			data: new Date(2012,6,2),
-			comentario: "",
-			opcao: "Inserir",
-			quantidade: 12 
-		},
-		{
-			id: 3,
-			idCaixa: 1,
-			data: new Date(2013,4,26),
-			comentario: "12 c/ defeito",
-			opcao: "Inserir",
-			quantidade: 120 
-		}];
-	}
-	
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		/*this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];*/
-	}
-
-}
-
-// Interface que interliga 2 tabelas = Caixa + Registo de Caixa 
-interface tableCaixaRegisto{
-	id: number,
-	idCaixa: number,
-	capacidade: number,
-	garrafas: number,
-	material: string,
-	tipoVinho: number,
-	data: Date,
-	comentario: string,
-	quantidade: number
-}
-
-// Interface que interliga 2 tabelas = tableRegisto + Vinho 
-interface tableRegisto{
-	id: number,
-	idCaixa: number,
-	capacidade: number,
-	garrafas: number,
-	material: string,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-	data: Date,
-	comentario: string,
-	quantidade: number
 }

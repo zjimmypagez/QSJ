@@ -1,7 +1,7 @@
 <div class="container">
 	<h1 class="itemTitulo">Editar Registo - Caixas</h1>
 	<h4>Dados do Registo</h4>
-    <div class="main-table">
+    <div class="main-table" *ngIf="registo && caixa">
       <table>
          <tr>
             <th>MARCA</th>
@@ -14,14 +14,14 @@
             <th>QUANTIDADE</th>
          </tr>
          <tr>
-            <td>{{caixa.marca}}</td>
-            <td>{{caixa.tipo}} {{caixa.categoria != "" ? ' - ' + caixa.categoria : ''}}</td>
-			<td>{{caixa.material}}</td>
-			<td>{{caixa.garrafas}}</td>
-			<td>{{caixa.capacidade}}l</td>
-            <td>{{registo.data.toLocaleDateString()}}</td>
-            <td>{{registo.opcao}}</td>
-            <td>{{registo.quantidade}}</td>
+            <td>{{caixa.Marca}}</td>
+            <td>{{caixa.Tipo}} {{caixa.Categoria != "" ? ' - ' + caixa.Categoria : ''}}</td>
+			<td>{{caixa.Material}}</td>
+			<td>{{caixa.NGarrafas}}</td>
+			<td>{{caixa.CapacidadeGarrafa}}l</td>
+            <td>{{registo.Data.slice(0, 19).replace('T', ' ')}}</td>
+            <td>{{opcao}}</td>
+            <td>{{registo.Quantidade}}</td>
          </tr>
       </table>
    </div>

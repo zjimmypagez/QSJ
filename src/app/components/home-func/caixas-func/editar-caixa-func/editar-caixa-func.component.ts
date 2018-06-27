@@ -1,55 +1,117 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable } from "rxjs/Observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { RegistoCaixa } from '../../../../interfaces/registoCaixa';
-import { Caixa } from '../../../../interfaces/caixa';
+import { RegistoCaixa, RegistoCaixaComentario } from '../../../../interfaces/registoCaixa';
+import { Caixa, CaixaEVinho } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
 import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 
 import { ValidatorComentario } from '../../../../validators/validator-caixas';
 
+import { RegistoCaixaService } from '../../../../services/registo-caixa/registo-caixa.service';
+import { CaixaServiceService } from '../../../../services/caixa/caixa-service.service';
+
 @Component({
 	selector: 'app-editar-caixa-func',
 	templateUrl: './editar-caixa-func.component.html',
 	styleUrls: ['./editar-caixa-func.component.css']
 })
-export class EditarCaixaFuncComponent implements OnInit {
+export class EditarCaixaFuncComponent implements OnInit, OnDestroy {
 	// Modelo de caixa selecionado
   	id: number;
   	private sub: any;
 	RegistoForm: FormGroup;
+	// Caixa selecionada
+	caixa: CaixaEVinho;
+	// Lista de modelos de garrafa a ler da BD
+ 	caixasEVinhos: CaixaEVinho[] = [];	
+	// Lista de vinhos a ler da BD
+	vinhos: TipoVinho[] = [];
 	// Registo da caixa selecionada
 	registo: RegistoCaixa;
-	// Caixa selecionada
-	caixa: tableCaixa;
-	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
-	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
-	// Tabela interligada entre caixas e vinhos
-	tabelaCaixas: tableCaixa[];
 	// Lista de registos de caixa a ler da BD
-	registos: RegistoCaixa[];
+	registos: RegistoCaixa[] = [];
+	opcao: string;
 
-	constructor( private route: ActivatedRoute, private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService ) { }
+	private subRegistos: Subscription;
+	private subCaixasEVinhos: Subscription;
+
+	constructor( 
+		private route: ActivatedRoute, 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private joinTableService: JoinTablesService,
+		private registoService: RegistoCaixaService,
+		private caixaService: CaixaServiceService 
+	) { }
 
 	ngOnInit() {
 		// Subscrição dos parametros do modelo da caixa escolhido para editar
 		this.sub = this.route.params.subscribe(
 			params => { this.id = +params['id']; }
 		)
-		this.iniListaRegistos();
-		this.iniListaCaixas();
-		this.iniListaVinhos();
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		// Procura na lista de caixas (a ser lida da BD)
-		this.registo = this.registos.find(x => x.id == this.id);
-		// Seleção do modelo de caixa escolhido
-		this.caixa = this.tabelaCaixas.find(x => x.id == this.registo.idCaixa);
+		this.getRegistos();
+		this.getCaixasEVinhos();
 		this.iniRegistoForm();
-		this.resetForm(this.registo);
+	}
+
+	ngOnDestroy(){
+		this.subRegistos.unsubscribe();
+		this.subCaixasEVinhos.unsubscribe();
+	}
+
+	// Subcrição do service RegistoCaixaService e obtenção dos dados de todos os registo de caixas provenientes da BD
+	getRegistos(){
+		this.subRegistos = this.registoService.getRegistoCaixa().subscribe(
+			data => { 
+				this.registos = data 
+			},
+			err => console.error(err),
+			() => {
+				this.registo = this.registos.find(x => x.ID == this.id);
+				this.iniRegistoForm();
+				this.resetForm(this.registo);	
+				this.getOpcao(this.registo);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes da BD
+	getCaixasEVinhos(){
+		this.subCaixasEVinhos = this.caixaService.getCaixasEVinhos().subscribe(
+			data => { 
+				this.caixasEVinhos = data
+			},
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					this.caixa = this.caixasEVinhos.find(x => x.ID == this.registo.Caixa_ID);						
+				}, 50);
+			}
+		);
+	}
+	
+	// Editar um registo de caixa selecionado
+	editRegitoCaixa(editRegistoCaixa){
+		const editRegistoCaixas = this.registoService.editRegistoCaixa(editRegistoCaixa).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("O comentário foi editado com sucesso!");
+					this.router.navigate(['/func/caixas']);			
+				}, 500);
+			}
+		);
+	}
+	
+	getOpcao(registo: RegistoCaixa){
+		if (registo.Quantidade > 0) this.opcao = "Inserir";
+		else this.opcao = "Remover";
 	}
 
 	// Inicializar o objeto form RegistoForm
@@ -61,9 +123,15 @@ export class EditarCaixaFuncComponent implements OnInit {
 
 	// Editar o registo de caixa após verificações
 	editarRegisto(form){
-		var comentario: any = form.comentario;
-		alert("Comentário alterado com sucesso! Novo comentário: " + comentario);
-		this.router.navigate(['/func/caixas']);
+		var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		var id: number = currentUser.userID;
+		var editRegisto: RegistoCaixaComentario = {
+			ID: this.registo.ID,
+			Utilizador_ID: id,
+			Comentario: form.comentario,
+			Data: new Date().toISOString().slice(0, 19).replace('T', ' ')
+		}
+		this.editRegitoCaixa(editRegisto);
 	}
 
 	// Reset dos dados da form
@@ -73,94 +141,8 @@ export class EditarCaixaFuncComponent implements OnInit {
 
 	// Coloca a form com os dados pre-selecionados
 	resetForm(registo: RegistoCaixa){
-		this.RegistoForm.controls['comentario'].setValue(registo.comentario);
+		this.RegistoForm.controls['comentario'].setValue(registo.Comentario);
 		this.RegistoForm.controls['comentario'].markAsUntouched();
 	}
 
-	ngOnDestroy(){
-		this.sub.unsubscribe();
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaRegistos(){
-		this.registos = [{
-			id: 1,
-			idCaixa: 2,
-			data: new Date(2005,12,17),
-			comentario: "2 c/ defeito",
-			opcao: "Remover",
-			quantidade: -2      
-		},
-		{
-			id: 2,
-			idCaixa: 1,
-			data: new Date(2012,6,2),
-			comentario: "",
-			opcao: "Inserir",
-			quantidade: 12 
-		},
-		{
-			id: 3,
-			idCaixa: 1,
-			data: new Date(2013,4,26),
-			comentario: "12 c/ defeito",
-			opcao: "Inserir",
-			quantidade: 120 
-		}];
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaCaixas(){
-		/*this.caixas = [{
-      		id: 1,
-			capacidade: 1.000,
-			garrafas: 3,
-			material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-			id: 2,
-			capacidade: 0.750,
-			garrafas: 12,
-			material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];*/
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		/*this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];*/
-	}
-
-}
-
-// Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 
-interface tableCaixa{
-	id: number,
-   capacidade: number,
-   garrafas: number,
-   material: string,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-	quantidade: number
 }

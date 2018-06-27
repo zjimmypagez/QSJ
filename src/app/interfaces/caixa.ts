@@ -26,3 +26,19 @@ export interface CaixaEVinho {
     Stock: number,
     CapacidadeGarrafa: number
 }
+
+// Interface adaptada ao JOIN entre a tabela caixa, a tabela tipo_de_vinho, a tabela altera_stock_garrafa e a tabela utilizador
+export interface CaixaVinhoRegistoEUser {
+    ID: number, // ID do registo
+    Marca: string,
+    Tipo: string,
+    Categoria: string,
+    Material: string,
+    NGarrafas: number,
+    Stock: number,
+    CapacidadeGarrafa: number,
+    Comentario: string,
+    Quantidade: number,
+    Data: string,
+    Username: string
+}

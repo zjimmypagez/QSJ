@@ -21,6 +21,7 @@ import { GarrafaServiceService } from "./services/garrafa/garrafa-service.servic
 import { AuthService } from "./services/auth/auth.service";
 import { RecuperarService } from "./services/mail/recuperar.service";
 import { RegistoGarrafaService } from "./services/registo-garrafa/registo-garrafa.service";
+import { RegistoCaixaService } from "./services/registo-caixa/registo-caixa.service";
 
 // Guards - Routing
 import { AuthGuardsAdminService } from "./guards/auth-guards-admin.service";
@@ -121,7 +122,8 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         AuthGuardsFuncService,
         AuthGuardsHomeService,
         RecuperarService,
-        RegistoGarrafaService
+        RegistoGarrafaService,
+        RegistoCaixaService
     ],
     bootstrap: [AppComponent]
 })

@@ -21,14 +21,34 @@ export class AuthService {
 		this.token = currentUser && currentUser.token;
 	}
 
-	login(user: User){
+	login(username: string, password: string): Observable<boolean>{
 		let body = JSON.stringify({
-			username: user.Username
+			username: username,
+			password: password
 		});
 		return this.http.post(this.apiName, body, httpOptions).map(
 			(res: Response) => {
 				let token = res.json() && res.json().token;
-				if (token){
+				let userLogado: User[] = res.json() && res.json().userLogado;
+				if (token){	
+					if (userLogado.length > 0){
+						var user: User = {
+							Id: userLogado[0].Id,
+							Email: userLogado[0].Email,
+							Username: userLogado[0].Username,
+							_Password: userLogado[0]._Password,
+							TipoUtilizador: userLogado[0].TipoUtilizador
+						}
+					}	
+					else{
+						var user: User = {
+							Id: 0,
+							Email: '',
+							Username: 'admin',
+							_Password: 'admin',
+							TipoUtilizador: 0
+						}
+					}		
 					this.token = token;
 					localStorage.setItem(
 						'currentUser',
@@ -37,7 +57,9 @@ export class AuthService {
 							token: token
 						})
 					);
+					return true;
 				}
+				else return false;
 			}
 		)
 	}

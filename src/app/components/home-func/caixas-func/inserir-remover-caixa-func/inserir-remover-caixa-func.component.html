@@ -25,7 +25,7 @@
             <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
         </div>
     </form>
-	<div class="main-table" *ngIf="estadoTabela">
+	<div class="main-table" *ngIf="estadoTabela && caixasEVinhos.length > 0">
 		<table>
 			<tr>
 				<th>MODELO</th>				
@@ -35,18 +35,21 @@
 				<th>GARRAFAS(QNT)</th>
 				<th>CAPACIDADE(/L)</th>
 			</tr>
-			<tr *ngFor="let tabelaCaixa of tabelaCaixas | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
-				<td>{{tabelaCaixa.id}}</td>
-				<td>{{tabelaCaixa.marca}}</td>
-				<td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
-				<td>{{tabelaCaixa.material}}</td>
-				<td>{{tabelaCaixa.garrafas}}</td>
-				<td>{{tabelaCaixa.capacidade}}</td>
+			<tr *ngFor="let caixas of caixasEVinhos | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
+				<td>{{caixas.ID}}</td>
+				<td>{{caixas.Marca}}</td>
+				<td>{{caixas.Tipo}} {{caixas.Categoria != "" ? ' - ' + caixas.Categoria : ''}}</td>
+				<td>{{caixas.Material}}</td>
+				<td>{{caixas.NGarrafas}}</td>
+				<td>{{caixas.CapacidadeGarrafa}}</td>
 			</tr>
 		</table>
 	</div>
     <pagination-controls *ngIf="estadoTabela" class="pagination" id="caixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>       
-    <div *ngIf="!estadoTabela" style="text-align: center;">
+	<div *ngIf="caixasEVinhos.length == 0" style="text-align: center;">
+		<h2 style="color: #8B0000;">Não existem modelos de caixa no sistema!</h2>
+  	</div>  
+	<div *ngIf="!estadoTabela && caixasEVinhos.length > 0" style="text-align: center;">
         <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de caixa com o filtro selecionado!</h2>
     </div>
 	<br>
@@ -55,7 +58,7 @@
 			<h4>Modelo</h4>
 			<select formControlName="idCaixa">
 				<option value="" disabled>Modelo de Caixa</option>
-				<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id"> {{caixa.id}} </option>
+				<option *ngFor="let caixa of caixasEVinhos" [ngValue]="caixa.ID"> {{caixa.ID}} </option>
 			</select>
 		</div>
 		<div class="alerta" *ngIf="!RegistoForm.controls['idCaixa'].valid && RegistoForm.controls['idCaixa'].touched">

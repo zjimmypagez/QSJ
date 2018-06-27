@@ -29,7 +29,7 @@
             </div>
         </div>
     </form>
-    <div class="main-table" *ngIf="estadoTabela">
+    <div class="main-table" *ngIf="estadoTabela && caixaVinhoRegistoEUser.length > 0">
         <table>
             <tr>
                 <th>MARCA</th>
@@ -39,30 +39,33 @@
                 <th>CAPACIDADE(/L)</th>
                 <th>DATA</th>
                 <th>COMENTÁRIO</th>
+                <th>FUNCIONÁRIO</th>
                 <th>REGISTO(QNT)</th>
                 <th>AÇÕES</th>
             </tr>
-            <tr *ngFor="let tabelaRegisto of tabelaRegistos | paginate: { id: 'registosCaixas', itemsPerPage: 10, currentPage: p }">
-                <td>{{tabelaRegisto.marca}}</td>
-                <td>{{tabelaRegisto.tipo}} {{tabelaRegisto.categoria != "" ? ' - ' + tabelaRegisto.categoria : ''}}</td> 
-                <td>{{tabelaRegisto.material}}</td>
-                <td>{{tabelaRegisto.garrafas}}</td>
-                <td>{{tabelaRegisto.capacidade}} l</td>
-                <td>{{tabelaRegisto.data.toLocaleDateString()}}</td>
-                <td>{{tabelaRegisto.comentario}}</td>
-                <td>{{tabelaRegisto.quantidade}}</td>
+            <tr *ngFor="let registos of caixaVinhoRegistoEUser | paginate: { id: 'registosCaixas', itemsPerPage: 10, currentPage: p }">
+                <td>{{registos.Marca}}</td>
+                <td>{{registos.Tipo}} {{registos.Categoria != "" ? ' - ' + registos.Categoria : ''}}</td>
+                <td>{{registos.Material}}</td>
+                <td>{{registos.NGarrafas}}</td>
+                <td>{{registos.CapacidadeGarrafa}} l</td>
+                <td>{{registos.Data.slice(0, 19).replace('T', ' ')}}</td>
+                <td>{{registos.Comentario}}</td>
+                <td>{{registos.Username}}</td>
+                <td>{{registos.Quantidade}}</td>
                 <td>
                     <div class="action-btn">
-                        <a class="btn" (click)="editarRegisto(tabelaRegisto.id)">Editar</a>
-                        <a class="btn" (click)="eliminarRegisto(tabelaRegisto.id)">Eliminar</a>
+                        <a class="btn" (click)="editarRegisto(registos.ID)">Editar</a>
                     </div>
                 </td>
             </tr>
         </table>
     </div>
     <pagination-controls *ngIf="estadoTabela" class="pagination" id="registosCaixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
-    <br>
-    <div *ngIf="!estadoTabela" style="text-align: center;">
+    <div *ngIf="caixaVinhoRegistoEUser.length == 0" style="text-align: center;">
+        <h2 style="color: #8B0000;">Não existem modelos de caixa no sistema!</h2>
+    </div>
+    <div *ngIf="!estadoTabela && caixaVinhoRegistoEUser.length > 0" style="text-align: center;">
         <h2 style="color: #8B0000;">Não foram encontrados nenhuns registos de caixa com o filtro selecionado!</h2>
     </div>
 </div>
