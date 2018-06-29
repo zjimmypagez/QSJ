@@ -7,7 +7,6 @@ import { Subscription } from 'rxjs/Subscription';
 import { Caixa, CaixaEVinho } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorRemover } from '../../../../validators/validator-caixas';
@@ -55,7 +54,6 @@ export class InserirRemoverCaixaFuncComponent implements OnInit, OnDestroy {
 	constructor( 
 		private router: Router, 
 		private fb: FormBuilder, 
-		private joinTableService: JoinTablesService, 
 		private filtroService: FiltrosService,
 		private vinhoService: VinhoServiceService,
 		private caixaService: CaixaServiceService,

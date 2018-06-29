@@ -1,3 +1,5 @@
+import { TipoGarrafaSId } from "./garrafa";
+
 export interface Caixa {
     ID: number,
     TipoDeVinho_ID: number,
@@ -41,4 +43,12 @@ export interface CaixaVinhoRegistoEUser {
     Quantidade: number,
     Data: string,
     Username: string
+}
+
+// Interface auxiliar de encomenda
+export interface TipoCaixaSId{
+    Id_Caixa: number,
+    QuantidadeCaixa: number,
+    Tipo: string,
+    Garrafas: TipoGarrafaSId[]
 }

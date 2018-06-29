@@ -11,43 +11,44 @@
              <option value="EmEspera">Em Espera</option>
              <option value="Entregue">Entregue</option>
          </select>
-        <input class="itemInput" type="number" formControlName="nFatura" placeholder="Insira aqui o número de fatura a pesquisar...">
+        <input class="itemInput" type="text" formControlName="nFatura" placeholder="Insira aqui o número de fatura a pesquisar...">
         <button type="submit" class="itemBtn" style="font-size: 11px;" [disabled]="!FiltroForm.valid">Pesquisar</button>
         <a class="itemClear" (click)="clearTabela()" style="font-size: 11px;">Limpar Pesquisa</a>
       </div>
     </div>
   </form>
-  <div class="main-table" *ngIf="estadoTabela">
+  <div class="main-table" *ngIf="estadoTabela && encomendasEUser.length > 0">
       <table>
         <tr>
           <th>FUNCIONÁRIO</th>
           <th>Nº FATURA</th>
           <th>DATA REGISTO</th>
-          <th>DATA ENREGA</th>
+          <th>DATA ENTREGA</th>
           <th>COMENTÁRIO</th>
           <th>ESTADO</th>
           <th>AÇÕES</th>
        </tr>
-       <tr *ngFor="let tabelaEncomenda of tabelaEncomendas | paginate: { id: 'encomendas', itemsPerPage: 10, currentPage: p }">
-        <td>{{tabelaEncomenda.username}}</td>
-        <td>{{tabelaEncomenda.nFatura}}</td>
-        <td>{{tabelaEncomenda.data.toLocaleDateString()}}</td>
-        <td>{{tabelaEncomenda.dataFinal != null ? tabelaEncomenda.dataFinal.toLocaleDateString() : tabelaEncomenda.dataFinal}}</td>
-        <td>{{tabelaEncomenda.comentario}}</td>
-        <td>{{tabelaEncomenda.estado ? "Entregue" : "Em Espera"}}</td>
+       <tr *ngFor="let encomendas of encomendasEUser | paginate: { id: 'encomendas', itemsPerPage: 10, currentPage: p }">
+        <td>{{encomendas.Username}}</td>
+        <td>{{encomendas.NFatura}}</td>
+        <td>{{encomendas._Data.slice(0, 19).replace('T', ' ')}}</td>
+        <td>{{encomendas.DataEntrega != null ? encomendas.DataEntrega.slice(0, 19).replace('T', ' ') : ''}}</td>
+        <td>{{encomendas.Comentario}}</td>
+        <td>{{encomendas.Estado == 1 ? "Entregue" : "Em Espera"}}</td>
         <td>
           <div class="encomenda-action-btn">
-            <a class="btn" (click)="verEncomenda(tabelaEncomenda.id)">Ver</a>
-            <a class="btn" (click)="editarEncomenda(tabelaEncomenda.id)">Editar</a>
-            <a class="btn" (click)="eliminarEncomenda(tabelaEncomenda.id)">Eliminar</a>
+            <a class="btn" (click)="verEncomenda(encomendas.Id)">Ver</a>
+            <a class="btn" (click)="editarEncomenda(encomendas.Id)">Editar</a>
           </div>
         </td>
        </tr>
       </table>
   </div>
   <pagination-controls *ngIf="estadoTabela" class="pagination" id="encomendas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>   
-  <br>
-  <div *ngIf="!estadoTabela" style="text-align: center;">
-      <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
+  <div *ngIf="encomendasEUser.length == 0" style="text-align: center;">
+    <h2 style="color: #8B0000;">Não existem encomendas no sistema!</h2>
+  </div>
+  <div *ngIf="!estadoTabela && encomendasEUser.length > 0" style="text-align: center;">
+      <h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de encomenda com o filtro selecionado!</h2>
   </div>
 </div>

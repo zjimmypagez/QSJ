@@ -1,23 +1,29 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
-import { Encomenda } from '../../../../interfaces/encomenda';
-import { Caixa } from '../../../../interfaces/caixa';
-import { Garrafa } from '../../../../interfaces/garrafa';
+import { Encomenda, EncomendaSId } from '../../../../interfaces/encomenda';
+import { Caixa, CaixaEVinho, TipoCaixaSId } from '../../../../interfaces/caixa';
+import { Garrafa, GarrafaEVinho, TipoGarrafaSId } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorEncomendaCaixasEspeciaisRegisto, ValidatorEncomendaCaixasRegisto, ValidatorEncomendaQuantidadeCaixas, ValidatorEncomendaQuantidadeCaixasEspeciais, ValidatorEncomendaQuantidadeGarrafas, ValidatorEncomendaQuantidadeGarrafasEspeciais, ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida } from '../../../../validators/validator-encomendas';
+
+import { VinhoServiceService } from '../../../../services/vinho/vinho-service.service';
+import { CaixaServiceService } from '../../../../services/caixa/caixa-service.service';
+import { GarrafaServiceService } from '../../../../services/garrafa/garrafa-service.service';
+import { EncomendaService } from '../../../../services/encomenda/encomenda.service';
 
 @Component({
 	selector: 'app-inserir-encomenda-func',
 	templateUrl: './inserir-encomenda-func.component.html',
 	styleUrls: ['./inserir-encomenda-func.component.css']
 })
-export class InserirEncomendaFuncComponent implements OnInit {
+export class InserirEncomendaFuncComponent implements OnInit, OnDestroy {
 	DadosEncomendaForm: FormGroup;
 	DadosCaixaForm: FormGroup;
 	FiltroCaixaForm: FormGroup;
@@ -30,22 +36,24 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	anos: number[] = [];
 	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabelaCaixa: boolean = true;
+	// Tabela auxiliar no processo de filtragem
+	caixasEVinhosFiltro: CaixaEVinho[] = [];
+  	// Lista de modelos de garrafa a ler da BD
+	caixasEVinhos: CaixaEVinho[] = [];	
+	// Lista auxiliar total de garrafas a ler da BD
+	caixasEVinhosAux: CaixaEVinho[];
+	// Estado que determina se resulta alguma tabela do processo de filtragem
 	estadoTabelaGarrafa: boolean = true;
-	// Tabelas auxiliares no processo de filtragem
-	tabelaFiltroCaixa: tableCaixa[] = [];	
-	tabelaFiltroGarrafa: tableGarrafa[] = [];	
-	// Lista de modelos de caixa a ler da BD
-	caixas: Caixa[];
-	// Lista de modelos de garrafa a ler da BD
-	garrafas: Garrafa[];
-	// Lista de vinhos a ler da BD
-	vinhos: TipoVinho[];
+	// Tabela auxiliar no processo de filtragem
+	garrafasEVinhosFiltro: GarrafaEVinho[] = [];
+  	// Lista de modelos de garrafa a ler da BD
+	garrafasEVinhos: GarrafaEVinho[] = [];	
+	// Lista auxiliar total de garrafas a ler da BD
+	garrafasEVinhosAux: GarrafaEVinho[];
 	// Lista de encomendas a ler da BD
-	encomendas: Encomenda[];
-	// Tabela interligada entre caixas e vinhos
-	tabelaCaixas: tableCaixa[];	
-	// Tabela interligada entre garrafas e vinhos
-	tabelaGarrafas: tableGarrafa[];
+	encomendas: Encomenda[] = [];
+	// Lista de vinhos a ler da BD
+	vinhos: TipoVinho[] = [];
 	// Modelo selecionado
 	modeloCaixaSelecionado: boolean = false;
 	modeloGarrafaSelecionado: boolean = false;
@@ -54,7 +62,20 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	// Array individual, usado em cada item do form array
 	modeloCapacidadeGarrafaEspecial: any[] = [];
 
-	constructor( private router: Router, private fb: FormBuilder, private joinTableService: JoinTablesService, private filtroService: FiltrosService ) { 
+	private subVinhos: Subscription;
+	private subCaixasEVinhos: Subscription;	
+	private subGarrafasEVinhos: Subscription;
+	private subEncomendas: Subscription;
+
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService,
+		private vinhoService: VinhoServiceService,
+		private caixaService: CaixaServiceService,
+		private garrafaService: GarrafaServiceService,
+		private encomendaService: EncomendaService
+	) { 
 		this.DadosEncomendaForm = fb.group({
 			'nFatura': ['', Validators.min(1)],
 			'comentario': ['', Validators.maxLength(200)]
@@ -76,15 +97,151 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {	
-		this.iniListaCaixas();
-		this.iniListaGarrafas();
-		this.iniListaVinhos();
-		this.iniListaEncomendas();		
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.getVinhos();
+		this.getCaixasEVinhos();
+		this.getGarrafasEVinhos();
+		this.getEncomendas();
 		this.iniDadosCaixasForm();
-		this.anos = this.filtroService.iniFiltroAno(this.garrafas);
-		this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+	}
+
+	ngOnDestroy(){
+		this.subVinhos.unsubscribe();
+		this.subCaixasEVinhos.unsubscribe();
+		this.subGarrafasEVinhos.unsubscribe();
+		this.subEncomendas.unsubscribe();
+	}
+
+	// Subcrição do service VinhoService e obtenção dos dados de todos os vinhos provenientes da BD
+	getVinhos(){
+		this.subVinhos = this.vinhoService.getVinhos().subscribe(
+			data => { 
+				this.vinhos = data 
+			},
+			err => console.error(err),
+			() => {
+				this.categorias = this.filtroService.iniFiltroCategoria(this.vinhos);
+			}
+		);
+	}
+
+	// Subcrição do service CaixaService e obtenção dos dados de todos as caixas com a operação JOIN com os vinhos provenientes da BD
+	getCaixasEVinhos(){
+		this.subCaixasEVinhos = this.caixaService.getCaixasEVinhos().subscribe(
+			data => { 
+				this.caixasEVinhos = data;
+				this.caixasEVinhosAux = data 
+			},
+			err => console.error(err)
+		);
+	}
+
+	// Subcrição do service GarrafaService e obtenção dos dados de todos as garrafas com a operação JOIN com os vinhos provenientes da BD
+	getGarrafasEVinhos(){
+		this.subGarrafasEVinhos = this.garrafaService.getGarrafasEVinhos().subscribe(
+			data => { 
+				this.garrafasEVinhos = data;
+				this.garrafasEVinhosAux = data 
+			},
+			err => console.error(err),
+			() => {
+				this.anos = this.filtroService.iniFiltroAno(this.garrafasEVinhos);
+				this.iniDadosCaixasForm();
+			}
+		);
+	}
+
+	// Subcrição do service EncomendaService e obtenção dos dados de todas as encomendas provenientes da BD
+	getEncomendas(){
+		this.subEncomendas = this.encomendaService.getEncomendas().subscribe(
+			data => { 
+				this.encomendas = data 
+			},
+			err => console.error(err)
+		);
+	}
+	
+	// Inserir nova encomenda
+	createEncomenda(newEncomenda: EncomendaSId){
+		const createEncomendas = this.encomendaService.createEncomenda(newEncomenda).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("Operação realizada com sucesso!");			
+					this.router.navigate(['func/encomendas']);	
+				}, 500);
+			}
+		);
+	}
+
+	// Criar encomenda após verificações
+	novoRegisto(dadosEncomenda, dadosCaixas){
+		var currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		var id: number = currentUser.userID;
+		var novaEncomenda: EncomendaSId = {
+			Id_utilizador: id,
+			Comentario: dadosEncomenda.comentario,
+			Estado: 0,
+			NFatura: dadosEncomenda.nFatura,
+			_Data: new Date().toISOString().slice(0, 19).replace('T', ' '),
+			DataEntrega: null,
+			Caixas: []
+		}
+		var caixasNormais: any = dadosCaixas.linhaCaixas;
+		var caixasEspeciais: any = dadosCaixas.linhaModelo;
+		if (caixasNormais[0].caixa == "") novaEncomenda.Caixas = this.formatCaixaEspecial(caixasEspeciais);		 
+		else{
+			if (caixasEspeciais[0].caixa == "") novaEncomenda.Caixas = this.formatCaixaNormal(caixasNormais); 
+			else{
+				novaEncomenda.Caixas = this.formatCaixaEspecial(caixasEspeciais);				
+				novaEncomenda.Caixas = novaEncomenda.Caixas.concat(this.formatCaixaNormal(caixasNormais));
+			}
+		}
+		this.createEncomenda(novaEncomenda);
+	}
+
+	// Função que formata os dados recebidos para uma caixa especial
+	formatCaixaEspecial(caixasEspeciais): TipoCaixaSId[]{
+		var caixas: TipoCaixaSId[] = [];
+		for (let i = 0; i < caixasEspeciais.length; i++){
+			var novaCaixa: TipoCaixaSId = {
+				Id_Caixa: caixasEspeciais[i].caixa,
+				QuantidadeCaixa: caixasEspeciais[i].quantidadeCaixa,
+				Tipo: "E",
+				Garrafas: []
+			}
+			var linhaGarrafa: any = caixasEspeciais[i].linhaGarrafa;
+			for (let j = 0; j < linhaGarrafa.length; j++){
+				var garrafas: TipoGarrafaSId = {
+					Garrafa_ID: linhaGarrafa[j].garrafa,
+					QuantidadeGarrafa: linhaGarrafa[j].quantidadeGarrafa
+				}					
+			}
+			novaCaixa.Garrafas.push(garrafas);
+			caixas.push(novaCaixa);
+		}	
+		return caixas;
+	}
+
+	// Função que formata os dados recebidos para uma caixa normal
+	formatCaixaNormal(caixasNormais): TipoCaixaSId[]{
+		var caixas: TipoCaixaSId[] = [];
+		for (let i = 0; i < caixasNormais.length; i++){
+			var caixa: CaixaEVinho = this.caixasEVinhosAux.find(x => x.ID == caixasNormais[i].caixa);
+			var novaCaixa: TipoCaixaSId = {
+				Id_Caixa: caixasNormais[i].caixa,
+				QuantidadeCaixa: caixasNormais[i].quantidade,
+				Tipo: "N",
+				Garrafas: []
+			}
+			var garrafas: TipoGarrafaSId = {
+				Garrafa_ID: caixasNormais[i].garrafa,
+				QuantidadeGarrafa: caixa.NGarrafas
+			}		
+			novaCaixa.Garrafas.push(garrafas);
+			caixas.push(novaCaixa);
+		}	
+		return caixas;
 	}
 
 	// Inicializar objeto form DadosCaixasForm - Caixas Normais
@@ -101,11 +258,11 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			'caixa': ['', Validators.required],
 			'garrafa': ['', Validators.required],
 			'quantidade': ['', [Validators.required, Validators.min(1)]]
-		}, { validator: [
-				ValidatorEncomendaCaixasRegisto(), 
-				ValidatorEncomendaQuantidadeCaixas(this.caixas), 
-				ValidatorEncomendaQuantidadeGarrafas(this.caixas, this.garrafas)] 
-			}
+			}, { validator: [
+					ValidatorEncomendaCaixasRegisto(), 
+					ValidatorEncomendaQuantidadeCaixas(this.caixasEVinhos), 
+					ValidatorEncomendaQuantidadeGarrafas(this.caixasEVinhos, this.garrafasEVinhos)] 
+				}
 		);
 	}
 
@@ -115,7 +272,9 @@ export class InserirEncomendaFuncComponent implements OnInit {
 			'caixa': ['', Validators.required],
 			'quantidadeCaixa': ['', Validators.compose([Validators.required, Validators.min(1)])],
 			linhaGarrafa: this.fb.array([this.iniLinhaGarrafa()])
-		}, { validator: ValidatorEncomendaQuantidadeCaixasEspeciais(this.caixas) }
+			}, { 
+				validator: ValidatorEncomendaQuantidadeCaixasEspeciais(this.caixasEVinhos) 
+			}
 		);
 	}
 
@@ -124,11 +283,11 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		return this.fb.group({			
 			'garrafa': ['', Validators.required],
 			'quantidadeGarrafa': ['', Validators.compose([Validators.required, Validators.min(1)])],
-		}, { validator: [
-				ValidatorEncomendaCaixasEspeciaisRegisto(), 
-				ValidatorEncomendaQuantidadeGarrafasEspeciais(this.caixas, this.garrafas),
-				ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida(this.caixas)] 
-			}
+			}, { validator: [
+					ValidatorEncomendaCaixasEspeciaisRegisto(), 
+					ValidatorEncomendaQuantidadeGarrafasEspeciais(this.caixasEVinhos, this.garrafasEVinhos),
+					ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida(this.caixasEVinhos)] 
+				}
 		);
 	}
 
@@ -203,7 +362,7 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	caixaPreenchida(linhaAtual): number{
 		var soma: number = 0;
 		var idCaixa: number = linhaAtual.get('caixa').value;
-		var caixa: Caixa = this.caixas.find(x => x.ID == idCaixa);
+		var caixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == idCaixa);
 		var garrafas: number = caixa.NGarrafas;
 		const linhaGarrafa = <FormArray>linhaAtual.get('linhaGarrafa');
 		for (let i = 0; i < linhaGarrafa.length; i++) soma += linhaGarrafa.at(i).get('quantidadeGarrafa').value;
@@ -237,8 +396,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	onChangeModeloCaixa(index: number){	
 		const linhaCaixa = <FormArray>this.DadosCaixaForm.get('linhaCaixas');
 		var id = linhaCaixa.at(index).get('caixa').value;
-		var modeloCaixa: Caixa = this.caixas.find(x => x.ID == id);
-		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.Capacidade === modeloCaixa.CapacidadeGarrafa);
+		var modeloCaixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == id);
+		var listaGarrafas: GarrafaEVinho[] = this.garrafasEVinhos.filter(
+			x => x.Capacidade === modeloCaixa.CapacidadeGarrafa && 
+			x.Marca == modeloCaixa.Marca && 
+			x.Tipo == modeloCaixa.Tipo &&
+			x.Categoria == modeloCaixa.Categoria
+		);
 		this.modeloCapacidadeGarrafa[index] = listaGarrafas;
 		const control = <FormArray>this.DadosCaixaForm.controls['linhaCaixas'];
 		control.at(index).get('garrafa').reset('');
@@ -252,8 +416,13 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		const linhaGarrafa = <FormArray>control.at(index).get('linhaGarrafa');
 		linhaGarrafa.at(0).get('garrafa').setValue('');
 		linhaGarrafa.at(0).get('quantidadeGarrafa').setValue('');
-		var modeloCaixa: Caixa = this.caixas.find(x => x.ID == id);
-		var listaGarrafas: Garrafa[] = this.garrafas.filter(x => x.Capacidade == modeloCaixa.CapacidadeGarrafa);
+		var modeloCaixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == id);
+		var listaGarrafas: GarrafaEVinho[] = this.garrafasEVinhos.filter(			
+			x => x.Capacidade === modeloCaixa.CapacidadeGarrafa && 
+			x.Marca == modeloCaixa.Marca && 
+			x.Tipo == modeloCaixa.Tipo &&
+			x.Categoria == modeloCaixa.Categoria	
+		);
 		this.modeloCapacidadeGarrafaEspecial[index] = listaGarrafas;
 		for (let i = linhaGarrafa.length; i > 0; i--) linhaGarrafa.removeAt(i);
 	}
@@ -262,12 +431,6 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	getValidForm(){
 		if (this.DadosCaixaForm.get('linhaModelo').valid || this.DadosCaixaForm.get('linhaCaixas').valid) return false;
 		return true;
-	}
-
-	// Criar encomenda após verificações
-	novoRegisto(dadosEncomenda, dadosCaixas){
-		var dadosGeraisEncomenda: any = dadosEncomenda;
-		var dadosCaixasEncomendadas: any = dadosCaixas;
 	}
 
 	// Limpar form
@@ -304,15 +467,15 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.material != "" || form.capacidade != "" || form.tipoVinho != "" || form.categoria != ""){
-				if (this.tabelaFiltroCaixa.length != 0) this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaFiltroCaixa, marca);
-				else this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+				if (this.caixasEVinhosFiltro.length != 0) this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhosFiltro, marca);
+				else this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
 			}
 			else{
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-				this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, marca);
+				this.reloadCaixasEVinhos();
+				this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, marca);
 			} 
-			if (this.tabelaCaixas.length == 0){
-				this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+			if (this.caixasEVinhos.length == 0){
+				this.reloadCaixasEVinhos();
 				this.estadoTabelaCaixa = false;
 			}
 			else this.estadoTabelaCaixa = true;
@@ -322,25 +485,25 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	// Filtragem caixa
 	onChangeCaixa(){
 		var filtro: any = this.FiltroCaixaForm.value;
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-		if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);		
+		this.reloadCaixasEVinhos();
+		if (filtro.marca != "") this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);		
 		if (filtro.material != "" || filtro.capacidade != "" || filtro.tipoVinho != "" || filtro.categoria != ""){
-			this.tabelaFiltroCaixa = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.tabelaCaixas);
-			this.tabelaCaixas = this.tabelaFiltroCaixa;
-			if (this.tabelaCaixas.length == 0) this.estadoTabelaCaixa = false;
+			this.caixasEVinhosFiltro = this.filtroService.filtroMaterialCapacidadeTipoVinhoCategoria(filtro, this.caixasEVinhos);
+			this.caixasEVinhos = this.caixasEVinhosFiltro;
+			if (this.caixasEVinhos.length == 0) this.estadoTabelaCaixa = false;
 			else this.estadoTabelaCaixa = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaCaixas = this.filtroService.pesquisaMarca(this.tabelaCaixas, filtro.marca);
-			else this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
-			this.tabelaFiltroCaixa = [];
+			if (filtro.marca != "") this.caixasEVinhos = this.filtroService.pesquisaMarca(this.caixasEVinhos, filtro.marca);
+			else this.reloadCaixasEVinhos();
+			this.caixasEVinhosFiltro = [];
 			this.estadoTabelaCaixa = true;
 		}
 	}
 
 	// Limpar pesquisa Caixa
 	clearTabelaCaixa(){
-		this.tabelaCaixas = this.joinTableService.iniListaTableCaixas(this.caixas, this.vinhos);
+		this.reloadCaixasEVinhos();
 		this.estadoTabelaCaixa = true;
 		this.clearFormCaixa();
 	}
@@ -354,20 +517,26 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.FiltroCaixaForm.controls['categoria'].reset(0);
 	}
 
+	// Recarregamento de todos as garrafas
+	reloadCaixasEVinhos(){
+		this.caixasEVinhos = [];
+		this.caixasEVinhos = this.caixasEVinhosAux;
+	}
+
 	// Pesquisa na tabela garrafa
 	pesquisaMarcaGarrafa(form){
 		var marca = form.marca;		
 		if (marca != ""){
 			if (form.ano != 0 || form.capacidade != 0 || form.tipoVinho != 0 || form.categoria != 0){
-				if (this.tabelaFiltroGarrafa.length != 0) this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaFiltroGarrafa, marca);
-				else this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				if (this.garrafasEVinhosFiltro.length != 0) this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhosFiltro, marca);
+				else this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
 			else{
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-				this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, marca);
+				this.reloadGarrafasEVinhos();
+				this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, marca);
 			}
-			if (this.tabelaGarrafas.length == 0) {
-				this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+			if (this.garrafasEVinhos.length == 0) {
+				this.reloadGarrafasEVinhos();
 				this.estadoTabelaGarrafa = false;
 			}				
 			else this.estadoTabelaGarrafa = true;
@@ -377,25 +546,25 @@ export class InserirEncomendaFuncComponent implements OnInit {
 	// Filtragem Garrafa
 	onChangeGarrafa(){
 		var filtro: any = this.FiltroGarrafaForm.value;
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-		if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
+		this.reloadGarrafasEVinhos();
+		if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
 		if (filtro.ano != 0 || filtro.capacidade != 0 || filtro.tipoVinho != 0 || filtro.categoria != 0){
-			this.tabelaFiltroGarrafa = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.tabelaGarrafas);
-			this.tabelaGarrafas = this.tabelaFiltroGarrafa;
-			if (this.tabelaGarrafas.length == 0) this.estadoTabelaGarrafa = false;
+			this.garrafasEVinhosFiltro = this.filtroService.filtroAnoCapacidadeTipoVinhoCategoria(filtro, this.garrafasEVinhos);
+			this.garrafasEVinhos = this.garrafasEVinhosFiltro;
+			if (this.garrafasEVinhos.length == 0) this.estadoTabelaGarrafa = false;
 			else this.estadoTabelaGarrafa = true;
 		}
 		else{
-			if (filtro.marca != "") this.tabelaGarrafas = this.filtroService.pesquisaMarca(this.tabelaGarrafas, filtro.marca);
-			else this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
-			this.tabelaFiltroGarrafa = [];
+			if (filtro.marca != "") this.garrafasEVinhos = this.filtroService.pesquisaMarca(this.garrafasEVinhos, filtro.marca);
+			else this.reloadGarrafasEVinhos();
+			this.garrafasEVinhosFiltro = [];
 			this.estadoTabelaGarrafa = true;
 		}
 	}
 
 	// Limpar pesquisa garrafa
 	clearTabelaGarrafa(){
-		this.tabelaGarrafas = this.joinTableService.iniListaTableGarrafas(this.garrafas, this.vinhos);
+		this.reloadGarrafasEVinhos();
 		this.estadoTabelaGarrafa = true;
 		this.clearFormGarrafa();
 	}
@@ -409,123 +578,10 @@ export class InserirEncomendaFuncComponent implements OnInit {
 		this.FiltroGarrafaForm.controls['categoria'].reset(0);
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-   iniListaCaixas(){
-   	/*this.caixas = [{
-      	id: 1,
-         capacidade: 1.000,
-         garrafas: 3,
-         material: 'Madeira',
-			tipoVinho: 1,
-			quantidade: 250
-      },
-      {
-         id: 2,
-         capacidade: 0.750,
-         garrafas: 12,
-         material: 'Cartão',
-			tipoVinho: 2,
-			quantidade: 50
-      }];*/
+	// Recarregamento de todos as garrafas
+	reloadGarrafasEVinhos(){
+		this.garrafasEVinhos = [];
+		this.garrafasEVinhos = this.garrafasEVinhosAux;
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaGarrafas(){
-		/*this.garrafas = [{
-			id: 1,
-			cuba: 5000,
-			ano: 2004,
-			tipoVinho: 1,
-			capacidade: 1.000,
-			cRotulo: 250,
-			sRotulo: 100
-		},
-		{
-			id: 2,
-			cuba: 10000,
-			ano: 2015,
-			tipoVinho: 3,
-			capacidade: 0.750,
-			cRotulo: 150,
-			sRotulo: 0
-		},
-		{
-			id: 3,
-			cuba: 10000,
-			ano: 2015,
-			tipoVinho: 2,
-			capacidade: 1.000,
-			cRotulo: 1500,
-			sRotulo: 0
-		}];*/
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaVinhos(){
-		/*this.vinhos = [{
-			id: 1,
-			marca: 'Flor São José',
-			tipo: 'Verde',
-			categoria: ''
-		},
-		{
-			id: 2,
-			marca: 'Quinta São José',
-			tipo: 'Rosé',
-			categoria: 'Grande Reserva'
-		},
-		{
-			id: 3,
-			marca: 'Quinta São José',
-			tipo: 'Tinto',
-			categoria: ''
-		}];*/
-	}
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaEncomendas(){
-		this.encomendas = [{
-			id: 1,
-			idUser: 2,
-			data: new Date(2017, 4, 2),
-			dataFinal: null,
-			nFatura: 11568920,
-			comentario: 'Restaurante XPTO',
-			estado: false // false - Em espera; true - Finalizado
-		 },
-		 {
-			id: 2,
-			idUser: 1,
-			data: new Date(2012, 3, 25),
-			dataFinal: new Date(2012, 4, 25),
-			nFatura: 25134859,
-			comentario: '',
-			estado: true
-		 }];
-	}
-
-}
-
-// Interface que interliga 2 tabelas = Caixa + Tipo de Vinho 
-interface tableCaixa{
-	id: number,
-   capacidade: number,
-   garrafas: number,
-   material: string,
-	tipoVinho: string, // Atributo tipo da tabela Tipo de Vinho
-	quantidade: number
-}
-
-// Interface que interliga 2 tabelas = Garrafa + Tipo de Vinho 
-interface tableGarrafa{
-	id: number,
-	lote: string, // Atributo que junta, para mostrar, marca, ano e cuba
-   cuba: number,
-	ano: number,
-	marca: string, // Atributo marca da tabela Tipo de vinho
-	tipo: string, // Atributo tipo da tabela Tipo de Vinho
-	categoria: string; // Atributo categoria da tabela Tipo de Vinho
-   capacidade: number,
-	cRotulo: number,
-	sRotulo: number
 }

@@ -1,12 +1,14 @@
-<div class="container">
+<div class="container" *ngIf="encomenda">
 	<h1 class="itemTitulo">Ver Registo - Encomendas</h1>
-  <h4>Data de Registo: {{encomenda.data.toLocaleDateString()}}</h4>
-  <h4 *ngIf="encomenda.dataFinal != null">Data de Entrega: {{encomenda.dataFinal.toLocaleDateString()}}</h4>
-  <h4 *ngIf="encomenda.nFatura != null">Nº Fatura: {{encomenda.nFatura}}</h4>
-  <h4 *ngIf="encomenda.comentario != ''">Comentário: {{encomenda.comentario}}</h4>
-  <br>
-  <h4 *ngIf="tableRegistoNormal.length != 0">Caixas Normais Encomendadas</h4>
-	<div class="main-table" *ngIf="tableRegistoNormal.length != 0">
+	<div>
+		<h4>Data de Registo: {{encomenda._Data.slice(0, 19).replace('T', ' ')}}</h4>
+		<h4 *ngIf="encomenda.DataEntrega != null">Data de Entrega: {{encomenda.DataEntrega.slice(0, 19).replace('T', ' ')}}</h4>
+		<h4 *ngIf="encomenda.NFatura != ''">Nº Fatura: {{encomenda.NFatura}}</h4>
+		<h4 *ngIf="encomenda.Comentario != ''">Comentário: {{encomenda.Comentario}}</h4>
+		<br>
+	</div>
+  <h4 *ngIf="encomendaTipoCaixaNormais.length > 0">Caixas Normais Encomendadas</h4>
+	<div class="main-table" *ngIf="encomendaTipoCaixaNormais.length > 0">
 	  <table>
 		  <tr>
 				<th>MARCA</th>
@@ -14,32 +16,28 @@
 				<th>MATERIAL</th>
 				<th>GARRAFAS(QNT)</th>
 				<th>CAPACIDADE(/L)</th>
-        <th>QUANTIDADE</th>
-        <th>MARCA GARRAFA</th>
-				<th>TIPO VINHO GARRAFA</th>
         <th>ANO</th>
         <th>CUBA</th>
-        <th>QUANTIDADE</th>
+        <th>QUANTIDADE CAIXAS</th>
+        <th>QUANTIADDE GARRAFAS</th>
 			</tr>
-			<tr *ngFor="let tabelaCaixaNormal of tableRegistoNormal | paginate: { id: 'caixasNormal', itemsPerPage: 10, currentPage: p }">
-				<td>{{tabelaCaixaNormal.marcaCaixa}}</td>
-				<td>{{tabelaCaixaNormal.tipoCaixa}} {{tabelaCaixaNormal.categoriaCaixa != "" ? ' - ' + tabelaCaixaNormal.categoriaCaixa : ''}}</td>
-				<td>{{tabelaCaixaNormal.material}}</td>
-				<td>{{tabelaCaixaNormal.garrafas}}</td>
-				<td>{{tabelaCaixaNormal.capacidadeCaixa}} l</td>
-        <td>{{tabelaCaixaNormal.quantidadeCaixa}}</td>
-        <td>{{tabelaCaixaNormal.marcaGarrafa}}</td>
-				<td>{{tabelaCaixaNormal.tipoGarrafa}} {{tabelaCaixaNormal.categoriaGarrafa != "" ? ' - ' + tabelaCaixaNormal.categoriaGarrafa : ''}}</td>
-				<td>{{tabelaCaixaNormal.ano}}</td>
-				<td>{{tabelaCaixaNormal.cuba}}</td>
-				<td>{{tabelaCaixaNormal.quantidade}}</td>
+			<tr *ngFor="let normais of encomendaTipoCaixaNormais | paginate: { id: 'caixasNormal', itemsPerPage: 10, currentPage: p }">
+				<td>{{normais.Marca}}</td>
+				<td>{{normais.Tipo}} {{normais.Categoria != "" ? ' - ' + normais.Categoria : ''}}</td>
+				<td>{{normais.Material}}</td>
+				<td>{{normais.NGarrafas}}</td>
+				<td>{{normais.CapacidadeGarrafa}} l</td>
+				<td>{{normais.Ano}}</td>
+				<td>{{normais.Pipa}}</td>
+        <td>{{normais.QuantidadeCaixa}}</td>
+				<td>{{normais.Quantidade}}</td>
 			</tr>
 		</table>
 	</div>
-  <pagination-controls *ngIf="tableRegistoNormal.length != 0" class="pagination" id="caixasNormal" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>  
+  <pagination-controls *ngIf="encomendaTipoCaixaNormais.length != 0" class="pagination" id="caixasNormal" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>  
   <br>
-  <h4 *ngIf="tableRegistoEspeciais.length != 0">Caixas Especiais Encomendadas</h4>
-	<div class="main-table" *ngIf="tableRegistoEspeciais.length != 0">
+  <h4 *ngIf="encomendaTipoCaixaEspeciais.length > 0">Caixas Especiais Encomendadas</h4>
+	<div class="main-table" *ngIf="encomendaTipoCaixaEspeciais.length > 0">
 	  <table>
 		  <tr>
 				<th>MARCA</th>
@@ -47,31 +45,27 @@
 				<th>MATERIAL</th>
 				<th>GARRAFAS(QNT)</th>
 				<th>CAPACIDADE(/L)</th>
-        <th>QUANTIDADE</th>
-        <th>MARCA GARRAFA</th>
-				<th>TIPO VINHO GARRAFA</th>
         <th>ANO</th>
         <th>CUBA</th>
-        <th>QUANTIDADE</th>
+        <th>QUANTIDADE CAIXAS</th>
+        <th>QUANTIADDE GARRAFAS</th>
 			</tr>
-			<tr *ngFor="let tabelaCaixaEspecial of tableRegistoEspeciais | paginate: { id: 'caixasEspeciais', itemsPerPage: 10, currentPage: p }">
-				<td>{{tabelaCaixaEspecial.marcaCaixa}}</td>
-				<td>{{tabelaCaixaEspecial.tipoCaixa}} {{tabelaCaixaEspecial.categoriaCaixa != "" ? ' - ' + tabelaCaixaEspecial.categoriaCaixa : ''}}</td>
-				<td>{{tabelaCaixaEspecial.material}}</td>
-				<td>{{tabelaCaixaEspecial.garrafas}}</td>
-				<td>{{tabelaCaixaEspecial.capacidadeCaixa}} l</td>
-        <td>{{tabelaCaixaEspecial.quantidadeCaixa}}</td>
-        <td>{{tabelaCaixaEspecial.marcaGarrafa}}</td>
-				<td>{{tabelaCaixaEspecial.tipoGarrafa}} {{tabelaCaixaEspecial.categoriaGarrafa != "" ? ' - ' + tabelaCaixaEspecial.categoriaGarrafa : ''}}</td>
-				<td>{{tabelaCaixaEspecial.ano}}</td>
-				<td>{{tabelaCaixaEspecial.cuba}}</td>
-				<td>{{tabelaCaixaEspecial.quantidade}}</td>
+			<tr *ngFor="let especiais of encomendaTipoCaixaEspeciais | paginate: { id: 'caixasEspeciais', itemsPerPage: 10, currentPage: p }">
+				<td>{{especiais.Marca}}</td>
+				<td>{{especiais.Tipo}} {{especiais.Categoria != "" ? ' - ' + especiais.Categoria : ''}}</td>
+				<td>{{especiais.Material}}</td>
+				<td>{{especiais.NGarrafas}}</td>
+				<td>{{especiais.CapacidadeGarrafa}} l</td>
+				<td>{{especiais.Ano}}</td>
+				<td>{{especiais.Pipa}}</td>
+        <td>{{especiais.QuantidadeCaixa}}</td>
+				<td>{{especiais.Quantidade}}</td>
 			</tr>
 		</table>
 	</div>
-  <pagination-controls *ngIf="tableRegistoEspeciais.length != 0" class="pagination" id="caixasEspeciais" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>            
-  <div style="margin: 10px 0 10px 0;"></div>
-		<div class="registo-btn" *ngIf="!encomenda.estado">
+  <pagination-controls *ngIf="encomendaTipoCaixaEspeciais.length != 0" class="pagination" id="caixasEspeciais" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>            
+	<div style="margin: 10px 0 10px 0;"></div>
+		<div class="registo-btn" *ngIf="!encomenda.Estado">
 			<a class="btn" (click)="entregarEncomenda()">Entregar</a>
 			<a class="btn" (click)="eliminarEncomenda()">Eliminar</a>
 		</div>

@@ -8,7 +8,6 @@ import { Garrafa, GarrafaEVinho } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 import { RegistoGarrafaSId } from '../../../../interfaces/registoGarrafa';
 
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../../services/funcoes-service/filtros.service';
 
 import { ValidatorGarrafa, ValidatorCRotulo, ValidatorSRotulo, ValidatorRotular } from '../../../../validators/validator-garrafas';
@@ -57,7 +56,6 @@ export class InserirRemoverGarrafasFuncComponent implements OnInit, OnDestroy {
 	constructor( 
 		private router: Router, 
 		private fb: FormBuilder, 
-		private joinTableService: JoinTablesService, 
 		private filtroService: FiltrosService,
 		private vinhoService: VinhoServiceService,
 		private garrafaService: GarrafaServiceService,

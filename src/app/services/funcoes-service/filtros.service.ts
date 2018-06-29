@@ -251,8 +251,8 @@ export class FiltrosService {
 	// Função que filtra estado, tabela representa a tabela da qual é filtrado o estado
 	filtrarEstado(filtro: any, tabela: any[]): any[]{
 		var tabelaEstado: any[] = tabela.filter(x => x.ano == filtro.ano);
-		if (filtro.estado != "EmEspera") tabelaEstado = tabela.filter(x => x.estado == true);
-		else tabelaEstado = tabela.filter(x => x.estado == false);
+		if (filtro.estado != "EmEspera") tabelaEstado = tabela.filter(x => x.Estado == 1);
+		else tabelaEstado = tabela.filter(x => x.Estado == 0);
 		return tabelaEstado;
 	}
 

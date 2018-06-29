@@ -31,7 +31,7 @@
 				<a class="itemClear" (click)="clearTabelaCaixa()" style="font-size: 11px;">Limpar Pesquisa</a>
 			</div>
 		</form>		
-		<div class="main-table" *ngIf="estadoTabelaCaixa">
+		<div class="main-table" *ngIf="estadoTabelaCaixa && caixasEVinhos.length > 0">
 		   <table>
 			  <tr>
 					<th>MODELO</th>
@@ -42,19 +42,22 @@
 					<th>CAPACIDADE(/L)</th>
 					<th>QUANTIDADE</th>
 			  </tr>
-			  <tr *ngFor="let tabelaCaixa of tabelaCaixas | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
-					<td>{{tabelaCaixa.id}}</td>
-					<td>{{tabelaCaixa.marca}}</td>
-					<td>{{tabelaCaixa.tipo}} {{tabelaCaixa.categoria != "" ? ' - ' + tabelaCaixa.categoria : ''}}</td>
-					<td>{{tabelaCaixa.material}}</td>
-					<td>{{tabelaCaixa.garrafas}}</td>
-					<td>{{tabelaCaixa.capacidade}} l</td>
-					<td>{{tabelaCaixa.quantidade}}</td>
+			  <tr *ngFor="let caixas of caixasEVinhos | paginate: { id: 'caixas', itemsPerPage: 10, currentPage: p }">
+					<td>{{caixas.ID}}</td>
+					<td>{{caixas.Marca}}</td>
+					<td>{{caixas.Tipo}} {{caixas.Categoria != "" ? ' - ' + caixas.Categoria : ''}}</td>
+					<td>{{caixas.Material}}</td>
+					<td>{{caixas.NGarrafas}}</td>
+					<td>{{caixas.CapacidadeGarrafa}}</td>
+					<td>{{caixas.Stock}}</td>
 			  </tr>
 		   </table>
 		</div>
 		<pagination-controls *ngIf="estadoTabelaCaixa" class="pagination" id="caixas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>       
-		<div *ngIf="!estadoTabelaCaixa" style="text-align: center;">
+		<div *ngIf="caixasEVinhos.length == 0" style="text-align: center;">
+			<h2 style="color: #8B0000;">Não existem modelos de caixa no sistema!</h2>
+		</div> 
+		<div *ngIf="!estadoTabelaCaixa && caixasEVinhos.length > 0" style="text-align: center;">
 			<h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de caixa com o filtro selecionado!</h2>
 		</div>
 	</div>
@@ -83,7 +86,7 @@
 				<a class="itemClear" (click)="clearTabelaGarrafa()" style="font-size: 11px;">Limpar Pesquisa</a>
 			</div>
 		</form>
-		<div class="main-table" *ngIf="estadoTabelaGarrafa">
+		<div class="main-table" *ngIf="estadoTabelaGarrafa && garrafasEVinhos.length > 0">
 		   <table>
 			  <tr>
 				<th>MODELO</th>
@@ -93,18 +96,21 @@
 				<th>C/RÓTULO</th>
 				<th>S/RÓTULO</th>
 			  </tr>
-			  <tr *ngFor="let tabelaGarrafa of tabelaGarrafas | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
-				<td>{{tabelaGarrafa.id}}</td>
-				<td>{{tabelaGarrafa.lote}}{{tabelaGarrafa.cuba != null ? '-' + tabelaGarrafa.cuba : ''}}</td>
-				<td>{{tabelaGarrafa.tipo}} {{tabelaGarrafa.categoria != "" ? ' - ' + tabelaGarrafa.categoria : ''}}</td>
-				<td>{{tabelaGarrafa.capacidade}} l</td>
-				<td>{{tabelaGarrafa.cRotulo}}</td>
-				<td>{{tabelaGarrafa.sRotulo}}</td>
+			  <tr *ngFor="let garrafas of garrafasEVinhos | paginate: { id: 'garrafas', itemsPerPage: 10, currentPage: p }">
+				<td>{{garrafas.Id}}</td>
+            <td>{{garrafas.Marca}}-{{garrafas.Ano}}{{garrafas.Pipa != 0 ? '-' + garrafas.Pipa : ''}}</td>
+            <td>{{garrafas.Tipo}} {{garrafas.Categoria != "" ? ' - ' + garrafas.Categoria : ''}}</td>
+            <td>{{garrafas.Capacidade}} l</td>
+				<td>{{garrafas.CRotulo}}</td>
+				<td>{{garrafas.SRotulo}}</td>
 			  </tr>
 		   </table>
 		</div>
 		<pagination-controls *ngIf="estadoTabelaGarrafa" class="pagination" id="garrafas" (pageChange)="p = $event" max-size="5" autoHide="true" previousLabel="ANTERIOR" nextLabel="PRÓXIMA"></pagination-controls>
-		<div *ngIf="!estadoTabelaGarrafa" style="text-align: center;">
+		<div *ngIf="garrafasEVinhos.length == 0" style="text-align: center;">
+			<h2 style="color: #8B0000;">Não existem modelos de garrafa no sistema!</h2>
+	  	</div>  
+		<div *ngIf="!estadoTabelaGarrafa && garrafasEVinhos.length > 0" style="text-align: center;">
 			<h2 style="color: #8B0000;">Não foram encontrados nenhuns registo de garrafa com o filtro selecionado!</h2>
 		</div>
 	</div>
@@ -123,14 +129,14 @@
 					<div class="itemFormTabelaCaixasNormais">
 						<select formControlName="caixa" (change)="onChangeModeloCaixa(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id"> {{caixa.id}} </option>
+							<option *ngFor="let caixa of caixasEVinhos" [ngValue]="caixa.ID"> {{caixa.ID}} </option>
 						</select>
 						<div class="alerta itemCaixa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa
 						</div>	
 						<select formControlName="garrafa">
 							<option value="" disabled>Modelos Garrafa</option>
-							<option *ngFor="let garrafa of modeloCapacidadeGarrafa[i]" [ngValue]="garrafa.id"> {{garrafa.id}} </option>
+							<option *ngFor="let garrafa of modeloCapacidadeGarrafa[i]" [ngValue]="garrafa.Id"> {{garrafa.Id}} </option>
 						</select>
 						<div class="alerta itemGarrafa" *ngIf="linha.controls['garrafa'].hasError('required') && linha.controls['garrafa'].touched">
 							Selecione um Modelo de Garrafa
@@ -166,7 +172,7 @@
 					<div class="itemFormCaixaQuantidade">
 						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixaEspecial(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of tabelaCaixas" [ngValue]="caixa.id">{{caixa.id}}</option>
+							<option *ngFor="let caixa of caixasEVinhos" [ngValue]="caixa.ID">{{caixa.ID}}</option>
 						</select>									
 						<div class="alerta itemGarrafa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa
@@ -192,7 +198,7 @@
 						<div class="itemFormQuantidade" *ngFor="let linhaG of linha.controls.linhaGarrafa.controls; let j=index" [formGroupName]="j">
 							<select formControlName="garrafa">
 								<option value="" disabled>Modelos Garrafa</option>
-								<option *ngFor="let garrafa of modeloCapacidadeGarrafaEspecial[i]" [ngValue]="garrafa.id">{{garrafa.id}}</option>
+								<option *ngFor="let garrafa of modeloCapacidadeGarrafaEspecial[i]" [ngValue]="garrafa.Id">{{garrafa.Id}}</option>
 							</select>
 							<div class="alerta itemCaixa" *ngIf="linhaG.controls['garrafa'].hasError('required') && linhaG.controls['garrafa'].touched">
 								Selecione um Modelo de Garrafa

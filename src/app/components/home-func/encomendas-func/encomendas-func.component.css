@@ -93,7 +93,7 @@
 
 .encomenda-action-btn{
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(2, 1fr);
     grid-gap: 0.2rem;
     padding: 0.2rem;
 }
@@ -176,9 +176,6 @@ button:disabled{
 
 /* media queries */
 @media(max-width: 1075px){
-    .encomenda-action-btn{
-        grid-template-columns: 1fr;
-    }
 
     .container{
         grid-template-rows: 75px .5fr auto;
@@ -191,6 +188,10 @@ button:disabled{
 }
 
 @media(max-width: 975px){
+    .encomenda-action-btn{
+        grid-template-columns: 1fr;
+    }
+    
     .main-table{
         overflow-x: auto;        
     }

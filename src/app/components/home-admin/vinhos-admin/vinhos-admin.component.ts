@@ -9,7 +9,6 @@ import { Caixa } from '../../../interfaces/caixa';
 import { Garrafa } from '../../../interfaces/garrafa';
 
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
-import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
 import { VinhoServiceService } from '../../../services/vinho/vinho-service.service';

@@ -46,3 +46,9 @@ export interface GarrafaVinhoRegistoEUser {
     Data: string,
     Username: string
 }
+
+// Interface auxiliar de encomenda
+export interface TipoGarrafaSId{
+    Garrafa_ID: number,
+    QuantidadeGarrafa: number
+}

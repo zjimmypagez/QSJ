@@ -8,7 +8,6 @@ import { RegistoGarrafa, RegistoGarrafaComentario } from '../../../../interfaces
 import { Garrafa, GarrafaEVinho } from '../../../../interfaces/garrafa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
 import { ValidatorComentario } from '../../../../validators/validator-garrafas';
 
 import { RegistoGarrafaService } from '../../../../services/registo-garrafa/registo-garrafa.service';
@@ -43,7 +42,6 @@ export class EditarGarrafasFuncComponent implements OnInit, OnDestroy {
 		private route: ActivatedRoute, 
 		private router: Router, 
 		private fb: FormBuilder, 
-		private joinTableService: JoinTablesService,
 		private registoService: RegistoGarrafaService,
 		private garrafaService: GarrafaServiceService
 	) { }

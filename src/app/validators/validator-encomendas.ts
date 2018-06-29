@@ -1,7 +1,7 @@
 import { ValidatorFn, AbstractControl, FormArray, FormGroup } from '@angular/forms';
 
-import { Caixa } from '../interfaces/caixa';
-import { Garrafa } from '../interfaces/garrafa';
+import { Caixa, CaixaEVinho } from '../interfaces/caixa';
+import { Garrafa, GarrafaEVinho } from '../interfaces/garrafa';
 
 // Validator que verifica se já existe o registo inserido - caixas normais
 export function ValidatorEncomendaCaixasRegisto(): ValidatorFn{
@@ -35,11 +35,11 @@ export function ValidatorEncomendaCaixasEspeciaisRegisto(): ValidatorFn{
 }
 
 // Validator que verifica se existem, em stock, a quantidade de caixas propostas - caixas normais
-export function ValidatorEncomendaQuantidadeCaixas(caixas: Caixa[]): ValidatorFn{
+export function ValidatorEncomendaQuantidadeCaixas(caixas: CaixaEVinho[]): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idCaixa = control.get('caixa').value;
         const quantidade = control.get('quantidade').value;
-        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);     
+        var caixa: CaixaEVinho = caixas.find(x => x.ID == idCaixa);     
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaCaixas = <FormArray>control.parent;
@@ -57,11 +57,11 @@ export function ValidatorEncomendaQuantidadeCaixas(caixas: Caixa[]): ValidatorFn
 }
 
 // Validator que verifica se existem, em stock, a quantidade de caixas propostas - caixas especiais
-export function ValidatorEncomendaQuantidadeCaixasEspeciais(caixas: Caixa[]): ValidatorFn{
+export function ValidatorEncomendaQuantidadeCaixasEspeciais(caixas: CaixaEVinho[]): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idCaixa = control.get('caixa').value;
         const quantidade = control.get('quantidadeCaixa').value;
-        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
+        var caixa: CaixaEVinho = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaModelo = <FormArray>control.parent;
@@ -79,14 +79,14 @@ export function ValidatorEncomendaQuantidadeCaixasEspeciais(caixas: Caixa[]): Va
 }
 
 // Validator que verifica se existem, em stock, a quantidade de garrafas propostas - caixas normais
-export function ValidatorEncomendaQuantidadeGarrafas(caixas: Caixa[], garrafas: Garrafa[]): ValidatorFn{
+export function ValidatorEncomendaQuantidadeGarrafas(caixas: CaixaEVinho[], garrafas: GarrafaEVinho[]): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idCaixa = control.get('caixa').value;
         const idGarrafa = control.get('garrafa').value;
         const quantidade = control.get('quantidade').value;
-        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
+        var caixa: CaixaEVinho = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloCaixa': true }
-        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
+        var garrafa: GarrafaEVinho = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModeloGarrafa': true }
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaCaixa = <FormArray>control.parent;
@@ -108,11 +108,11 @@ export function ValidatorEncomendaQuantidadeGarrafas(caixas: Caixa[], garrafas: 
 }
 
 // Validator que verifica se existem, em stock, a quantidade de garrafas propostas - caixas especiais
-export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], garrafas: Garrafa[]): ValidatorFn{
+export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: CaixaEVinho[], garrafas: GarrafaEVinho[]): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {
         const idGarrafa = control.get('garrafa').value;
         const quantidade = control.get('quantidadeGarrafa').value;
-        var garrafa: Garrafa = garrafas.find(x => x.Id == idGarrafa);
+        var garrafa: GarrafaEVinho = garrafas.find(x => x.Id == idGarrafa);
         if (garrafa == undefined) return { 'WaitingModeloGarrafa': true }  
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaModelo = <FormArray>control.parent.parent.parent;
@@ -120,7 +120,7 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], g
         var quantidadeGarrafas: number = 0;
         for (let i = 0; i < linhaCaixa.length; i++){
             const idCaixa = linhaCaixa.at(i).get('caixa').value;
-            var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
+            var caixa: CaixaEVinho = caixas.find(x => x.ID == idCaixa);
             if (caixa != undefined){
                 if (linhaCaixa.at(i).get('garrafa').value == idGarrafa) quantidadeGarrafas += caixa.NGarrafas * linhaCaixa.at(i).get('quantidade').value;
             }
@@ -137,13 +137,13 @@ export function ValidatorEncomendaQuantidadeGarrafasEspeciais(caixas: Caixa[], g
 }
 
 // Validator que verifica se a caixa esta devidamente preenchida
-export function ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida(caixas: Caixa[]): ValidatorFn{
+export function ValidatorEncomendaQuantidadeGarrafasEspeciaisPreenchida(caixas: CaixaEVinho[]): ValidatorFn{
     return (control: AbstractControl): { [key: string]: boolean } | null => {        
         const quantidade = control.get('quantidadeGarrafa').value;
         if (control.parent == undefined) return { 'Waiting': true }
         const linhaAtualModelo = control.parent.parent;
         const idCaixa = linhaAtualModelo.get('caixa').value;
-        var caixa: Caixa = caixas.find(x => x.ID == idCaixa);
+        var caixa: CaixaEVinho = caixas.find(x => x.ID == idCaixa);
         if (caixa == undefined) return { 'WaitingModeloGarrafa': true }  
         var quantidadeGarrafas: number = 0;
         const linhaGarrafa = <FormArray>control.parent;

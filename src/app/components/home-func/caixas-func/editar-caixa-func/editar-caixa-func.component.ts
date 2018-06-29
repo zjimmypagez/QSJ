@@ -8,8 +8,6 @@ import { RegistoCaixa, RegistoCaixaComentario } from '../../../../interfaces/reg
 import { Caixa, CaixaEVinho } from '../../../../interfaces/caixa';
 import { TipoVinho } from '../../../../interfaces/tipoVinho';
 
-import { JoinTablesService } from '../../../../services/funcoes-service/join-tables.service';
-
 import { ValidatorComentario } from '../../../../validators/validator-caixas';
 
 import { RegistoCaixaService } from '../../../../services/registo-caixa/registo-caixa.service';
@@ -44,7 +42,6 @@ export class EditarCaixaFuncComponent implements OnInit, OnDestroy {
 		private route: ActivatedRoute, 
 		private router: Router, 
 		private fb: FormBuilder, 
-		private joinTableService: JoinTablesService,
 		private registoService: RegistoCaixaService,
 		private caixaService: CaixaServiceService 
 	) { }

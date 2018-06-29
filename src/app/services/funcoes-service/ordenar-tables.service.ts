@@ -17,13 +17,28 @@ export class OrdenarTablesService {
 		return tabelaOrdenada;
 	}
 
-	// Ordenar array registos por data
+	// Ordenar array registos por data - registos caixa e garrafa
 	ordenarTabelaData(tabela: any[]): any[]{
 		var tabelaOrdenada: any[] = [];
 		tabelaOrdenada = tabela.sort(
 			function(obj1, obj2){
 				var dataObj1 = new Date(obj1.Data);
 				var dataObj2 = new Date(obj2.Data);
+				if (dataObj1 > dataObj2) return -1;
+				if (dataObj1 < dataObj2) return 1;
+				return 0;
+			}
+		);
+		return tabelaOrdenada;
+	}
+
+	// Ordenar array registos por data - registos encomendas
+	ordenarTabelaDataV1(tabela: any[]): any[]{
+		var tabelaOrdenada: any[] = [];
+		tabelaOrdenada = tabela.sort(
+			function(obj1, obj2){
+				var dataObj1 = new Date(obj1._Data);
+				var dataObj2 = new Date(obj2._Data);
 				if (dataObj1 > dataObj2) return -1;
 				if (dataObj1 < dataObj2) return 1;
 				return 0;

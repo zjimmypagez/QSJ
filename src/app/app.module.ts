@@ -10,7 +10,6 @@ import { AppRoutingModule } from "./app-routing.module";
 
 // Services
 import { FiltrosService } from "./services/funcoes-service/filtros.service";
-import { JoinTablesService } from "./services/funcoes-service/join-tables.service";
 import { OrdenarTablesService } from "./services/funcoes-service/ordenar-tables.service";
 
 // Services - API
@@ -22,6 +21,7 @@ import { AuthService } from "./services/auth/auth.service";
 import { RecuperarService } from "./services/mail/recuperar.service";
 import { RegistoGarrafaService } from "./services/registo-garrafa/registo-garrafa.service";
 import { RegistoCaixaService } from "./services/registo-caixa/registo-caixa.service";
+import { EncomendaService } from "./services/encomenda/encomenda.service";
 
 // Guards - Routing
 import { AuthGuardsAdminService } from "./guards/auth-guards-admin.service";
@@ -111,7 +111,6 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
     ],
     providers: [
         FiltrosService,
-        JoinTablesService,
         OrdenarTablesService,
         UserServiceService,
         VinhoServiceService,
@@ -123,7 +122,8 @@ import { VerEncomendaFuncComponent } from './components/home-func/encomendas-fun
         AuthGuardsHomeService,
         RecuperarService,
         RegistoGarrafaService,
-        RegistoCaixaService
+        RegistoCaixaService,
+        EncomendaService
     ],
     bootstrap: [AppComponent]
 })

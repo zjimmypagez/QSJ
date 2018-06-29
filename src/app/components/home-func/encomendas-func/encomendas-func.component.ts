@@ -1,32 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from "@angular/forms";
 import { Router } from '@angular/router';
+import { Observable } from "rxjs/observable";
+import { Subscription } from 'rxjs/Subscription';
 
 import { User } from '../../../interfaces/user';
-import { Encomenda } from '../../../interfaces/encomenda';
+import { Encomenda, EncomendaEUser } from '../../../interfaces/encomenda';
 
-import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
+
+import { EncomendaService } from '../../../services/encomenda/encomenda.service';
 
 @Component({
 	selector: 'app-encomendas-func',
 	templateUrl: './encomendas-func.component.html',
 	styleUrls: ['./encomendas-func.component.css']
 })
-export class EncomendasFuncComponent implements OnInit {
+export class EncomendasFuncComponent implements OnInit, OnDestroy {
 	FiltroForm: FormGroup;
 	// Dados Filtro	
 	estadoTabela: boolean = true;  
-	// Tabela auxiliar
-	tabelaFiltro: tableEncomenda[] = [];	
-	// Lista de utilizadores a ler da BD
-	users: User[];
-	// Lista de encomendas a ler da BD
-  	encomendas: Encomenda[];
-  	// Tabela interligada entre utilizadores caixas e encomendas
-	tabelaEncomendas: tableEncomenda[];
+	// Tabela auxiliar no processo de filtragem
+	encomendasEUserFiltro: EncomendaEUser[] = [];
+  	// Lista de encomendas a ler da BD
+	encomendasEUser: EncomendaEUser[] = [];	
+	// Lista auxiliar total de encomendas a ler da BD
+	encomendasEUserAux: EncomendaEUser[];
 
-	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private joinTableService: JoinTablesService ) { 
+	private subEncomendaEUser: Subscription;
+
+	constructor( 
+		private router: Router, 
+		private fb: FormBuilder, 
+		private filtroService: FiltrosService, 
+		private ordenarService: OrdenarTablesService,
+		private encomendaService: EncomendaService 
+	) { 
 		this.FiltroForm = fb.group({
 			'estado': [0, ],
 			'nFatura': ['', Validators.required]
@@ -34,60 +44,26 @@ export class EncomendasFuncComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		//this.iniListaUsers();
-		this.iniListaEncomendas();
-		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
+		this.getEncomendaEUsers();
 	}
 
-	// Filtrar segundo pesquisa
-	filtrar(form){
-		var nFatura = form.nFatura;
-		if (nFatura != ''){
-			if (form.estado != 0){
-				if (this.tabelaFiltro.length != 0) this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaFiltro, nFatura);
-				else this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
+	ngOnDestroy(){
+		this.subEncomendaEUser.unsubscribe();
+	}
+	
+	// Subcrição do service EncomendaService e obtenção dos dados de todos as encomendas provenientes da BD
+	getEncomendaEUsers(){
+		this.subEncomendaEUser = this.encomendaService.getEncomendaEUsers().subscribe(
+			data => { 
+				this.encomendasEUser = data;
+				this.encomendasEUserAux = data;
+			},
+			err => console.error(err),
+			() => {
+				this.ordenarService.ordenarTabelaDataV1(this.encomendasEUser);
+				this.ordenarService.ordenarTabelaDataV1(this.encomendasEUserAux);
 			}
-			else{
-				this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
-				this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, nFatura);
-			}
-			if (this.tabelaEncomendas.length == 0){
-				this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
-				this.estadoTabela = false;
-			}
-			else this.estadoTabela = true;
-		}
-	}
-
-	// Filtros
-	onChange(){
-		var filtro: any = this.FiltroForm.value;
-		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
-		if (filtro.nFatura != "") this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, filtro.nFatura);
-		if (filtro.estado != 0){
-			this.tabelaFiltro = this.filtroService.filtroEstado(filtro, this.tabelaEncomendas);
-			this.tabelaEncomendas = this.tabelaFiltro;
-			if (this.tabelaEncomendas.length == 0) this.estadoTabela = false;
-			else this.estadoTabela = true;
-		}
-		else{
-			if (filtro.nFatura != "") this.tabelaEncomendas = this.filtroService.pesquisaNFatura(this.tabelaEncomendas, filtro.nFatura);
-			else this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
-			this.tabelaFiltro = [];
-			this.estadoTabela = true;
-		}
-	}
-
-	// Clear Tabela
-	clearTabela(){
-		this.tabelaEncomendas = this.joinTableService.iniListaTableEncomenda(this.users, this.encomendas);
-		this.estadoTabela = true;
-		this.clearForm();
-	}
-
-	// Limpar Form
-	clearForm(){
-		this.FiltroForm.controls['nFatura'].reset('');
+		);
 	}
 
 	// Função responsável por selecionar a encomenda a ser visualizada
@@ -99,59 +75,62 @@ export class EncomendasFuncComponent implements OnInit {
    editarEncomenda(id: number){
 		this.router.navigate(['/func/encomendas/editar', id]);
 	}
-	
-	// Função responsável por eliminar a encomenda selecionada
-	eliminarEncomenda(id: number){
-		// Ver, na BD, se é possivel apagar a encomenda selecionada
+
+	// Filtrar segundo pesquisa
+	filtrar(form){
+		var nFatura = form.nFatura;
+		if (nFatura != ''){
+			if (form.estado != 0){
+				if (this.encomendasEUserFiltro.length != 0) this.encomendasEUser = this.filtroService.pesquisaNFatura(this.encomendasEUserFiltro, nFatura);
+				else this.encomendasEUser = this.filtroService.pesquisaNFatura(this.encomendasEUser, nFatura);
+			}
+			else{
+				this.reloadEncomendaEUser();
+				this.encomendasEUser = this.filtroService.pesquisaNFatura(this.encomendasEUser, nFatura);
+			}
+			if (this.encomendasEUser.length == 0){
+				this.reloadEncomendaEUser();
+				this.estadoTabela = false;
+			}
+			else this.estadoTabela = true;
+		}
 	}
 
-	// Dados criados (A ser subsituido pela ligação à BD)
-	/*iniListaUsers(){
-		this.users = [{
-			id: 1,
-			email: 'user1@gmail.com',
-			username: 'user1',
-			password: '123456'
-		},
-		{
-			id: 2,
-			email: 'user2@gmail.com',
-			username: 'user2',
-			password: '123456'
-		}];
-	}*/
-
-	// Dados criados (A ser subsituido pela ligação à BD)
-	iniListaEncomendas(){
-		this.encomendas = [{
-			id: 1,
-			idUser: 2,
-			data: new Date(2017, 4, 2),
-			dataFinal: null,
-			nFatura: 11568920,
-			comentario: 'Restaurante XPTO',
-			estado: false // false - Em espera; true - Finalizado
-		 },
-		 {
-			id: 2,
-			idUser: 1,
-			data: new Date(2012, 3, 25),
-			dataFinal: new Date(2012, 4, 25),
-			nFatura: 25134859,
-			comentario: '',
-			estado: true
-		 }];
+	// Filtros
+	onChange(){
+		var filtro: any = this.FiltroForm.value;
+		this.reloadEncomendaEUser();
+		if (filtro.nFatura != "") this.encomendasEUser = this.filtroService.pesquisaNFatura(this.encomendasEUser, filtro.nFatura);
+		if (filtro.estado != 0){
+			this.encomendasEUserFiltro = this.filtroService.filtroEstado(filtro, this.encomendasEUser);
+			this.encomendasEUser = this.encomendasEUserFiltro;
+			if (this.encomendasEUser.length == 0) this.estadoTabela = false;
+			else this.estadoTabela = true;
+		}
+		else{
+			if (filtro.nFatura != "") this.encomendasEUser = this.filtroService.pesquisaNFatura(this.encomendasEUser, filtro.nFatura);
+			else this.reloadEncomendaEUser();
+			this.encomendasEUserFiltro = [];
+			this.estadoTabela = true;
+		}
 	}
 
-}
+	// Clear Tabela
+	clearTabela(){
+		this.reloadEncomendaEUser();
+		this.estadoTabela = true;
+		this.clearForm();
+	}
 
-// Interface que interliga 2 tabelas = User + Encomenda 
-interface tableEncomenda{
-	id: number,
-	username: string,
-	data: Date,
-	dataFinal: Date,
-	nFatura: number,
-	comentario: string,
-	estado: boolean
+	// Limpar Form
+	clearForm(){
+		this.FiltroForm.controls['nFatura'].reset('');
+	}
+
+	// Recarregamento de todos as garrafas
+	reloadEncomendaEUser(){
+		this.encomendasEUser = [];
+		this.encomendasEUser = this.encomendasEUserAux;
+	}
+
 }

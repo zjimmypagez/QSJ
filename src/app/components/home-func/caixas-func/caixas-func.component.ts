@@ -8,7 +8,6 @@ import { Caixa, CaixaVinhoRegistoEUser } from '../../../interfaces/caixa';
 import { RegistoCaixa } from '../../../interfaces/registoCaixa';
 import { TipoVinho } from '../../../interfaces/tipoVinho';
 
-import { JoinTablesService } from '../../../services/funcoes-service/join-tables.service';
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
 import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
@@ -45,7 +44,6 @@ export class CaixasFuncComponent implements OnInit, OnDestroy {
 		private router: Router, 
 		private fb: FormBuilder, 
 		private filtroService: FiltrosService, 
-		private joinTableService: JoinTablesService,
 		private vinhoService: VinhoServiceService,
 		private caixaService: CaixaServiceService,
 		private ordenarService: OrdenarTablesService
