@@ -19,7 +19,7 @@
         <th>ANO</th>
         <th>CUBA</th>
         <th>QUANTIDADE CAIXAS</th>
-        <th>QUANTIADDE GARRAFAS</th>
+        <th>QUANTIDADE GARRAFAS</th>
 			</tr>
 			<tr *ngFor="let normais of encomendaTipoCaixaNormais | paginate: { id: 'caixasNormal', itemsPerPage: 10, currentPage: p }">
 				<td>{{normais.Marca}}</td>
@@ -30,7 +30,7 @@
 				<td>{{normais.Ano}}</td>
 				<td>{{normais.Pipa}}</td>
         <td>{{normais.QuantidadeCaixa}}</td>
-				<td>{{normais.Quantidade}}</td>
+				<td>{{normais.Quantidade * normais.QuantidadeCaixa}}</td>
 			</tr>
 		</table>
 	</div>
@@ -59,7 +59,7 @@
 				<td>{{especiais.Ano}}</td>
 				<td>{{especiais.Pipa}}</td>
         <td>{{especiais.QuantidadeCaixa}}</td>
-				<td>{{especiais.Quantidade}}</td>
+				<td>{{especiais.Quantidade * especiais.QuantidadeCaixa}}</td>
 			</tr>
 		</table>
 	</div>

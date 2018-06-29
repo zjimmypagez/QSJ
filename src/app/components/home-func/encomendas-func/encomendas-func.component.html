@@ -36,10 +36,13 @@
         <td>{{encomendas.Comentario}}</td>
         <td>{{encomendas.Estado == 1 ? "Entregue" : "Em Espera"}}</td>
         <td>
-          <div class="encomenda-action-btn">
+          <div class="encomenda-action-btn" *ngIf="encomendas.Estado == 0">
             <a class="btn" (click)="verEncomenda(encomendas.Id)">Ver</a>
-            <a class="btn" (click)="editarEncomenda(encomendas.Id)">Editar</a>
+            <a class="btn" (click)="eliminarEncomenda(encomendas.Id)">Eliminar</a>
           </div>
+          <div class="action-btn" *ngIf="encomendas.Estado == 1">
+            <a class="btn" (click)="verEncomenda(encomendas.Id)">Ver</a>
+         </div>
         </td>
        </tr>
       </table>

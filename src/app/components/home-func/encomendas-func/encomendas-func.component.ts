@@ -66,14 +66,28 @@ export class EncomendasFuncComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	// Eliminar encomenda por Id e recarregamento dos dados de todas as encomendas provenientes da BD
+	deleteEncomendaById(id: number){
+		const deleteEncomenda = this.encomendaService.deleteEncomendaById(id).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("A encomenda foi eliminada com sucesso!");
+					this.getEncomendaEUsers();				
+				}, 500);
+			}
+		);		
+	}
+
 	// Função responsável por selecionar a encomenda a ser visualizada
 	verEncomenda(id: number){
 		this.router.navigate(['/func/encomendas/ver', id]);
 	}
 
-	// Função responsável por selecionar a encomenda a ser editada
-   editarEncomenda(id: number){
-		this.router.navigate(['/func/encomendas/editar', id]);
+	// Função responsável por selecionar a encomenda a ser eliminada
+   eliminarEncomenda(id: number){
+		if (confirm("Quer mesmo eliminar esta encomenda?")) this.deleteEncomendaById(id);
 	}
 
 	// Filtrar segundo pesquisa

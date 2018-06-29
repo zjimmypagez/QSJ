@@ -80,6 +80,20 @@ export class VerEncomendaFuncComponent implements OnInit, OnDestroy {
 		);
 	}
 
+	// Eliminar encomenda por Id e recarregamento dos dados de todas as encomendas provenientes da BD
+	deleteEncomendaById(id: number){
+		const deleteEncomenda = this.encomendaService.deleteEncomendaById(id).subscribe(
+			data => data,
+			err => console.error(err),
+			() => {
+				setTimeout(() => {
+					alert("A encomenda foi eliminada com sucesso!");
+					this.router.navigate(['/func/encomendas']);			
+				}, 500);
+			}
+		);		
+	}
+
 	// Editar uma encomenda selecionado
 	editarEncomenda(editEncomenda){
 		const editRegistoGarrafas = this.encomendaService.editEncomenda(editEncomenda).subscribe(
@@ -97,18 +111,21 @@ export class VerEncomendaFuncComponent implements OnInit, OnDestroy {
 	// Entregar Encomenda
 	entregarEncomenda(){
 		if (this.encomenda.NFatura == "") var novoNFatura = prompt("Número da Fatura:");
-		var editEncomenda: EncomendaAlterar = {
-			Id: this.id,
-			Estado: 1,
-			NFatura: novoNFatura,
-			DataEntrega: new Date().toISOString().slice(0, 19).replace('T', ' ')
+		if (novoNFatura == null || novoNFatura == "") alert("Nº Fatura é necessário para finalizar uma encomenda!");
+		else{
+			var editEncomenda: EncomendaAlterar = {
+				Id: this.id,
+				Estado: 1,
+				NFatura: novoNFatura,
+				DataEntrega: new Date().toISOString().slice(0, 19).replace('T', ' ')
+			}
+			this.editarEncomenda(editEncomenda);
 		}
-		this.editarEncomenda(editEncomenda);
 	}
 
 	// Eliminar Encomenda
 	eliminarEncomenda(){
-
+		if (confirm("Quer mesmo eliminar esta encomenda?")) this.deleteEncomendaById(this.id);
 	}
 
 }

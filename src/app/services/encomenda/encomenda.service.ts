@@ -44,5 +44,10 @@ export class EncomendaService {
 		return this.http.put(this.apiName + '/' + editEncomenda.Id, body, httpOptions)
 	}
 
+	// Eliminar encomenda - por ID
+	deleteEncomendaById(id: number){
+		return this.http.delete(this.apiName + '/' + id);
+	}
+
 
 }
