@@ -129,7 +129,7 @@
 					<div class="itemFormTabelaCaixasNormais">
 						<select formControlName="caixa" (change)="onChangeModeloCaixa(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of caixasEVinhos" [ngValue]="caixa.ID"> {{caixa.ID}} </option>
+							<option *ngFor="let caixa of caixasEVinhosAux" [ngValue]="caixa.ID"> {{caixa.ID}} </option>
 						</select>
 						<div class="alerta itemCaixa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa
@@ -172,7 +172,7 @@
 					<div class="itemFormCaixaQuantidade">
 						<select class="itemFormCaixa" formControlName="caixa" (change)="onChangeModeloCaixaEspecial(i)">
 							<option value="" disabled>Modelos Caixa</option>
-							<option *ngFor="let caixa of caixasEVinhos" [ngValue]="caixa.ID">{{caixa.ID}}</option>
+							<option *ngFor="let caixa of caixasEVinhosAux" [ngValue]="caixa.ID">{{caixa.ID}}</option>
 						</select>									
 						<div class="alerta itemGarrafa" *ngIf="linha.controls['caixa'].hasError('required') && linha.controls['caixa'].touched">
 							Selecione um Modelo de Caixa

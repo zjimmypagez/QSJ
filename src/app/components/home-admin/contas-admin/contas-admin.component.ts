@@ -8,6 +8,7 @@ import { User } from '../../../interfaces/user';
 
 import { FiltrosService } from '../../../services/funcoes-service/filtros.service';
 import { UserServiceService } from '../../../services/user/user-service.service';
+import { OrdenarTablesService } from '../../../services/funcoes-service/ordenar-tables.service';
 
 @Component({
 	selector: 'app-contas-admin',
@@ -24,7 +25,13 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 
 	private subUser: Subscription;
 
-  	constructor( private router: Router, private fb: FormBuilder, private filtroService: FiltrosService, private userService: UserServiceService ) { 
+	  constructor( 
+		  private router: Router, 
+		  private fb: FormBuilder, 
+		  private filtroService: FiltrosService, 
+		  private userService: UserServiceService,
+		  private ordenarService: OrdenarTablesService
+		) { 
 		this.FiltroForm = fb.group({
 			'username': ['', Validators.required] 
 		});
@@ -45,22 +52,27 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 				this.users = data; 
 				this.usersAux = data 
 			},
-			err => console.error(err)
+			err => console.error(err),
+			() => {
+				this.users = this.ordenarService.ordenarTabelaUsername(this.users);
+				this.users = this.users.filter(x => x.Username != "Ex-funcionário");
+				this.usersAux = this.users;
+			}
 		);
 	}
 
-	// Eliminar utilizador por Id e recarregamento dos dados de todos os utilizadores provenientes da BD
-	deleteUserById(id: number){
-		const deleteUser = this.userService.deleteUserById(id).subscribe(
+	// Editar um utilizador selecionado
+	editUser(editUser){
+		const editUsers = this.userService.editUser(editUser).subscribe(
 			data => data,
 			err => console.error(err),
 			() => {
 				setTimeout(() => {
-					alert("O utilizador foi eliminado com sucesso!");
-					this.getUsers();					
-				}, 500);
+					alert("O Utilizador foi eliminado com sucesso!");
+					this.router.navigate(['/admin/contas']);					
+				}, 500);				
 			}
-		);		
+		);
 	}
 
 	// Função responsável por selecionar o utilizador a ser editado
@@ -70,12 +82,14 @@ export class ContasAdminComponent implements OnInit, OnDestroy {
 
 	// Responsável por eliminar um utilizador selecionado após verificações
 	eliminarUser(id: number){
-		// Variavel que determina se um utilizador pode ser eliminado
-		var estadoUser: boolean = true;
-		// Verificar junto dos registo se existem registos feitos por o utilizador a eliminar
-		if (estadoUser){
-			if (confirm("Quer mesmo eliminar este utilizador?")) this.deleteUserById(id);
+		var userEdit: User = {
+			Id: id,
+			Email: "",
+			Username: "Ex-funcionário",
+			_Password: "",
+			TipoUtilizador: 1
 		}
+		if (confirm("Quer mesmo eliminar este utilizador?")) this.editUser(userEdit);
 	}
 
 	// Pesquisa a um determinado username

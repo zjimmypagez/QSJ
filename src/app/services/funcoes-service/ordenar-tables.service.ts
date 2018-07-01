@@ -2,6 +2,19 @@ import { Injectable } from '@angular/core';
 
 @Injectable()
 export class OrdenarTablesService {	
+	// Ordenar array users por username
+	ordenarTabelaUsername(tabela: any[]): any[]{
+		var tabelaOrdenada: any[] = [];
+		tabelaOrdenada = tabela.sort(
+			function(obj1, obj2){
+				if (obj1.Username > obj2.Username) return 1;
+				if (obj1.Username < obj2.Username) return -1;
+				return 0;
+			}
+		);
+		return tabelaOrdenada;
+	}
+
 	// Ordenar array caixas/garrafas por Marca e tipo vinho
 	ordenarTabelaMV(tabela: any[]): any[]{
 		var tabelaOrdenada: any[] = [];

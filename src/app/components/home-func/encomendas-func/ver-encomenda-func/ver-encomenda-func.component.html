@@ -1,10 +1,10 @@
 <div class="container" *ngIf="encomenda">
 	<h1 class="itemTitulo">Ver Registo - Encomendas</h1>
 	<div>
-		<h4>Data de Registo: {{encomenda._Data.slice(0, 19).replace('T', ' ')}}</h4>
-		<h4 *ngIf="encomenda.DataEntrega != null">Data de Entrega: {{encomenda.DataEntrega.slice(0, 19).replace('T', ' ')}}</h4>
-		<h4 *ngIf="encomenda.NFatura != ''">Nº Fatura: {{encomenda.NFatura}}</h4>
-		<h4 *ngIf="encomenda.Comentario != ''">Comentário: {{encomenda.Comentario}}</h4>
+		<h4><strong>Data de Registo</strong><h4 style="text-transform: none; font-size: 0.6rem;">{{encomenda._Data.slice(0, 19).replace('T', ' ')}}</h4></h4>
+		<h4 *ngIf="encomenda.DataEntrega != null"><strong>Data de Entrega</strong><h4 style="text-transform: none; font-size: 0.6rem;">{{encomenda.DataEntrega.slice(0, 19).replace('T', ' ')}}</h4></h4>
+		<h4 *ngIf="encomenda.NFatura != ''"><strong>Nº Fatura</strong><h4 style="text-transform: none; font-size: 0.6rem;">{{encomenda.NFatura}}</h4></h4>
+		<h4 *ngIf="encomenda.Comentario != ''"><strong>Comentário</strong><h4 style="text-transform: none; font-size: 0.6rem;">{{encomenda.Comentario}}</h4></h4>
 		<br>
 	</div>
   <h4 *ngIf="encomendaTipoCaixaNormais.length > 0">Caixas Normais Encomendadas</h4>

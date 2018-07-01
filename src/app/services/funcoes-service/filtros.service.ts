@@ -5,19 +5,19 @@ export class FiltrosService {
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa da marca do vinho
 	pesquisaMarca(tabela: any[], marca: string): any[]{
-		var tabelaMarca: any[] = tabela.filter(x => x.Marca.toUpperCase() == marca.toUpperCase());
+		var tabelaMarca: any[] = tabela.filter(x => x.Marca.toUpperCase().includes(marca.toUpperCase()));
 		return tabelaMarca;
 	}
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa do num de fatura de uma encomenda
 	pesquisaNFatura(tabela: any[], nFatura: number): any[]{
-		var tabelaNFatura: any[] = tabela.filter(x => x.nFatura == nFatura);
+		var tabelaNFatura: any[] = tabela.filter(x => x.NFatura.includes(nFatura));
 		return tabelaNFatura;
 	}
 
 	// Função utilizada para retornar uma tabela a partir da pesquisa do username de utilizador
 	pesquisaUsername(tabela: any[], username: string): any[]{
-		var tabelaUsername: any[] = tabela.filter(x => x.Username == username);
+		var tabelaUsername: any[] = tabela.filter(x => x.Username.toUpperCase().includes(username.toUpperCase()));
 		return tabelaUsername;
 	}
 

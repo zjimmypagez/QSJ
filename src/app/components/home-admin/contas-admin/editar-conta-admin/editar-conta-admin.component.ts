@@ -111,8 +111,8 @@ export class EditarContaAdminComponent implements OnInit, OnDestroy {
 	resetForm(user: User){
 		this.UserForm.controls['email'].setValue(user.Email);
 		this.UserForm.controls['username'].setValue(user.Username);
-		this.UserForm.controls['password'].setValue(user._Password);
-		this.UserForm.controls['cPassword'].setValue(user._Password);
+		this.UserForm.controls['password'].setValue("");
+		this.UserForm.controls['cPassword'].setValue("");
 	}
 
 }

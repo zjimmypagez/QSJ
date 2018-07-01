@@ -396,6 +396,7 @@ export class InserirEncomendaFuncComponent implements OnInit, OnDestroy {
 	onChangeModeloCaixa(index: number){	
 		const linhaCaixa = <FormArray>this.DadosCaixaForm.get('linhaCaixas');
 		var id = linhaCaixa.at(index).get('caixa').value;
+		console.log(this.caixasEVinhosAux);
 		var modeloCaixa: CaixaEVinho = this.caixasEVinhos.find(x => x.ID == id);
 		var listaGarrafas: GarrafaEVinho[] = this.garrafasEVinhos.filter(
 			x => x.Capacidade === modeloCaixa.CapacidadeGarrafa && 
